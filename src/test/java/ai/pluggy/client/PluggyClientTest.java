@@ -1,7 +1,7 @@
 package ai.pluggy.client;
 
 import ai.pluggy.exception.PluggyException;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class PluggyClientTest {
     private static final String CLIENT_ID = "906a15c0-fdde-4dc5-9a23-df44455e1fb4";
@@ -10,6 +10,7 @@ public class PluggyClientTest {
     @Test
     public void shouldAuthenticateAPI() throws PluggyException {
         PluggyClient pluggy = new PluggyClient(CLIENT_ID, CLIENT_SECRET);
+
     }
 
 }
