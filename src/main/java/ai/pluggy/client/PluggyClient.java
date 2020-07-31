@@ -1,7 +1,7 @@
 package ai.pluggy.client;
 
+import ai.pluggy.client.response.AuthResponse;
 import ai.pluggy.exception.PluggyException;
-import ai.pluggy.model.AuthResponse;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
