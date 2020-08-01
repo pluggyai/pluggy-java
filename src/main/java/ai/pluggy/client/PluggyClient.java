@@ -153,7 +153,7 @@ public final class PluggyClient {
   /**
    * GET /connectors request - retrieve all results
    *
-   * @return connectorResponse
+   * @return connectorsResponse
    */
   public ConnectorsResponse getConnectors() throws IOException {
     return getConnectors(new ConnectorsSearchRequest());
@@ -163,7 +163,7 @@ public final class PluggyClient {
    * GET /connectors request with search params
    *
    * @param connectorSearch - search params such as "name", "countries" and "types"
-   * @return connectorResponse
+   * @return connectorsResponse
    */
   public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
     throws IOException {
