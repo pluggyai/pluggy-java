@@ -1,6 +1,6 @@
 # Pluggy Java
 
-Java Bindings for the Pluggy API (https://docs.pluggy.ai).
+Java Bindings for the Pluggy API (https://docs.pluggy.ai/).
 
 For available SDK API methods, check [PluggyApiService](./src/main/java/ai/pluggy/client/pluggy/client/PluggyApiService.java) interface methods.
 
