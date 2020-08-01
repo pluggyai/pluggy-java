@@ -182,10 +182,7 @@ public final class PluggyClient {
 
     try (Response response = this.httpClient.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw new PluggyException(
-          "Pluggy GET connectors request failed, status: " + response.code() + ", message: "
-            + response
-            .message());
+        throw new PluggyException("Pluggy GET connectors request failed", response);
       }
       ResponseBody responseBody = response.body();
       Asserts.assertNotNull(responseBody, "response.body()");
