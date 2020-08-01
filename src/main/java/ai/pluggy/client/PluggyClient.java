@@ -16,9 +16,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public final class PluggyClient {
+
+  private static final Logger logger = LogManager.getLogger(PluggyClient.class);
+  private static final long API_KEY_EXPIRE_TIME = 2 * 60 * 1000; // api key expires in 2 hours
 
   private String baseUrl = "https://api.pluggy.ai";
   private String authUrl = this.baseUrl + "/auth";
@@ -27,6 +32,7 @@ public final class PluggyClient {
   private String clientSecret;
 
   private String apiKey;
+  private Date apiKeyExpireDate;
   private OkHttpClient httpClient;
 
   /**
@@ -136,5 +142,25 @@ public final class PluggyClient {
       authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
     }
     this.apiKey = authResponse.getApiKey();
+    this.apiKeyExpireDate = new Date(new Date().getTime() + API_KEY_EXPIRE_TIME);
+  }
+
+  /**
+   * Helper method that retrieves/refreshes API key if not present or expired.
+   */
+  private void ensureAuthenticated() throws IOException {
+    Date now = new Date();
+
+    if (this.apiKey == null) {
+      logger.info("Not authenticated, authenticating first...");
+      this.authenticate();
+      logger.info("Auth OK!");
+      return;
+    }
+    if (now.getTime() > this.apiKeyExpireDate.getTime()) {
+      logger.info("API key expired, requesting a new token...");
+      this.authenticate();
+      logger.info("Auth Token refresh OK!");
+    }
   }
 }
