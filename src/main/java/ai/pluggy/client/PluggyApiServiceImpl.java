@@ -14,14 +14,24 @@ import okhttp3.ResponseBody;
 
 public class PluggyApiServiceImpl implements PluggyApiService {
 
-  private String baseUrl;
   private String getConnectorsUrlPath = "/connectors";
 
   private PluggyClient pluggyClient;
 
-  public PluggyApiServiceImpl(PluggyClient pluggyClient, String baseUrl) {
+  public PluggyApiServiceImpl(PluggyClient pluggyClient) {
     this.pluggyClient = pluggyClient;
-    this.baseUrl = baseUrl;
+  }
+
+  private Request.Builder baseRequestBuilder(String pathString) {
+    String url = this.pluggyClient.getBaseUrl() + (pathString != null ? pathString : "");
+    return new Request.Builder()
+      .url(url)
+      .addHeader("content-type", "application/json")
+      .addHeader("x-api-key", pluggyClient.getApiKey());
+  }
+
+  private Request.Builder baseRequestBuilder() {
+    return baseRequestBuilder(null);
   }
 
   /**
@@ -46,13 +56,7 @@ public class PluggyApiServiceImpl implements PluggyApiService {
     pluggyClient.ensureAuthenticated();
 
     String queryString = formatQueryParams(connectorSearch);
-    String urlString = this.baseUrl + this.getConnectorsUrlPath + queryString;
-
-    Request request = new Request.Builder()
-      .url(urlString)
-      .addHeader("content-type", "application/json")
-      .addHeader("x-api-key", pluggyClient.getApiKey())
-      .build();
+    Request request = baseRequestBuilder(this.getConnectorsUrlPath + queryString).build();
 
     ConnectorsResponse connectorsResponse;
 
