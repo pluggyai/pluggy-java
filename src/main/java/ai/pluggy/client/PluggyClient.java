@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 public final class PluggyClient {
@@ -25,12 +27,12 @@ public final class PluggyClient {
   private String clientSecret;
 
   private String apiKey;
+  private OkHttpClient httpClient;
 
   /**
    * Can't be instantiated directly - use PluggyClient.builder() instead.
    */
   private PluggyClient() {
-
   }
 
   public static PluggyClientBuilder builder() {
@@ -49,15 +51,38 @@ public final class PluggyClient {
     this.baseUrl = baseUrl;
   }
 
+  public void setHttpClient(OkHttpClient httpClient) {
+    this.httpClient = httpClient;
+  }
+
   /**
    * Provides an API to build a PluggyClient instance while ensuring all parameters are defined and valid.
    */
   public static class PluggyClientBuilder {
 
     private static String BASE_URL = "https://api.pluggy.ai";
+    private static Integer DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS = 10;
+    private static Integer DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 180;
 
     private String clientId;
     private String clientSecret;
+
+    public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
+      assertNotNull(clientId, "client id");
+      assertNotNull(clientId, "secret");
+      this.clientId = clientId;
+      this.clientSecret = clientSecret;
+      return this;
+    }
+
+    private OkHttpClient buildOkHttpClient() {
+      OkHttpClient httpClient = new OkHttpClient.Builder()
+        .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .build();
+
+      return httpClient;
+    }
 
     public PluggyClient build() {
       if (clientId == null || clientSecret == null) {
@@ -68,15 +93,9 @@ public final class PluggyClient {
       pluggyClient.setClientId(clientId);
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
-      return pluggyClient;
-    }
+      pluggyClient.setHttpClient(buildOkHttpClient());
 
-    public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
-      assertNotNull(clientId, "client id");
-      assertNotNull(clientId, "secret");
-      this.clientId = clientId;
-      this.clientSecret = clientSecret;
-      return this;
+      return pluggyClient;
     }
   }
 
@@ -86,7 +105,6 @@ public final class PluggyClient {
         "Invalid state, both clientId and clientSecret must be defined!");
     }
 
-    OkHttpClient client = new OkHttpClient();
     Map<String, String> parameters = new HashMap<>();
     parameters.put("clientId", clientId);
     parameters.put("clientSecret", clientSecret);
@@ -106,14 +124,16 @@ public final class PluggyClient {
 
     AuthResponse authResponse;
 
-    try (Response response = client.newCall(request).execute()) {
+    try (Response response = this.httpClient.newCall(request).execute()) {
       if (!response.isSuccessful()) {
         throw new PluggyException(
           "Pluggy Auth request failed, status: " + response.code() + ", message: " + response
             .message());
       }
 
-      authResponse = gson.fromJson(response.body().string(), AuthResponse.class);
+      ResponseBody responseBody = response.body();
+      assertNotNull(responseBody, "response.body()");
+      authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
     }
     this.apiKey = authResponse.getApiKey();
   }
