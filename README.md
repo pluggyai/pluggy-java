@@ -1,6 +1,6 @@
 # pluggy-java
 
-Java Bindings for the Pluggy API (https://www.plaid.com/docs).
+Java Bindings for the Pluggy API (https://docs.pluggy.ai/).
 
 ### Install
 

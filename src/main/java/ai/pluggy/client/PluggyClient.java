@@ -184,4 +184,57 @@ public final class PluggyClient {
     return this.service;
   }
 
+  /**
+   * GET /connectors request with search params
+   *
+   * @param connectorSearch - search params such as "name", "countries" and "types"
+   * @return connectorsResponse
+   */
+  public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
+    throws IOException {
+    ensureAuthenticated();
+
+    String queryString = formatQueryParams(connectorSearch);
+    String urlString = this.getConnectorsUrl + queryString;
+
+    Request request = new Request.Builder()
+      .url(urlString)
+      .addHeader("content-type", "application/json")
+      .addHeader("x-api-key", apiKey)
+      .build();
+
+    ConnectorsResponse connectorsResponse;
+
+    try (Response response = this.httpClient.newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        throw new PluggyException("Pluggy GET connectors request failed", response);
+      }
+      ResponseBody responseBody = response.body();
+      Asserts.assertNotNull(responseBody, "response.body()");
+
+      connectorsResponse = new Gson().fromJson(responseBody.string(), ConnectorsResponse.class);
+    }
+
+    return connectorsResponse;
+  }
+
+
+  /**
+   * Helper method that retrieves/refreshes API key if not present or expired.
+   */
+  private void ensureAuthenticated() throws IOException {
+    Date now = new Date();
+
+    if (this.apiKey == null) {
+      logger.info("Not authenticated, authenticating first...");
+      this.authenticate();
+      logger.info("Auth OK!");
+      return;
+    }
+    if (now.getTime() > this.apiKeyExpireDate.getTime()) {
+      logger.info("API key expired, requesting a new token...");
+      this.authenticate();
+      logger.info("Auth Token refresh OK!");
+    }
+  }
 }

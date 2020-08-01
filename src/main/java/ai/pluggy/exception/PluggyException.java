@@ -14,7 +14,7 @@ public class PluggyException extends IOException {
 
 
   public PluggyException(String message, Response response) {
-    super(message + ", status: " + response.code() + ", API message: " + response.message());
+    super(message);
     this.status = response.code();
     this.apiMessage = response.message();
   }
