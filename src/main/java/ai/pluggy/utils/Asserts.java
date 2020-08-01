@@ -1,6 +1,6 @@
 package ai.pluggy.utils;
 
-public abstract class Assertions {
+public abstract class Asserts {
 
   /**
    * Asserts that an object is not null.

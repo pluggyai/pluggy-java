@@ -1,9 +1,13 @@
 package ai.pluggy.client;
 
-import static ai.pluggy.utils.Assertions.assertNotNull;
+import static ai.pluggy.utils.Asserts.assertNotNull;
+import static ai.pluggy.utils.Utils.formatQueryParams;
 
+import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.response.AuthResponse;
+import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.exception.PluggyException;
+import ai.pluggy.utils.Asserts;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Date;
@@ -27,6 +31,7 @@ public final class PluggyClient {
 
   private String baseUrl = "https://api.pluggy.ai";
   private String authUrl = this.baseUrl + "/auth";
+  private String getConnectorsUrl = this.baseUrl + "/connectors";
 
   private String clientId;
   private String clientSecret;
@@ -144,6 +149,53 @@ public final class PluggyClient {
     this.apiKey = authResponse.getApiKey();
     this.apiKeyExpireDate = new Date(new Date().getTime() + API_KEY_EXPIRE_TIME);
   }
+
+  /**
+   * GET /connectors request - retrieve all results
+   *
+   * @return connectorResponse
+   */
+  public ConnectorsResponse getConnectors() throws IOException {
+    return getConnectors(new ConnectorsSearchRequest());
+  }
+
+  /**
+   * GET /connectors request with search params
+   *
+   * @param connectorSearch - search params such as "name", "countries" and "types"
+   * @return connectorResponse
+   */
+  public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
+    throws IOException {
+    ensureAuthenticated();
+
+    String queryString = formatQueryParams(connectorSearch);
+    String urlString = this.getConnectorsUrl + queryString;
+
+    Request request = new Request.Builder()
+      .url(urlString)
+      .addHeader("content-type", "application/json")
+      .addHeader("x-api-key", apiKey)
+      .build();
+
+    ConnectorsResponse connectorsResponse;
+
+    try (Response response = this.httpClient.newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        throw new PluggyException(
+          "Pluggy GET connectors request failed, status: " + response.code() + ", message: "
+            + response
+            .message());
+      }
+      ResponseBody responseBody = response.body();
+      Asserts.assertNotNull(responseBody, "response.body()");
+
+      connectorsResponse = new Gson().fromJson(responseBody.string(), ConnectorsResponse.class);
+    }
+
+    return connectorsResponse;
+  }
+
 
   /**
    * Helper method that retrieves/refreshes API key if not present or expired.
