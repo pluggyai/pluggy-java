@@ -63,7 +63,7 @@ public final class PluggyClient {
     this.httpClient = httpClient;
   }
 
-  public void setService(PluggyApiServiceImpl service) {
+  public void setService(PluggyApiService service) {
     this.service = service;
   }
 
@@ -118,7 +118,8 @@ public final class PluggyClient {
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
       pluggyClient.setHttpClient(buildOkHttpClient());
-      pluggyClient.setService(new PluggyApiServiceImpl(pluggyClient, BASE_URL));
+      PluggyApiService pluggyApiService = new PluggyApiServiceImpl(pluggyClient);
+      pluggyClient.setService(pluggyApiService);
 
       return pluggyClient;
     }
