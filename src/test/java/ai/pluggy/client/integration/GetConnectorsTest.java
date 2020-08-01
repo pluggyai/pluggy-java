@@ -25,7 +25,7 @@ class GetConnectorsTest {
 
   @Test
   void getConnectors_withNoParams_returnsResults() throws IOException {
-    ConnectorsResponse connectors = client.getConnectors();
+    ConnectorsResponse connectors = client.service().getConnectors();
 
     assertNotNull(connectors);
     assertNotNull(connectors.getResults());
@@ -35,16 +35,17 @@ class GetConnectorsTest {
   @Test
   void getConnectors_withParams_returnsFilteredResults() throws IOException {
     // request connectors with empty filters
-    ConnectorsResponse allConnectors = client.getConnectors(new ConnectorsSearchRequest());
+    ConnectorsResponse allConnectors = client.service()
+      .getConnectors(new ConnectorsSearchRequest());
 
     // request connectors with filters
-    ConnectorsResponse connectorsFilteredByName = client
+    ConnectorsResponse connectorsFilteredByName = client.service()
       .getConnectors(new ConnectorsSearchRequest("Pluggy"));
-    ConnectorsResponse connectorsFilteredByOneCountry = client
+    ConnectorsResponse connectorsFilteredByOneCountry = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR")));
-    ConnectorsResponse connectorsFilteredByTwoCountries = client
+    ConnectorsResponse connectorsFilteredByTwoCountries = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR")));
-    ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client
+    ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"),
         Collections.singletonList("BUSINESS_BANK")));
 

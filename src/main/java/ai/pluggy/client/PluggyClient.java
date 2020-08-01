@@ -1,13 +1,9 @@
 package ai.pluggy.client;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
-import static ai.pluggy.utils.Utils.formatQueryParams;
 
-import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.response.AuthResponse;
-import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.exception.PluggyException;
-import ai.pluggy.utils.Asserts;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Date;
@@ -30,15 +26,16 @@ public final class PluggyClient {
   private static final long API_KEY_EXPIRE_TIME = 2 * 60 * 1000; // api key expires in 2 hours
 
   private String baseUrl = "https://api.pluggy.ai";
-  private String authUrl = this.baseUrl + "/auth";
-  private String getConnectorsUrl = this.baseUrl + "/connectors";
+  private String authUrlPath = "/auth";
 
   private String clientId;
   private String clientSecret;
 
   private String apiKey;
   private Date apiKeyExpireDate;
+
   private OkHttpClient httpClient;
+  private PluggyApiService service;
 
   /**
    * Can't be instantiated directly - use PluggyClient.builder() instead.
@@ -64,6 +61,22 @@ public final class PluggyClient {
 
   public void setHttpClient(OkHttpClient httpClient) {
     this.httpClient = httpClient;
+  }
+
+  public void setService(PluggyApiServiceImpl service) {
+    this.service = service;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public String getApiKey() {
+    return apiKey;
+  }
+
+  public OkHttpClient getHttpClient() {
+    return httpClient;
   }
 
   /**
@@ -105,6 +118,7 @@ public final class PluggyClient {
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
       pluggyClient.setHttpClient(buildOkHttpClient());
+      pluggyClient.setService(new PluggyApiServiceImpl(pluggyClient, BASE_URL));
 
       return pluggyClient;
     }
@@ -127,7 +141,7 @@ public final class PluggyClient {
     RequestBody body = RequestBody.create(jsonBody, mediaType);
 
     Request request = new Request.Builder()
-      .url(this.authUrl)
+      .url(this.baseUrl + this.authUrlPath)
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
@@ -150,54 +164,14 @@ public final class PluggyClient {
     this.apiKeyExpireDate = new Date(new Date().getTime() + API_KEY_EXPIRE_TIME);
   }
 
-  /**
-   * GET /connectors request - retrieve all results
-   *
-   * @return connectorsResponse
-   */
-  public ConnectorsResponse getConnectors() throws IOException {
-    return getConnectors(new ConnectorsSearchRequest());
+  public PluggyApiService service() {
+    return this.service;
   }
-
-  /**
-   * GET /connectors request with search params
-   *
-   * @param connectorSearch - search params such as "name", "countries" and "types"
-   * @return connectorsResponse
-   */
-  public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
-    throws IOException {
-    ensureAuthenticated();
-
-    String queryString = formatQueryParams(connectorSearch);
-    String urlString = this.getConnectorsUrl + queryString;
-
-    Request request = new Request.Builder()
-      .url(urlString)
-      .addHeader("content-type", "application/json")
-      .addHeader("x-api-key", apiKey)
-      .build();
-
-    ConnectorsResponse connectorsResponse;
-
-    try (Response response = this.httpClient.newCall(request).execute()) {
-      if (!response.isSuccessful()) {
-        throw new PluggyException("Pluggy GET connectors request failed", response);
-      }
-      ResponseBody responseBody = response.body();
-      Asserts.assertNotNull(responseBody, "response.body()");
-
-      connectorsResponse = new Gson().fromJson(responseBody.string(), ConnectorsResponse.class);
-    }
-
-    return connectorsResponse;
-  }
-
 
   /**
    * Helper method that retrieves/refreshes API key if not present or expired.
    */
-  private void ensureAuthenticated() throws IOException {
+  void ensureAuthenticated() throws IOException {
     Date now = new Date();
 
     if (this.apiKey == null) {
