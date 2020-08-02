@@ -1,16 +1,15 @@
 package ai.pluggy.client;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
-import static ai.pluggy.utils.Utils.formatQueryParams;
 
-import ai.pluggy.client.request.ConnectorsSearchRequest;
+import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
+import ai.pluggy.client.auth.TokenProvider;
 import ai.pluggy.client.response.AuthResponse;
-import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.exception.PluggyException;
-import ai.pluggy.utils.Asserts;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -22,23 +21,21 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class PluggyClient {
 
   private static final Logger logger = LogManager.getLogger(PluggyClient.class);
-  private static final long API_KEY_EXPIRE_TIME = 2 * 60 * 1000; // api key expires in 2 hours
 
-  private String baseUrl = "https://api.pluggy.ai";
-  private String authUrl = this.baseUrl + "/auth";
-  private String getConnectorsUrl = this.baseUrl + "/connectors";
+  private String baseUrl;
+  private String authUrlPath = "/auth";
 
   private String clientId;
   private String clientSecret;
 
-  private String apiKey;
-  private Date apiKeyExpireDate;
   private OkHttpClient httpClient;
+  private PluggyApiService service;
 
   /**
    * Can't be instantiated directly - use PluggyClient.builder() instead.
@@ -66,33 +63,56 @@ public final class PluggyClient {
     this.httpClient = httpClient;
   }
 
+  public void setService(PluggyApiService service) {
+    this.service = service;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public OkHttpClient getHttpClient() {
+    return httpClient;
+  }
+
   /**
    * Provides an API to build a PluggyClient instance while ensuring all parameters are defined and valid.
    */
   public static class PluggyClientBuilder {
 
     private static String BASE_URL = "https://api.pluggy.ai";
+
     private static Integer DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS = 10;
     private static Integer DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 180;
 
+    private String authPath = "/auth";
     private String clientId;
     private String clientSecret;
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
       assertNotNull(clientId, "client id");
-      assertNotNull(clientId, "secret");
+      assertNotNull(clientSecret, "secret");
       this.clientId = clientId;
       this.clientSecret = clientSecret;
       return this;
     }
 
     private OkHttpClient buildOkHttpClient() {
+      String authUrlPath = BASE_URL + authPath;
+
       OkHttpClient httpClient = new OkHttpClient.Builder()
         .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .addInterceptor(
+          new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret, new TokenProvider()))
         .build();
-
       return httpClient;
+    }
+
+    private Gson buildGson() {
+      return new GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+        .create();
     }
 
     public PluggyClient build() {
@@ -100,17 +120,28 @@ public final class PluggyClient {
         throw new IllegalArgumentException("Must set a clientId and secret.");
       }
 
+      OkHttpClient httpClient = buildOkHttpClient();
+      Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .validateEagerly(true)
+        .addConverterFactory(GsonConverterFactory.create(buildGson()))
+        .client(httpClient)
+        .build();
+
+      PluggyApiService pluggyRetrofitApiService = retrofit.create(PluggyApiService.class);
+
       PluggyClient pluggyClient = new PluggyClient();
       pluggyClient.setClientId(clientId);
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
-      pluggyClient.setHttpClient(buildOkHttpClient());
+      pluggyClient.setHttpClient(httpClient);
+      pluggyClient.setService(pluggyRetrofitApiService);
 
       return pluggyClient;
     }
   }
 
-  public void authenticate() throws IOException {
+  public String authenticate() throws IOException {
     if (clientId == null || clientSecret == null) {
       throw new IllegalStateException(
         "Invalid state, both clientId and clientSecret must be defined!");
@@ -127,7 +158,7 @@ public final class PluggyClient {
     RequestBody body = RequestBody.create(jsonBody, mediaType);
 
     Request request = new Request.Builder()
-      .url(this.authUrl)
+      .url(this.baseUrl + this.authUrlPath)
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
@@ -146,70 +177,11 @@ public final class PluggyClient {
       assertNotNull(responseBody, "response.body()");
       authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
     }
-    this.apiKey = authResponse.getApiKey();
-    this.apiKeyExpireDate = new Date(new Date().getTime() + API_KEY_EXPIRE_TIME);
+    return authResponse.getApiKey();
   }
 
-  /**
-   * GET /connectors request - retrieve all results
-   *
-   * @return connectorsResponse
-   */
-  public ConnectorsResponse getConnectors() throws IOException {
-    return getConnectors(new ConnectorsSearchRequest());
+  public PluggyApiService service() {
+    return this.service;
   }
 
-  /**
-   * GET /connectors request with search params
-   *
-   * @param connectorSearch - search params such as "name", "countries" and "types"
-   * @return connectorsResponse
-   */
-  public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
-    throws IOException {
-    ensureAuthenticated();
-
-    String queryString = formatQueryParams(connectorSearch);
-    String urlString = this.getConnectorsUrl + queryString;
-
-    Request request = new Request.Builder()
-      .url(urlString)
-      .addHeader("content-type", "application/json")
-      .addHeader("x-api-key", apiKey)
-      .build();
-
-    ConnectorsResponse connectorsResponse;
-
-    try (Response response = this.httpClient.newCall(request).execute()) {
-      if (!response.isSuccessful()) {
-        throw new PluggyException("Pluggy GET connectors request failed", response);
-      }
-      ResponseBody responseBody = response.body();
-      Asserts.assertNotNull(responseBody, "response.body()");
-
-      connectorsResponse = new Gson().fromJson(responseBody.string(), ConnectorsResponse.class);
-    }
-
-    return connectorsResponse;
-  }
-
-
-  /**
-   * Helper method that retrieves/refreshes API key if not present or expired.
-   */
-  private void ensureAuthenticated() throws IOException {
-    Date now = new Date();
-
-    if (this.apiKey == null) {
-      logger.info("Not authenticated, authenticating first...");
-      this.authenticate();
-      logger.info("Auth OK!");
-      return;
-    }
-    if (now.getTime() > this.apiKeyExpireDate.getTime()) {
-      logger.info("API key expired, requesting a new token...");
-      this.authenticate();
-      logger.info("Auth Token refresh OK!");
-    }
-  }
 }

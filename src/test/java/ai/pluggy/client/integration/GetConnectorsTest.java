@@ -3,29 +3,18 @@ package ai.pluggy.client.integration;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.pluggy.client.PluggyClient;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.response.ConnectorsResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class GetConnectorsTest {
-
-  private static final String CLIENT_ID = "906a15c0-fdde-4dc5-9a23-df44455e1fb4";
-  private static final String CLIENT_SECRET = "6fc93aec-9166-417c-8363-669167a39ce4";
-  private PluggyClient client;
-
-  @BeforeEach
-  void setUp() {
-    client = PluggyClient.builder().clientIdAndSecret(CLIENT_ID, CLIENT_SECRET).build();
-  }
+class GetConnectorsTest extends BaseApiIntegrationTest {
 
   @Test
   void getConnectors_withNoParams_returnsResults() throws IOException {
-    ConnectorsResponse connectors = client.getConnectors();
+    ConnectorsResponse connectors = client.service().getConnectors().execute().body();
 
     assertNotNull(connectors);
     assertNotNull(connectors.getResults());
@@ -35,18 +24,20 @@ class GetConnectorsTest {
   @Test
   void getConnectors_withParams_returnsFilteredResults() throws IOException {
     // request connectors with empty filters
-    ConnectorsResponse allConnectors = client.getConnectors(new ConnectorsSearchRequest());
+    ConnectorsResponse allConnectors = client.service()
+      .getConnectors(new ConnectorsSearchRequest()).execute().body();
 
     // request connectors with filters
-    ConnectorsResponse connectorsFilteredByName = client
-      .getConnectors(new ConnectorsSearchRequest("Pluggy"));
-    ConnectorsResponse connectorsFilteredByOneCountry = client
-      .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR")));
-    ConnectorsResponse connectorsFilteredByTwoCountries = client
-      .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR")));
-    ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client
+    ConnectorsResponse connectorsFilteredByName = client.service()
+      .getConnectors(new ConnectorsSearchRequest("Pluggy")).execute().body();
+    ConnectorsResponse connectorsFilteredByOneCountry = client.service()
+      .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"))).execute()
+      .body();
+    ConnectorsResponse connectorsFilteredByTwoCountries = client.service()
+      .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR"))).execute().body();
+    ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"),
-        Collections.singletonList("BUSINESS_BANK")));
+        Collections.singletonList("BUSINESS_BANK"))).execute().body();
 
     int allCount = allConnectors.getResults().size();
     int byNameCount = connectorsFilteredByName.getResults().size();

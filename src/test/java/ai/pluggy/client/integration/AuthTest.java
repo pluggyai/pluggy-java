@@ -7,17 +7,11 @@ import ai.pluggy.client.PluggyClient;
 import ai.pluggy.exception.PluggyException;
 import org.junit.jupiter.api.Test;
 
-public class AuthTest {
-
-  private static final String CLIENT_ID = "906a15c0-fdde-4dc5-9a23-df44455e1fb4";
-  private static final String CLIENT_SECRET = "6fc93aec-9166-417c-8363-669167a39ce4";
+public class AuthTest extends BaseApiIntegrationTest {
 
   @Test
   public void validClientKeys_authenticate_shouldNotThrow() throws PluggyException {
-    PluggyClient pluggy = PluggyClient.builder().clientIdAndSecret(CLIENT_ID, CLIENT_SECRET)
-      .build();
-
-    assertDoesNotThrow(pluggy::authenticate);
+    assertDoesNotThrow(client::authenticate);
   }
 
   @Test
