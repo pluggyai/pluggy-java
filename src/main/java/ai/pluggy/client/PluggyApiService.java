@@ -2,12 +2,15 @@ package ai.pluggy.client;
 
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.response.ConnectorsResponse;
-import java.io.IOException;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.QueryMap;
 
 public interface PluggyApiService {
 
-  ConnectorsResponse getConnectors() throws IOException;
+  @GET("/connectors")
+  Call<ConnectorsResponse> getConnectors();
 
-  ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorsSearchRequest)
-    throws IOException;
+  @GET("/connectors")
+  Call<ConnectorsResponse> getConnectors(@QueryMap ConnectorsSearchRequest connectorsSearchRequest);
 }

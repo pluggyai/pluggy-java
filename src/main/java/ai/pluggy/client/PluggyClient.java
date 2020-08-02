@@ -21,7 +21,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class PluggyClient {
 
@@ -120,15 +121,21 @@ public final class PluggyClient {
       }
 
       OkHttpClient httpClient = buildOkHttpClient();
+      Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .validateEagerly(true)
+        .addConverterFactory(GsonConverterFactory.create(buildGson()))
+        .client(httpClient)
+        .build();
+
+      PluggyApiService pluggyRetrofitApiService = retrofit.create(PluggyApiService.class);
 
       PluggyClient pluggyClient = new PluggyClient();
       pluggyClient.setClientId(clientId);
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
       pluggyClient.setHttpClient(httpClient);
-      PluggyApiService pluggyApiService = new PluggyApiServiceImpl(pluggyClient);
-      pluggyClient.setService(pluggyApiService);
-//      pluggyClient.setService(pluggyRetrofitApiService);
+      pluggyClient.setService(pluggyRetrofitApiService);
 
       return pluggyClient;
     }

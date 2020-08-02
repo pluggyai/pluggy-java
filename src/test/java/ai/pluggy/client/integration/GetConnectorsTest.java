@@ -25,7 +25,7 @@ class GetConnectorsTest {
 
   @Test
   void getConnectors_withNoParams_returnsResults() throws IOException {
-    ConnectorsResponse connectors = client.service().getConnectors();
+    ConnectorsResponse connectors = client.service().getConnectors().execute().body();
 
     assertNotNull(connectors);
     assertNotNull(connectors.getResults());
@@ -36,18 +36,18 @@ class GetConnectorsTest {
   void getConnectors_withParams_returnsFilteredResults() throws IOException {
     // request connectors with empty filters
     ConnectorsResponse allConnectors = client.service()
-      .getConnectors(new ConnectorsSearchRequest());
+      .getConnectors(new ConnectorsSearchRequest()).execute().body();
 
     // request connectors with filters
     ConnectorsResponse connectorsFilteredByName = client.service()
-      .getConnectors(new ConnectorsSearchRequest("Pluggy"));
+      .getConnectors(new ConnectorsSearchRequest("Pluggy")).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountry = client.service()
-      .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR")));
+      .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"))).execute().body();
     ConnectorsResponse connectorsFilteredByTwoCountries = client.service()
-      .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR")));
+      .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR"))).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"),
-        Collections.singletonList("BUSINESS_BANK")));
+        Collections.singletonList("BUSINESS_BANK"))).execute().body();
 
     int allCount = allConnectors.getResults().size();
     int byNameCount = connectorsFilteredByName.getResults().size();
