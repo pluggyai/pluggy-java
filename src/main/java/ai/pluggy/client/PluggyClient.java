@@ -2,11 +2,14 @@ package ai.pluggy.client;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
+import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
+import ai.pluggy.client.auth.TokenProvider;
 import ai.pluggy.client.response.AuthResponse;
 import ai.pluggy.exception.PluggyException;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,16 +26,12 @@ import org.apache.logging.log4j.Logger;
 public final class PluggyClient {
 
   private static final Logger logger = LogManager.getLogger(PluggyClient.class);
-  private static final long API_KEY_EXPIRE_TIME = 2 * 60 * 1000; // api key expires in 2 hours
 
-  private String baseUrl = "https://api.pluggy.ai";
+  private String baseUrl;
   private String authUrlPath = "/auth";
 
   private String clientId;
   private String clientSecret;
-
-  private String apiKey;
-  private Date apiKeyExpireDate;
 
   private OkHttpClient httpClient;
   private PluggyApiService service;
@@ -71,10 +70,6 @@ public final class PluggyClient {
     return baseUrl;
   }
 
-  public String getApiKey() {
-    return apiKey;
-  }
-
   public OkHttpClient getHttpClient() {
     return httpClient;
   }
@@ -85,27 +80,38 @@ public final class PluggyClient {
   public static class PluggyClientBuilder {
 
     private static String BASE_URL = "https://api.pluggy.ai";
+
     private static Integer DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS = 10;
     private static Integer DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 180;
 
+    private String authPath = "/auth";
     private String clientId;
     private String clientSecret;
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
       assertNotNull(clientId, "client id");
-      assertNotNull(clientId, "secret");
+      assertNotNull(clientSecret, "secret");
       this.clientId = clientId;
       this.clientSecret = clientSecret;
       return this;
     }
 
     private OkHttpClient buildOkHttpClient() {
+      String authUrlPath = BASE_URL + authPath;
+
       OkHttpClient httpClient = new OkHttpClient.Builder()
         .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .addInterceptor(
+          new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret, new TokenProvider()))
         .build();
-
       return httpClient;
+    }
+
+    private Gson buildGson() {
+      return new GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+        .create();
     }
 
     public PluggyClient build() {
@@ -113,19 +119,22 @@ public final class PluggyClient {
         throw new IllegalArgumentException("Must set a clientId and secret.");
       }
 
+      OkHttpClient httpClient = buildOkHttpClient();
+
       PluggyClient pluggyClient = new PluggyClient();
       pluggyClient.setClientId(clientId);
       pluggyClient.setClientSecret(clientSecret);
       pluggyClient.setBaseUrl(BASE_URL);
-      pluggyClient.setHttpClient(buildOkHttpClient());
+      pluggyClient.setHttpClient(httpClient);
       PluggyApiService pluggyApiService = new PluggyApiServiceImpl(pluggyClient);
       pluggyClient.setService(pluggyApiService);
+//      pluggyClient.setService(pluggyRetrofitApiService);
 
       return pluggyClient;
     }
   }
 
-  public void authenticate() throws IOException {
+  public String authenticate() throws IOException {
     if (clientId == null || clientSecret == null) {
       throw new IllegalStateException(
         "Invalid state, both clientId and clientSecret must be defined!");
@@ -161,30 +170,11 @@ public final class PluggyClient {
       assertNotNull(responseBody, "response.body()");
       authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
     }
-    this.apiKey = authResponse.getApiKey();
-    this.apiKeyExpireDate = new Date(new Date().getTime() + API_KEY_EXPIRE_TIME);
+    return authResponse.getApiKey();
   }
 
   public PluggyApiService service() {
     return this.service;
   }
 
-  /**
-   * Helper method that retrieves/refreshes API key if not present or expired.
-   */
-  void ensureAuthenticated() throws IOException {
-    Date now = new Date();
-
-    if (this.apiKey == null) {
-      logger.info("Not authenticated, authenticating first...");
-      this.authenticate();
-      logger.info("Auth OK!");
-      return;
-    }
-    if (now.getTime() > this.apiKeyExpireDate.getTime()) {
-      logger.info("API key expired, requesting a new token...");
-      this.authenticate();
-      logger.info("Auth Token refresh OK!");
-    }
-  }
 }

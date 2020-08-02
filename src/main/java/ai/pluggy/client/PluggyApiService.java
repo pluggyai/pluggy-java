@@ -7,6 +7,7 @@ import java.io.IOException;
 public interface PluggyApiService {
 
   ConnectorsResponse getConnectors() throws IOException;
+
   ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorsSearchRequest)
     throws IOException;
 }
