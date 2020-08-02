@@ -14,9 +14,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class ApiKeyAuthInterceptor implements Interceptor {
+
+  private static final Logger logger = LogManager.getLogger(ApiKeyAuthInterceptor.class);
 
   private static final String X_API_KEY_HEADER = "x-api-key";
 
@@ -46,6 +50,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     if (isAuthRequest(originalRequest)) {
       // already is an Auth request -> proceed -> grab apiKey response
       Response response = interceptApiKeyResponse(chain, originalRequest);
+      logger.info("Stored api key response from Auth request.");
       return response;
     }
     // -> is a regular request.
@@ -58,10 +63,13 @@ public class ApiKeyAuthInterceptor implements Interceptor {
       // No 'api key' in header -> get one from token provider.
       if (tokenProvider.getApiKey() != null) {
         apiKey = tokenProvider.getApiKey();
+        logger.info("Using api key from stored tokenProvider.");
       } else {
+        logger.info("Requesting new api key...");
         // No api key stored -> fetch a new one and store it.
         apiKey = authenticate(chain);
         tokenProvider.setApiKey(apiKey);
+        logger.info("Auth api key response OK, storing in local tokenProvider.");
       }
     } else {
       apiKey = originalRequestToken;
@@ -92,8 +100,12 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     // auth error -> API key expired? try to refresh API key, and retry original request.
     response.close();
+
+    logger.info("ApiKey expired, attempting to request a new one and retry original request...");
     String apiKey = authenticate(chain);
     tokenProvider.setApiKey(apiKey);
+
+    logger.info("ApiKey refreshed OK. Retrying original request...");
     Request authenticatedRequest = requestWithAuth(originalRequest, apiKey);
     return chain.proceed(authenticatedRequest);
   }
