@@ -1,4 +1,4 @@
-package ai.pluggy.model;
+package ai.pluggy.client.response;
 
 public class AuthResponse {
 
