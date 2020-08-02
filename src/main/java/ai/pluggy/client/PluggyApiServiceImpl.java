@@ -26,8 +26,7 @@ public class PluggyApiServiceImpl implements PluggyApiService {
     String url = this.pluggyClient.getBaseUrl() + (pathString != null ? pathString : "");
     return new Request.Builder()
       .url(url)
-      .addHeader("content-type", "application/json")
-      .addHeader("x-api-key", pluggyClient.getApiKey());
+      .addHeader("content-type", "application/json");
   }
 
   private Request.Builder baseRequestBuilder() {
@@ -53,7 +52,6 @@ public class PluggyApiServiceImpl implements PluggyApiService {
   @Override
   public ConnectorsResponse getConnectors(ConnectorsSearchRequest connectorSearch)
     throws IOException {
-    pluggyClient.ensureAuthenticated();
 
     String queryString = formatQueryParams(connectorSearch);
     Request request = baseRequestBuilder(this.getConnectorsUrlPath + queryString).build();
