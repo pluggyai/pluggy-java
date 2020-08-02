@@ -44,4 +44,36 @@ public class Connector {
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
   }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getPrimaryColor() {
+    return primaryColor;
+  }
+
+  public String getInstitutionUrl() {
+    return institutionUrl;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public List<CredentialLabel> getCredentials() {
+    return credentials;
+  }
+
+  public String getImageUrl() {
+    return imageUrl;
+  }
 }

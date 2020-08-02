@@ -7,7 +7,7 @@ import ai.pluggy.client.PluggyClient;
 import ai.pluggy.exception.PluggyException;
 import org.junit.jupiter.api.Test;
 
-public class AuthTest extends BaseApiIntegrationTest{
+public class AuthTest extends BaseApiIntegrationTest {
 
   @Test
   public void validClientKeys_authenticate_shouldNotThrow() throws PluggyException {
