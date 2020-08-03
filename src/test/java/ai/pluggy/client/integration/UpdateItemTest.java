@@ -1,5 +1,6 @@
 package ai.pluggy.client.integration;
 
+import static ai.pluggy.client.integration.helper.ItemHelper.createItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,7 +24,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
   void updateItem_beforeExecutionEnds_fails() {
     // precondition: an item already exists
     Integer connectorId = 1;
-    ItemResponse itemResponse = _createItem(connectorId);
+    ItemResponse itemResponse = createItem(client, connectorId);
 
     // build update item request
     ParametersMap newParameters = ParametersMap.map("user", "qwe");
@@ -53,7 +54,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
   void updateItem_afterWaitingForCreation_ok() {
     // precondition: an item already exists
     Integer connectorId = 1;
-    ItemResponse createdItemResponse = _createItem(connectorId);
+    ItemResponse createdItemResponse = createItem(client, connectorId);
 
     // build update item request
     String newWebhookUrl = "localhost:3000";
@@ -80,23 +81,4 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertEquals(updatedItem.getWebhookUrl(), newWebhookUrl);
   }
 
-
-  private ItemResponse _createItem(Integer connectorId) throws java.io.IOException {
-    // create item params
-    ParametersMap parametersMap = ParametersMap.map("user", "asd")
-      .with("password", "qwe")
-      .with("cuit", "20-34232323-2");
-
-    // run request with 'connectorId', 'parameters' params
-    CreateItemRequest createItemRequest = new CreateItemRequest(connectorId, parametersMap);
-
-    Response<ItemResponse> itemRequestResponse = client.service()
-      .createItem(createItemRequest)
-      .execute();
-    assertTrue(itemRequestResponse.isSuccessful());
-    ItemResponse itemResponse = itemRequestResponse.body();
-    assertNotNull(itemResponse);
-
-    return itemResponse;
-  }
 }
