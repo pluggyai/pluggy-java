@@ -46,4 +46,10 @@ public class AccountHelper {
     return accountsResponse;
   }
 
+  public static String retrieveFirstAccountId(PluggyClient client)
+    throws InterruptedException, IOException {
+    log.info("Retrieving first account id...");
+    AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client);
+    return pluggyBankAccounts.getResults().get(0).getId();
+  }
 }
