@@ -64,7 +64,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // wait for creation finish before updating, to prevent update request error 400. 
     // TODO use polling to ensure createdItem status becomes "UPDATED"
-    Thread.sleep(25000);
+    Thread.sleep(30000);
 
     // run update item request
     Response<ItemResponse> updateItemResponse = client.service()
@@ -78,8 +78,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // expect item to be updated with the new data
     assertNotNull(updatedItem);
-    assertNotEquals(createdItemResponse.getWebhookUrl(), newWebhookUrl);
     assertEquals(updatedItem.getWebhookUrl(), newWebhookUrl);
+    assertNotEquals(createdItemResponse.getWebhookUrl(), newWebhookUrl);
   }
 
 }
