@@ -10,8 +10,10 @@ import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import retrofit2.Response;
 
+@Log4j2
 public class ItemHelper {
 
   // an UUID that doesn't belong to any existing Item
@@ -31,6 +33,7 @@ public class ItemHelper {
   @SneakyThrows
   public static ItemResponse createItem(PluggyClient client, Integer connectorId,
     ParametersMap parametersMap) {
+    log.info("Creating item execution for connector id '" + connectorId + "'...");
     // run request with 'connectorId', 'parameters' params
     CreateItemRequest createItemRequest = new CreateItemRequest(connectorId, parametersMap);
 
@@ -41,6 +44,8 @@ public class ItemHelper {
     assertTrue(itemRequestResponse.isSuccessful());
     ItemResponse itemResponse = itemRequestResponse.body();
     assertNotNull(itemResponse);
+    log.info("Created Item execution, id '" + itemResponse.getId() + "' "
+      + "(connector id '" + connectorId + "'). ");
 
     return itemResponse;
   }
