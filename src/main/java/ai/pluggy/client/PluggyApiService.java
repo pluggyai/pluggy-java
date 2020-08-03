@@ -1,5 +1,6 @@
 package ai.pluggy.client;
 
+import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
@@ -47,4 +48,7 @@ public interface PluggyApiService {
 
   @GET("/accounts")
   Call<AccountsResponse> getAccounts(@QueryMap AccountsRequest accountsRequest);
+
+  @GET("/accounts/{id}")
+  Call<Account> getAccount(@Path("id") String accountId);
 }

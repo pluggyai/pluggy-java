@@ -45,6 +45,15 @@ public class ItemHelper {
     return itemResponse;
   }
 
+  public static ItemResponse createPluggyBankItem(PluggyClient client) {
+    // TODO: remove PluggyBank credentials from source code?
+    ParametersMap parametersMap = ParametersMap
+      .map("user", "user-ok")
+      .with("password", "password-ok");
+    ItemResponse pluggyBankExecution = createItem(client, PLUGGY_BANK_CONNECTOR_ID, parametersMap);
+    return pluggyBankExecution;
+  }
+
   @SneakyThrows
   public static ItemResponse getItemStatus(PluggyClient client, String itemId) {
     // get item by id
