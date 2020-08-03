@@ -12,6 +12,7 @@ import ai.pluggy.client.response.Category;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
+import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
@@ -58,18 +59,22 @@ public interface PluggyApiService {
   Call<Account> getAccount(@Path("id") String accountId);
 
   @GET("/transactions")
-  Call<TransactionsResponse> getTransactions(@Query("accountId") String firstAccountId);
+  Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId);
 
   @GET("/transactions")
-  Call<TransactionsResponse> getTransactions(@Query("accountId") String firstAccountId,
+  Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId,
     @QueryMap DateFilters dateFilters);
 
   @GET("/transactions/{id}")
   Call<Transaction> getTransaction(@Path("id") String transactionId);
+
+  @GET("/investments")
+  Call<InvestmentsResponse> getInvestments(@Query("itemId") String itemId);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
 
   @GET("/categories/{id}")
   Call<Category> getCategory(@Path("id") String categoryId);
+
 }
