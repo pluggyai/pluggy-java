@@ -1,11 +1,12 @@
 package ai.pluggy.client;
 
-import ai.pluggy.client.response.Account;
-import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
+import ai.pluggy.client.response.Account;
+import ai.pluggy.client.response.AccountsResponse;
+import ai.pluggy.client.response.CategoriesResponse;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
@@ -51,4 +52,7 @@ public interface PluggyApiService {
 
   @GET("/accounts/{id}")
   Call<Account> getAccount(@Path("id") String accountId);
+
+  @GET("/categories")
+  Call<CategoriesResponse> getCategories();
 }
