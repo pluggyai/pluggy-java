@@ -73,11 +73,22 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
     assertTrue(accountsResponse.getResults().size() > 0);
   }
 
+  /**
+   * Util method to run a request periodically until specified condition is met, or
+   * max timeout is exceeded.
+   *
+   * @param requestRunner     - entity response supplier, that will be used to test for the condition predicate.
+   * @param expectedCondition - predicate that will test each runner result, until it's fullfiled
+   * @param pollIntervalMs    - base interval MS. However it's always increased by a 1.5 factor to prevent overloading the server.
+   * @param maxTimeoutMs      - maximum timeout to shortcut the execution, in case the condition takes way too long or doesn't resolve at all.
+   * @param <T>               - the instance type of the requestRunner response
+   */
   private <T> void pollRequestUntil(Supplier<T> requestRunner, Predicate<T> expectedCondition,
     Integer pollIntervalMs, Integer maxTimeoutMs) throws InterruptedException {
     Date startTime = new Date();
     Integer tries = 0;
-    log.debug("Polling request, interval ms: " + pollIntervalMs + ", max timeout: " + maxTimeoutMs + "ms...");
+    log.debug("Polling request, interval ms: " + pollIntervalMs + ", max timeout: " + maxTimeoutMs
+      + "ms...");
     T result = requestRunner.get();
     long elapsedTime = 0;
     while (!expectedCondition.test(result)) {
@@ -88,11 +99,12 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
       }
       log.debug("Condition not met after attempt #" + tries + ", (elapsed: " + elapsedTime
         + "ms) retrying in " + pollIntervalMs + "ms...");
+      pollIntervalMs = (int) Math.floor(pollIntervalMs * 1.5f); // exponential backoff
       Thread.sleep(pollIntervalMs);
       result = requestRunner.get();
       tries++;
     }
     elapsedTime = new Date().getTime() - startTime.getTime();
-    log.debug("Condition met after " + tries + " tries, in " + elapsedTime + "ms");
+    log.debug("Condition met after " + tries + " attempts, in " + elapsedTime + "ms");
   }
 }
