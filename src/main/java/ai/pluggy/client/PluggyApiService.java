@@ -12,6 +12,7 @@ import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.TransactionsResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -53,6 +54,9 @@ public interface PluggyApiService {
 
   @GET("/accounts/{id}")
   Call<Account> getAccount(@Path("id") String accountId);
+
+  @GET("/transactions")
+  Call<TransactionsResponse> getTransactions(@Query("accountId") String firstAccountId);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
