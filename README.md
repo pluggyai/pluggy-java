@@ -23,20 +23,23 @@ PluggyClient pluggyClient = PluggyClient.builder()
   .clientIdAndSecret("your_client_id", "your_secret")
   .build();
 
-// Authenticate your client (optional - will be managed automatically on any unauthenticated request attempt) 
+// Authenticate your client (optional - by default, auth token is requested & refreshed as needed by ApiKeyAuthInterceptor) 
 pluggyClient.authenticate()
 
 // Synchronously perform a request
-ConnectorsResponse connectorsResponse = pluggyClient.getConnectors();
+Call<ConnectorsResponse> connectorsResponse = pluggyClient.service().getConnectors().execute();
 
-// or, with filters:
-ConnectorsResponse connectorsResponseFiltered = pluggyClient.getConnectors(new ConnectorSearchRequest("Pluggy", Arrays.asList("AR")));
+// or, a request with params:
+Call<ConnectorsResponse> connectorsResponseFiltered = pluggyClient.service()
+  .getConnectors(new ConnectorSearchRequest("Pluggy", Arrays.asList("AR")))
+  .execute();
 
-// Unsuccessful responses may be handled as well:
-try {
-  ConnectorsResponse connectorsResponse = pluggyClient.getConnectors();
-} catch (PluggyException e) {
-  System.out.println("Pluggy API error response, status " + e.getStatus() + ", message: " + e.getMmessage() + ", API message: " + e.getApiMessage()
- );
+// Read response data (or error):
+if(connectorsResponse.isSuccessful()) {
+  // successful -> get body
+  ConnectorsResponse connectorsResponseBody = connectorsResponse.body();
+} else {
+  // unsuccessful -> parse error data
+  ErrorResponse errorResponse = pluggyClient.parseError(connectorsResponse)
 }
 ```
