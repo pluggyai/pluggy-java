@@ -11,12 +11,15 @@ import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.io.IOException;
 import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 import retrofit2.Response;
 
+@Log4j2
 public class AccountHelper {
-  
+
   public static AccountsResponse getPluggyBankAccounts(PluggyClient client)
     throws InterruptedException, IOException {
+    log.info("Retrieving accounts from pluggy bank connector...");
     ItemResponse pluggyBankExecution = createPluggyBankItem(client);
 
     // poll check of connector item status until it's completed (status: "UPDATED")
@@ -39,6 +42,7 @@ public class AccountHelper {
     int allAccountsCount = accountsResponse.getResults().size();
     assertTrue(allAccountsCount > 0);
 
+    log.info("Accounts retrieved, got " + allAccountsCount + " results.");
     return accountsResponse;
   }
 
