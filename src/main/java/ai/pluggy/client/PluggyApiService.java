@@ -3,6 +3,7 @@ package ai.pluggy.client;
 import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateItemRequest;
+import ai.pluggy.client.request.DateFilters;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
@@ -57,6 +58,10 @@ public interface PluggyApiService {
 
   @GET("/transactions")
   Call<TransactionsResponse> getTransactions(@Query("accountId") String firstAccountId);
+
+  @GET("/transactions")
+  Call<TransactionsResponse> getTransactions(@Query("accountId") String firstAccountId,
+    @QueryMap DateFilters dateFilters);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
