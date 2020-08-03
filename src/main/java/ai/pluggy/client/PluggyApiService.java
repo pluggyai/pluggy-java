@@ -12,6 +12,7 @@ import ai.pluggy.client.response.Category;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
+import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import ai.pluggy.client.response.Transaction;
@@ -70,6 +71,9 @@ public interface PluggyApiService {
 
   @GET("/investments")
   Call<InvestmentsResponse> getInvestments(@Query("itemId") String itemId);
+
+  @GET("/investments/{id}")
+  Call<Investment> getInvestment(@Path("id") String investmentId);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
