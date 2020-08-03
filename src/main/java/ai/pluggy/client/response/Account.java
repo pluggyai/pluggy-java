@@ -16,9 +16,10 @@ public class Account {
   String taxNumber;
   String owner;
   String number;
-  float balance;
+  Double balance;
   String itemId;
   String currencyCode;
   List<Transaction> transactions = new ArrayList<Transaction>();
   CreditData creditData;
+  BankData bankData;
 }
