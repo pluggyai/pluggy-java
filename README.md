@@ -2,6 +2,14 @@
 
 Java Bindings for the Pluggy API (https://www.plaid.com/docs).
 
+For available SDK API methods, check [PluggyApiService](./src/main/java/ai/pluggy/client/pluggy/client/PluggyApiService.java) interface methods.
+
+Check the Junit test classes for examples of more use cases. Every API endpoint has at
+least one integration test against a Pluggy Platform API instance environment.
+
+Uses [Retrofit](https://github.com/square/retrofit) and [OkHttp](https://github.com/square/okhttp) under
+the hood. You may want to take a look at those libraries if you need to do anything out of the ordinary.
+
 ### Install
 
 Using Maven, add dependency to your pom.xml:
@@ -27,16 +35,19 @@ PluggyClient pluggyClient = PluggyClient.builder()
 pluggyClient.authenticate()
 
 // Synchronously perform a request
-ConnectorsResponse connectorsResponse = pluggyClient.getConnectors();
+Response<ConnectorsResponse> connectorsResponse = pluggyClient.service().getConnectors().execute();
 
-// or, with filters:
-ConnectorsResponse connectorsResponseFiltered = pluggyClient.getConnectors(new ConnectorSearchRequest("Pluggy", Arrays.asList("AR")));
+// or, a request with params:
+Response<ConnectorsResponse> connectorsResponseFiltered = pluggyClient.service()
+  .getConnectors(new ConnectorSearchRequest("Pluggy", Arrays.asList("AR")))
+  .execute();
 
-// Unsuccessful responses may be handled as well:
-try {
-  ConnectorsResponse connectorsResponse = pluggyClient.getConnectors();
-} catch (PluggyException e) {
-  System.out.println("Pluggy API error response, status " + e.getStatus() + ", message: " + e.getMmessage() + ", API message: " + e.getApiMessage()
- );
+// Read response data (or error):
+if(connectorsResponse.isSuccessful()) {
+  // successful -> get body
+  ConnectorsResponse connectorsResponseBody = connectorsResponse.body();
+} else {
+  // unsuccessful -> parse error data
+  ErrorResponse errorResponse = pluggyClient.parseError(connectorsResponse)
 }
 ```
