@@ -13,17 +13,17 @@ class GetConnectorTest extends BaseApiIntegrationTest {
 
   @Test
   void getConnector_byExistingId_returnsOneResult() throws IOException {
-    Integer existingId = 1;
-    Response<Connector> response = client.service().getConnector(existingId).execute();
+    Integer existingConnectorId = 1;
+    Response<Connector> response = client.service().getConnector(existingConnectorId).execute();
     Connector existingConnector = response.body();
     assertNotNull(existingConnector);
-    assertEquals(existingConnector.getId(), existingId);
+    assertEquals(existingConnector.getId(), existingConnectorId);
   }
 
   @Test
   void getConnector_byNonExistingId_returnsNoResult() throws IOException {
-    Integer nonExistingId = 99999;
-    Response<Connector> response = client.service().getConnector(nonExistingId).execute();
+    Integer nonExistingConnectorId = 99999;
+    Response<Connector> response = client.service().getConnector(nonExistingConnectorId).execute();
     Connector nonExistingConnector = response.body();
     assertEquals(response.code(), 404);
     assertNull(nonExistingConnector);
