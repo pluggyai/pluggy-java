@@ -30,4 +30,7 @@ public interface PluggyApiService {
 
   @PATCH("/items/{id}")
   Call<ItemResponse> updateItem(@Path("id") String itemId, @Body UpdateItemRequest createItemRequest);
+
+  @GET("/items/{id}")
+  Call<ItemResponse> getItem(@Path("id") String itemId);
 }
