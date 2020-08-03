@@ -6,14 +6,18 @@ import static ai.pluggy.client.integration.helper.ItemHelper.getItemStatus;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,10 +54,10 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
     assertTrue(accountsResponse.getResults().isEmpty());
   }
 
+  @SneakyThrows
   @Test
-  void getAccounts_afterExecutionCompleted_responseWithResults()
-    throws IOException, InterruptedException {
-    // poll running item status until it's "COMPLETED"
+  void getAccounts_afterExecutionCompleted_responseWithResults() {
+    // poll check of connector item status until it's completed (status: "UPDATED")
     pollRequestUntil(
       () -> getItemStatus(client, pluggyBankExecution.getId()),
       (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
@@ -70,7 +74,27 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
 
     AccountsResponse accountsResponse = getAccountsResponse.body();
     assertNotNull(accountsResponse);
-    assertTrue(accountsResponse.getResults().size() > 0);
+    int allAccountsCount = accountsResponse.getResults().size();
+    assertTrue(allAccountsCount > 0);
+
+    // get accounts response - with filter params
+    List<String> accountTypesFilter = Arrays.asList("BANK");
+    Response<AccountsResponse> getAccountsFilteredResponse = client.service()
+      .getAccounts(new AccountsRequest(pluggyBankExecution.getId(), accountTypesFilter))
+      .execute();
+
+    // expect accounts response to be OK and have at least 1 result.
+    assertTrue(getAccountsFilteredResponse.isSuccessful());
+
+    AccountsResponse accountsFilteredResponse = getAccountsFilteredResponse.body();
+    assertNotNull(accountsFilteredResponse);
+    int accountsFilteredCount = accountsFilteredResponse.getResults().size();
+    assertTrue(accountsFilteredCount > 0);
+
+    // expect accounts filtered response to have less results than the non-filtered response
+    assertTrue(accountsFilteredCount < allAccountsCount, String.format(
+      "accountsFilteredCount: %d should be less than allAccountsCount: %d, using filter 'types': '%s'",
+      accountsFilteredCount, allAccountsCount, accountTypesFilter));
   }
 
   /**
