@@ -7,7 +7,7 @@
   <artifactId>pluggy-java</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>pluggy-java-sdk</name>
   <url>http://maven.apache.org</url>
@@ -82,6 +82,43 @@
 
   <build>
     <plugins>
+      <!-- Test Surefire Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.0</version>
+
+        <configuration>
+          <excludes>
+            <exclude>**/integration/**/*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <!-- Test Failsafe Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.22.0</version>
+
+        <configuration>
+          <includes>
+            <include>**/integration/**/*.java</include>
+          </includes>
+          <parallel>all</parallel>
+          <threadCount>8</threadCount>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
