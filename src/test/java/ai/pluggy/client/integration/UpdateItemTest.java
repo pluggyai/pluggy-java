@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.ErrorResponse;
@@ -40,11 +39,11 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // expect update item response to be an error
     ErrorResponse errorResponse = client.parseError(updateItemResponse);
-    
+
     assertFalse(updateItemResponse.isSuccessful());
     assertNotNull(errorResponse);
     assertEquals(errorResponse.getCode(), 400);
-    
+
     // expect updatedItem response to be null
     ItemResponse updatedItem = updateItemResponse.body();
     assertNull(updatedItem);
@@ -62,15 +61,16 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
       .build();
-    
-    // wait for creation finish before updating, to prevent update request error 400
-    Thread.sleep(15000);
-    
+
+    // wait for creation finish before updating, to prevent update request error 400. 
+    // TODO use polling to ensure createdItem status becomes "UPDATED"
+    Thread.sleep(25000);
+
     // run update item request
     Response<ItemResponse> updateItemResponse = client.service()
       .updateItem(createdItemResponse.getId(), updateItemRequest)
       .execute();
-    
+
     ItemResponse updatedItem = updateItemResponse.body();
 
     // expect response to be successful
