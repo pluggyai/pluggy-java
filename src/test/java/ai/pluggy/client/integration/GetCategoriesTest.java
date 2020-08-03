@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.response.CategoriesResponse;
-import ai.pluggy.client.response.Category;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
@@ -15,7 +14,7 @@ public class GetCategoriesTest extends BaseApiIntegrationTest {
   void getCategories_ok() throws IOException {
     Response<CategoriesResponse> categoriesResponse = client.service().getCategories().execute();
     CategoriesResponse categories = categoriesResponse.body();
-    
+
     assertNotNull(categories);
     assertTrue(categories.getResults().size() > 0);
   }
