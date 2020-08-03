@@ -21,7 +21,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
   @SneakyThrows
   @Test
-  void updateItem_beforeExecutionEnds_fails() {
+  void updateItem_beforeExecutionEnds_errorResponse() {
     // precondition: an item already exists
     Integer connectorId = 1;
     ItemResponse itemResponse = createItem(client, connectorId);
@@ -37,16 +37,17 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     Response<ItemResponse> updateItemResponse = client.service()
       .updateItem(itemResponse.getId(), updateItemRequest)
       .execute();
-    ItemResponse updatedItem = updateItemResponse.body();
 
+    // expect update item response to be an error
     ErrorResponse errorResponse = client.parseError(updateItemResponse);
     
     assertFalse(updateItemResponse.isSuccessful());
     assertNotNull(errorResponse);
+    assertEquals(errorResponse.getCode(), 400);
     
-    // expect response to include the updated data
-    assertNotNull(updatedItem);
-    assertEquals(updatedItem.getWebhookUrl(), newWebhookUrl);
+    // expect updatedItem response to be null
+    ItemResponse updatedItem = updateItemResponse.body();
+    assertNull(updatedItem);
   }
 
   @SneakyThrows
