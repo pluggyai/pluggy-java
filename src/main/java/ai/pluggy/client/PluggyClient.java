@@ -5,6 +5,7 @@ import static ai.pluggy.utils.Asserts.assertNotNull;
 import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
 import ai.pluggy.client.auth.TokenProvider;
 import ai.pluggy.client.response.AuthResponse;
+import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.exception.PluggyException;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -17,7 +18,6 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,6 +73,29 @@ public final class PluggyClient {
 
   public OkHttpClient getHttpClient() {
     return httpClient;
+  }
+
+  public ErrorResponse parseError(retrofit2.Response responseWithError) throws IOException {
+    if (responseWithError.isSuccessful()) {
+      throw new IllegalStateException(
+        "Response is successful, can't be parsed as an error response!");
+    }
+
+    ResponseBody errorResponseBody = responseWithError.errorBody();
+    if (errorResponseBody == null) {
+      return null;
+    }
+
+    String errorResponseJson;
+    try {
+      errorResponseJson = errorResponseBody.string();
+    } catch (IOException e) {
+      throw new IOException("Could not convert error response to string", e);
+    }
+
+    ErrorResponse errorResponse = new Gson().fromJson(errorResponseJson, ErrorResponse.class);
+
+    return errorResponse;
   }
 
   /**
@@ -166,7 +189,7 @@ public final class PluggyClient {
 
     AuthResponse authResponse;
 
-    try (Response response = this.httpClient.newCall(request).execute()) {
+    try (okhttp3.Response response = this.httpClient.newCall(request).execute()) {
       if (!response.isSuccessful()) {
         throw new PluggyException(
           "Pluggy Auth request failed, status: " + response.code() + ", message: " + response
