@@ -5,6 +5,7 @@ import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
+import ai.pluggy.client.response.DeleteItemResponse;
 import ai.pluggy.client.response.ItemResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -33,4 +34,7 @@ public interface PluggyApiService {
 
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
+
+  @GET("/items/{id}")
+  Call<DeleteItemResponse> deleteItem(@Path("id") String existingItemId);
 }

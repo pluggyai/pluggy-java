@@ -1,5 +1,6 @@
 package ai.pluggy.client.integration;
 
+import static ai.pluggy.client.integration.helper.ItemHelper.NON_EXISTING_ITEM_ID;
 import static ai.pluggy.client.integration.helper.ItemHelper.createItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,10 +32,10 @@ public class GetItemTest extends BaseApiIntegrationTest {
 
   @Test
   void getItem_nonExistingItem_errorResponse404() throws IOException {
-    String nonExistingItemId = "ab9f7a00-7d45-458b-b288-4923e18a9e69";
     // TODO using the following returns an error 400 "Invalid id, not an uuid" (not 404) - check why...
     // String nonExistingItemId = UUID.nameUUIDFromBytes("non-existing-item-id".getBytes()).toString();
-    Response<ItemResponse> getItemResponse = client.service().getItem(nonExistingItemId).execute();
+    Response<ItemResponse> getItemResponse = client.service().getItem(NON_EXISTING_ITEM_ID)
+      .execute();
     ErrorResponse errorResponse = client.parseError(getItemResponse);
 
     // expect error response with 404 error
