@@ -1,14 +1,8 @@
-# pluggy-java
+# Pluggy Java
 
-Java Bindings for the Pluggy API (https://www.plaid.com/docs).
+Java Bindings for the Pluggy API (https://docs.pluggy.ai).
 
 For available SDK API methods, check [PluggyApiService](./src/main/java/ai/pluggy/client/pluggy/client/PluggyApiService.java) interface methods.
-
-Check the Junit test classes for examples of more use cases. Every API endpoint has at
-least one integration test against a Pluggy Platform API instance environment.
-
-Uses [Retrofit](https://github.com/square/retrofit) and [OkHttp](https://github.com/square/okhttp) under
-the hood. You may want to take a look at those libraries if you need to do anything out of the ordinary.
 
 ### Install
 
