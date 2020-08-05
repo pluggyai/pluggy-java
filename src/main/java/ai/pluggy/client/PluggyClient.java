@@ -1,6 +1,7 @@
 package ai.pluggy.client;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
+import static ai.pluggy.utils.Asserts.assertValidUrl;
 
 import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
 import ai.pluggy.client.auth.TokenProvider;
@@ -103,7 +104,7 @@ public final class PluggyClient {
    */
   public static class PluggyClientBuilder {
 
-    private static String BASE_URL = "https://api.pluggy.ai";
+    private static String DEFAULT_BASE_URL = "https://api.pluggy.ai";
 
     private static Integer DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS = 10;
     private static Integer DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 180;
@@ -111,6 +112,7 @@ public final class PluggyClient {
     private String authPath = "/auth";
     private String clientId;
     private String clientSecret;
+    private String baseUrl;
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
       assertNotNull(clientId, "client id");
@@ -120,8 +122,14 @@ public final class PluggyClient {
       return this;
     }
 
-    private OkHttpClient buildOkHttpClient() {
-      String authUrlPath = BASE_URL + authPath;
+    public PluggyClientBuilder baseUrl(String baseUrl) {
+      assertNotNull(baseUrl, "baseUrl");
+      this.baseUrl = baseUrl;
+      return this;
+    }
+
+    private OkHttpClient buildOkHttpClient(String baseUrl) {
+      String authUrlPath = baseUrl + authPath;
 
       OkHttpClient httpClient = new OkHttpClient.Builder()
         .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -143,9 +151,16 @@ public final class PluggyClient {
         throw new IllegalArgumentException("Must set a clientId and secret.");
       }
 
-      OkHttpClient httpClient = buildOkHttpClient();
+      if (baseUrl == null) {
+        baseUrl = DEFAULT_BASE_URL;
+        assertValidUrl(baseUrl, "DEFAULT_BASE_URL");
+      } else {
+        assertValidUrl(baseUrl, "baseUrl");
+      }
+
+      OkHttpClient httpClient = buildOkHttpClient(baseUrl);
       Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(baseUrl)
         .validateEagerly(true)
         .addConverterFactory(GsonConverterFactory.create(buildGson()))
         .client(httpClient)
@@ -156,7 +171,7 @@ public final class PluggyClient {
       PluggyClient pluggyClient = new PluggyClient();
       pluggyClient.setClientId(clientId);
       pluggyClient.setClientSecret(clientSecret);
-      pluggyClient.setBaseUrl(BASE_URL);
+      pluggyClient.setBaseUrl(baseUrl);
       pluggyClient.setHttpClient(httpClient);
       pluggyClient.setService(pluggyRetrofitApiService);
 
@@ -164,6 +179,9 @@ public final class PluggyClient {
     }
   }
 
+  /**
+   * Request a new apiKey from API using defined clientId & clientSecret.
+   */
   public String authenticate() throws IOException {
     if (clientId == null || clientSecret == null) {
       throw new IllegalStateException(
