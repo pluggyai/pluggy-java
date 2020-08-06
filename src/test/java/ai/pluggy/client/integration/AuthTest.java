@@ -17,7 +17,7 @@ public class AuthTest extends BaseApiIntegrationTest {
   @Test
   public void invalidClientKeys_authenticate_shouldThrow() throws PluggyException {
     PluggyClient pluggyClientInvalidClientId = PluggyClient.builder()
-      .clientIdAndSecret("invalid-id", CLIENT_SECRET)
+      .clientIdAndSecret("invalid-id", "bla-bla")
       .build();
     PluggyClient pluggyClientInvalidClientSecret = PluggyClient.builder()
       .clientIdAndSecret(CLIENT_ID, "invalid-secret")
