@@ -18,7 +18,7 @@ Currently, the package is available in Github Packages, so make sure to have the
 <dependency>
   <groupId>ai.pluggy</groupId>
   <artifactId>pluggy-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
