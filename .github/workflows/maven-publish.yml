@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PLUGGY_CLIENT_ID: "ccd5b9be-3be6-45fe-9512-5907f1619db0"
+      PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
       PLUGGY_BASE_URL: "https://dev-pluggy-api.herokuapp.com"
     steps:
     - uses: actions/checkout@v2
@@ -23,7 +24,7 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
     - name: Check Test Env Variables
-      run: echo PLUGGY_CLIENT_ID '$PLUGGY_CLIENT_ID' PLUGGY_BASE_URL '$PLUGGY_BASE_URL'
+      run: echo PLUGGY_CLIENT_ID $PLUGGY_CLIENT_ID PLUGGY_BASE_URL $PLUGGY_BASE_URL
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Publish to GitHub Packages Apache Maven
