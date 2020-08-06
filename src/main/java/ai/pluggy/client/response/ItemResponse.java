@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class ItemResponse {
+
   String id;
   String user;
   Integer userId;
@@ -16,5 +17,5 @@ public class ItemResponse {
   String executionStatus;
   Date lastUpdatedAt;
   String webhookUrl;
-  String error = null;
+  ErrorResponse error = null;
 }
