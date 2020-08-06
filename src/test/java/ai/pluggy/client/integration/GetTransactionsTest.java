@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.request.DateFilters;
 import ai.pluggy.client.response.TransactionsResponse;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
@@ -62,7 +63,18 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     assertNotNull(transactionsFiltered);
     assertNotNull(transactionsFiltered.getResults());
     int transactionsFilteredCount = transactionsFiltered.getResults().size();
-    assertTrue(transactionsFilteredCount > 0);
+
+    // build error string in case of no transactions filtered result.
+    String allTxsString = allTransactions.getResults().stream()
+      .map(transaction -> String.format(
+        "{id=%s, date=%s}", transaction.getId(), transaction.getDate().substring(0, 10)))
+      .collect(Collectors.joining(", "));
+    String expectedTransactionsFilteredMsg = String.format(
+      "Expected at least 1 tx between '%s' (out of total '%d' txs) for account id '%s', all txs: '%s'",
+      dateFilters,
+      allTransactions.getResults().size(), firstAccountId, allTxsString);
+
+    assertTrue(transactionsFilteredCount > 0, expectedTransactionsFilteredMsg);
 
     // expect filtered transactions count to be less than total transactions count
     assertTrue(transactionsFilteredCount < allTransactionsCount,
