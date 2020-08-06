@@ -32,8 +32,6 @@ public class GetItemTest extends BaseApiIntegrationTest {
 
   @Test
   void getItem_nonExistingItem_errorResponse404() throws IOException {
-    // TODO using the following returns an error 400 "Invalid id, not an uuid" (not 404) - check why...
-    // String nonExistingItemId = UUID.nameUUIDFromBytes("non-existing-item-id".getBytes()).toString();
     Response<ItemResponse> getItemResponse = client.service().getItem(NON_EXISTING_ITEM_ID)
       .execute();
     ErrorResponse errorResponse = client.parseError(getItemResponse);

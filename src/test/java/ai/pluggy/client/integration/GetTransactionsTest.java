@@ -67,7 +67,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     // expect filtered transactions count to be less than total transactions count
     assertTrue(transactionsFilteredCount < allTransactionsCount,
       String.format(
-        "Transations filtered result: %d should be less than all transactions result: %d, using date filters '%s'",
+        "Transactions filtered result: %d should be less than all transactions result: %d, using date filters '%s'",
         transactionsFilteredCount, allTransactionsCount, dateFilters));
   }
 }
