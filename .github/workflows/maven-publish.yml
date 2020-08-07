@@ -45,6 +45,6 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy -Dmaven.test.skip.exec -s $GITHUB_WORKSPACE/settings.xml # skip tests in this step
       env:
         GITHUB_TOKEN: ${{ github.token }}
