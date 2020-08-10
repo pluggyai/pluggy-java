@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.request.DateFilters;
+import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
@@ -33,7 +35,6 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     assertTrue(transactions.getResults().size() > 0);
   }
 
-  @Disabled
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withDateFilters_ok() {
@@ -45,36 +46,55 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
       .getTransactions(firstAccountId)
       .execute();
 
-    TransactionsResponse allTransactions = allTransactionsResponse.body();
+    TransactionsResponse allTransactionsResults = allTransactionsResponse.body();
 
-    // get account transactions with date filters
-    DateFilters dateFilters = new DateFilters("2020-05-01", "2020-06-01");
+    // expect transactions response to include 1 or more results
+    assertNotNull(allTransactionsResults);
+    List<Transaction> allTransactions = allTransactionsResults.getResults();
+    assertNotNull(allTransactions);
+
+    // build error string in case of no transactions filtered result.
+    String allTxsString = transactionsToIdAndDateStrings(allTransactionsResults);
+
+    int allTransactionsCount = allTransactions.size();
+    assertTrue(allTransactionsCount >= 3,
+      String.format("Expected at least 3 txs for account id '%s', got tx(s): ['%s']",
+        firstAccountId, allTxsString));
+
+    // sort transactions result by date string, and extract a sub-range of dates from the total txs results
+    allTransactions.sort(Comparator.comparing(Transaction::getDate));
+    String minDate = allTransactions.get(0).getDate();
+    String middleDate = allTransactions.get(Math.floorDiv(allTransactionsCount, 2)).getDate();
+    String maxDate = allTransactions.get(allTransactionsCount - 1).getDate();
+    assertTrue(minDate.compareTo(maxDate) < 0,
+      String.format("expected min date '%s' of txs to be earlier than max date '%s'",
+        minDate, maxDate));
+    assertTrue(minDate.compareTo(middleDate) < 0,
+      String.format("expected min date '%s' of txs to be earlier than middle date '%s'",
+        minDate, middleDate));
+    assertTrue(middleDate.compareTo(maxDate) < 0,
+      String.format("expected middle date '%s' of txs to be earlier than max date '%s'",
+        minDate, middleDate));
+
+    // get account transactions with sub-range date filters
+    String fromDateFilter = minDate.substring(0, 10);
+    String toDateFilter = middleDate.substring(0, 10);
+    DateFilters dateFilters = new DateFilters(fromDateFilter, toDateFilter);
     Response<TransactionsResponse> transactionsFilteredResponse = client.service()
       .getTransactions(firstAccountId, dateFilters)
       .execute();
 
     TransactionsResponse transactionsFiltered = transactionsFilteredResponse.body();
 
-    // expect transactions response to include 1 or more results
-    assertNotNull(allTransactions);
-    assertNotNull(allTransactions.getResults());
-    int allTransactionsCount = allTransactions.getResults().size();
-    assertTrue(allTransactionsCount > 0);
-
     // expect filtered transactions response to include 1 or more results
     assertNotNull(transactionsFiltered);
     assertNotNull(transactionsFiltered.getResults());
     int transactionsFilteredCount = transactionsFiltered.getResults().size();
 
-    // build error string in case of no transactions filtered result.
-    String allTxsString = allTransactions.getResults().stream()
-      .map(transaction -> String.format(
-        "{id=%s, date=%s}", transaction.getId(), transaction.getDate().substring(0, 10)))
-      .collect(Collectors.joining(", "));
     String expectedTransactionsFilteredMsg = String.format(
       "Expected at least 1 tx between '%s' (out of total '%d' txs) for account id '%s', all txs: '%s'",
       dateFilters,
-      allTransactions.getResults().size(), firstAccountId, allTxsString);
+      allTransactionsCount, firstAccountId, allTxsString);
 
     assertTrue(transactionsFilteredCount > 0, expectedTransactionsFilteredMsg);
 
@@ -83,5 +103,12 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
       String.format(
         "Transactions filtered result: %d should be less than all transactions result: %d, using date filters '%s'",
         transactionsFilteredCount, allTransactionsCount, dateFilters));
+  }
+
+  private String transactionsToIdAndDateStrings(TransactionsResponse allTransactions) {
+    return allTransactions.getResults().stream()
+      .map(transaction -> String.format(
+        "{id=%s, date=%s}", transaction.getId(), transaction.getDate().substring(0, 10)))
+      .collect(Collectors.joining(", "));
   }
 }
