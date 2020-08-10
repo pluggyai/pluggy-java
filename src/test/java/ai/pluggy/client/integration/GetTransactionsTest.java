@@ -1,10 +1,12 @@
 package ai.pluggy.client.integration;
 
 import static ai.pluggy.client.integration.helper.AccountHelper.retrieveFirstAccountId;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.pluggy.client.request.DateFilters;
+import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
 import java.util.Comparator;
@@ -48,7 +50,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
 
     TransactionsResponse allTransactionsResults = allTransactionsResponse.body();
 
-    // expect transactions response to include 1 or more results
+    // expect transactions response to include 3 or more results
     assertNotNull(allTransactionsResults);
     List<Transaction> allTransactions = allTransactionsResults.getResults();
     assertNotNull(allTransactions);
@@ -79,7 +81,10 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     // get account transactions with sub-range date filters
     String fromDateFilter = minDate.substring(0, 10);
     String toDateFilter = middleDate.substring(0, 10);
-    DateFilters dateFilters = new DateFilters(fromDateFilter, toDateFilter);
+    TransactionsSearchRequest dateFilters = new TransactionsSearchRequest()
+      .from(fromDateFilter)
+      .to(toDateFilter);
+
     Response<TransactionsResponse> transactionsFilteredResponse = client.service()
       .getTransactions(firstAccountId, dateFilters)
       .execute();
@@ -103,6 +108,61 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
       String.format(
         "Transactions filtered result: %d should be less than all transactions result: %d, using date filters '%s'",
         transactionsFilteredCount, allTransactionsCount, dateFilters));
+  }
+
+  @SneakyThrows
+  @Test
+  void getTransactions_byExistingAccountId_withPageFilters_ok() {
+    // precondition: retrieve accounts data
+    String firstAccountId = retrieveFirstAccountId(client);
+
+    // fetch first page
+    int pageSize = 2;
+    int firstPage = 1;
+    TransactionsSearchRequest firstPageParams = new TransactionsSearchRequest()
+      .page(firstPage)
+      .pageSize(pageSize);
+
+    Response<TransactionsResponse> firstPageResponse = client.service()
+      .getTransactions(firstAccountId, firstPageParams)
+      .execute();
+
+    // precondition: expect to have more txs present in the next page
+    TransactionsResponse transactionsFirstPage = firstPageResponse.body();
+    assertNotNull(transactionsFirstPage);
+
+    List<Transaction> firstPageTransactions = transactionsFirstPage.getResults();
+    int firstPageTxsCount = firstPageTransactions.size();
+    Integer allTxsCount = transactionsFirstPage.getTotal();
+
+    // expect to have more pages left
+    assertTrue(allTxsCount > firstPageTxsCount,
+      String.format("expected total '%d' txs count to be greater than first page txs "
+        + "count '%d', for account id '%s'", allTxsCount, firstPageTxsCount, firstAccountId));
+
+    // expect first page to be complete (ie. to equal page size param)
+    assertEquals(firstPageTxsCount, pageSize,
+      String.format("expected first page txs response count '%d' to equal the page size param '%d'",
+        firstPageTxsCount, pageSize));
+
+    // fetch next page
+    TransactionsSearchRequest nextPageParams = new TransactionsSearchRequest()
+      .page(firstPageParams.getPage() + 1)
+      .pageSize(firstPageParams.getPageSize());
+
+    Response<TransactionsResponse> nextPageResponse = client.service()
+      .getTransactions(firstAccountId, nextPageParams)
+      .execute();
+
+    // expect second page to include results, and to be different than first page.
+    TransactionsResponse transactionsNextPage = nextPageResponse.body();
+    assertNotNull(transactionsNextPage);
+    List<Transaction> nextPageTransactions = transactionsNextPage.getResults();
+    assertTrue(nextPageTransactions.size() > 0);
+
+    // expect first tx of next page to be different from the first page.
+    assertNotEquals(nextPageTransactions.get(0).getId(),
+      firstPageTransactions.get(firstPageTxsCount - 1).getId());
   }
 
   private String transactionsToIdAndDateStrings(TransactionsResponse allTransactions) {
