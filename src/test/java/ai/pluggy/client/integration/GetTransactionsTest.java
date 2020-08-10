@@ -8,6 +8,7 @@ import ai.pluggy.client.request.DateFilters;
 import ai.pluggy.client.response.TransactionsResponse;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
@@ -32,6 +33,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     assertTrue(transactions.getResults().size() > 0);
   }
 
+  @Disabled
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withDateFilters_ok() {
