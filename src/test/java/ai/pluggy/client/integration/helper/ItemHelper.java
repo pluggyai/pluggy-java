@@ -9,6 +9,8 @@ import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
+import java.util.Arrays;
+import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Response;
@@ -20,6 +22,10 @@ public class ItemHelper {
   public static final String NON_EXISTING_ITEM_ID = "ab9f7a00-7d45-458b-b288-4923e18a9e69";
 
   public static final Integer PLUGGY_BANK_CONNECTOR_ID = 0;
+
+  // Possible item statuses that indicate execution finished
+  public static final List<String> ITEM_FINISH_STATUSES = Arrays
+    .asList("FINISHED", "OUTDATED", "LOGIN_ERROR");
 
   @SneakyThrows
   public static ItemResponse createItem(PluggyClient client, Integer connectorId) {
@@ -51,7 +57,6 @@ public class ItemHelper {
   }
 
   public static ItemResponse createPluggyBankItem(PluggyClient client) {
-    // TODO: remove PluggyBank credentials from source code?
     ParametersMap parametersMap = ParametersMap
       .map("user", "user-ok")
       .with("password", "password-ok");

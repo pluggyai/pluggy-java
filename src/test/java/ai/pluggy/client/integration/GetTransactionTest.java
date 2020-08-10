@@ -13,7 +13,6 @@ import retrofit2.Response;
 
 public class GetTransactionTest extends BaseApiIntegrationTest {
 
-  @Disabled // TODO enable again once it's working...
   @SneakyThrows
   @Test
   void getTransaction_byExistingId_ok() {
