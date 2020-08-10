@@ -17,5 +17,5 @@ public class ItemResponse {
   String executionStatus;
   Date lastUpdatedAt;
   String webhookUrl;
-  ErrorResponse error = null;
+  ItemError error = null;
 }
