@@ -30,12 +30,16 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
   private TokenProvider tokenProvider;
 
+  public ApiKeyAuthInterceptor(String authUrl, String clientId, String clientSecret) {
+    this(authUrl, clientId, clientSecret, new TokenProvider());
+  }
+
   public ApiKeyAuthInterceptor(String authUrl, String clientId, String clientSecret,
     TokenProvider tokenProvider) {
     assertNotNull(clientId, "clientId");
-    assertNotNull(clientId, "clientSecret");
-    assertNotNull(clientId, "authUrl");
-    assertNotNull(clientId, "tokenProvider");
+    assertNotNull(clientSecret, "clientSecret");
+    assertNotNull(authUrl, "authUrl");
+    assertNotNull(tokenProvider, "tokenProvider");
     this.authUrl = authUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -91,10 +95,13 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
   private Response proceedWithAuthRetry(@NotNull Chain chain, Request originalRequest)
     throws IOException {
+    // attempt to proceed with original request
     Response response = chain.proceed(originalRequest);
+
+    // check auth errors
     boolean isResponseAuthError = response.code() != 403 && response.code() != 401;
     if (isResponseAuthError) {
-      // no auth problems -> response OK
+      // no auth problems -> response was OK
       return response;
     }
 

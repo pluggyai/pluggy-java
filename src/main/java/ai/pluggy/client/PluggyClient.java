@@ -4,7 +4,6 @@ import static ai.pluggy.utils.Asserts.assertNotNull;
 import static ai.pluggy.utils.Asserts.assertValidUrl;
 
 import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
-import ai.pluggy.client.auth.TokenProvider;
 import ai.pluggy.client.response.AuthResponse;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.exception.PluggyException;
@@ -17,20 +16,17 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class PluggyClient {
 
-  private static final Logger logger = LogManager.getLogger(PluggyClient.class);
-
+  public static String AUTH_URL_PATH = "/auth";
   private String baseUrl;
-  private String authUrlPath = "/auth";
 
   private String clientId;
   private String clientSecret;
@@ -109,14 +105,22 @@ public final class PluggyClient {
     private static Integer DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS = 10;
     private static Integer DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 180;
 
-    private String authPath = "/auth";
     private String clientId;
     private String clientSecret;
     private String baseUrl;
+    private Builder okHttpClientBuilder;
+    private boolean disableDefaultAuthInterceptor = false;
+
+    private PluggyClientBuilder() {
+      // init OkHttpClient.Builder instance, to expose it for configurability
+      this.okHttpClientBuilder = new Builder()
+        .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
-      assertNotNull(clientId, "client id");
-      assertNotNull(clientSecret, "secret");
+      assertNotNull(clientId, "clientId");
+      assertNotNull(clientSecret, "clientSecret");
       this.clientId = clientId;
       this.clientSecret = clientSecret;
       return this;
@@ -128,16 +132,37 @@ public final class PluggyClient {
       return this;
     }
 
-    private OkHttpClient buildOkHttpClient(String baseUrl) {
-      String authUrlPath = baseUrl + authPath;
+    /**
+     * Opt-out from provided default ApiKeyAuthInterceptor, which takes care of apiKey authorization,
+     * by requesting a new apiKey token when it's not set, or by reactively refreshing an existing
+     * one and retrying a request in case of 401 or 403 unauthorized error responses.
+     *
+     * In case of opt-out, the client will have to provide it's own auth interceptor implementation,
+     * which has to take care of including the "x-api-key" auth header to each http request.
+     */
+    public PluggyClientBuilder noAuthInterceptor() {
+      this.disableDefaultAuthInterceptor = true;
+      return this;
+    }
 
-      OkHttpClient httpClient = new OkHttpClient.Builder()
-        .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .addInterceptor(
-          new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret, new TokenProvider()))
-        .build();
-      return httpClient;
+    /**
+     * Provides access to the OkHttpClient.Builder instance,
+     * for more complex builds and configurations (interceptors, SSL, etc.)
+     */
+    public OkHttpClient.Builder okHttpClientBuilder() {
+      return okHttpClientBuilder;
+    }
+
+    private OkHttpClient buildOkHttpClient(String baseUrl) {
+      if (!disableDefaultAuthInterceptor) {
+        // use ApiKeyAuthInterceptor, unless decided to opt-out and use your own
+        // auth header interceptor implementation.
+        String authUrlPath = baseUrl + PluggyClient.AUTH_URL_PATH;
+        this.okHttpClientBuilder
+          .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
+      }
+
+      return okHttpClientBuilder.build();
     }
 
     private Gson buildGson() {
@@ -148,7 +173,7 @@ public final class PluggyClient {
 
     public PluggyClient build() {
       if (clientId == null || clientSecret == null) {
-        throw new IllegalArgumentException("Must set a clientId and secret.");
+        throw new IllegalArgumentException("Must set a clientId and clientSecret.");
       }
 
       if (baseUrl == null) {
@@ -159,6 +184,7 @@ public final class PluggyClient {
       }
 
       OkHttpClient httpClient = buildOkHttpClient(baseUrl);
+
       Retrofit retrofit = new Retrofit.Builder()
         .baseUrl(baseUrl)
         .validateEagerly(true)
@@ -199,7 +225,7 @@ public final class PluggyClient {
     RequestBody body = RequestBody.create(jsonBody, mediaType);
 
     Request request = new Request.Builder()
-      .url(this.baseUrl + this.authUrlPath)
+      .url(this.baseUrl + AUTH_URL_PATH)
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
@@ -218,6 +244,7 @@ public final class PluggyClient {
       assertNotNull(responseBody, "response.body()");
       authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
     }
+
     return authResponse.getApiKey();
   }
 
