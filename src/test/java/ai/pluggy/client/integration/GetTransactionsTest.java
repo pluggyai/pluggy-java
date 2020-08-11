@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
@@ -110,6 +111,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
         transactionsFilteredCount, allTransactionsCount, dateFilters));
   }
 
+  @Disabled // TODO reenable test until 'pageSize' param is fixed in test URL environment
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withPageFilters_ok() {
