@@ -1,5 +1,8 @@
 package ai.pluggy.utils;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import okhttp3.HttpUrl;
 
 public abstract class Asserts {
@@ -21,7 +24,7 @@ public abstract class Asserts {
    * Asserts that a value is a valid URL.
    *
    * @param value the value to check.
-   * @param name the name of the parameter, used when creating the exception message.
+   * @param name  the name of the parameter, used when creating the exception message.
    * @throws IllegalArgumentException if the value is null or is not a valid URL.
    */
   public static void assertValidUrl(String value, String name) {
@@ -30,4 +33,24 @@ public abstract class Asserts {
     }
   }
 
+
+  /**
+   * Asserts that a value is a valid URL.
+   *
+   * @param value the value to check.
+   * @param name  the name of the parameter, used when creating the exception message.
+   * @throws IllegalArgumentException if the value is null or is not a valid URL.
+   */
+  public static void assertValidDateString(String value, DateTimeFormatter dateFormat,
+    String name) {
+    String invalidValueErrorMsg = String.format(
+      "Invalid date string format '%s' for field '%s', expected format: '%s'!",
+      value, name, dateFormat);
+
+    try {
+      LocalDate.parse(value, dateFormat);
+    } catch (DateTimeParseException e) {
+      throw new IllegalArgumentException(invalidValueErrorMsg);
+    }
+  }
 }

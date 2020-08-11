@@ -32,8 +32,7 @@ public class Poller {
         throw new RuntimeException(
           "Timeout exceeded after " + tries + " tries (" + elapsedTime + "ms)");
       }
-      log.debug("Condition not met after attempt #" + tries + ", (elapsed: " + elapsedTime
-        + "ms) retrying in " + pollIntervalMs + "ms...");
+      // condition not met yet, retry...
       pollIntervalMs = (int) Math.floor(pollIntervalMs * 1.5f); // exponential backoff
       Thread.sleep(pollIntervalMs);
       result = requestRunner.get();

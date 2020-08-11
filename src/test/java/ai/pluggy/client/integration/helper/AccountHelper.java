@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.PluggyClient;
 import ai.pluggy.client.integration.util.Poller;
+import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Response;
 
@@ -42,7 +44,10 @@ public class AccountHelper {
     int allAccountsCount = accountsResponse.getResults().size();
     assertTrue(allAccountsCount > 0);
 
-    log.info("Accounts retrieved, got " + allAccountsCount + " results.");
+    String accountsIds = accountsResponse.getResults().stream().map(Account::getId)
+      .collect(Collectors.joining("' , '", "['", "']"));
+    log.info("Accounts retrieved, got {} results (exec item: '{}', account ids: {}).",
+      allAccountsCount, pluggyBankExecution.getId(), accountsIds);
     return accountsResponse;
   }
 
@@ -50,6 +55,8 @@ public class AccountHelper {
     throws InterruptedException, IOException {
     log.info("Retrieving first account id...");
     AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client);
-    return pluggyBankAccounts.getResults().get(0).getId();
+    String firstAccountId = pluggyBankAccounts.getResults().get(0).getId();
+    log.info("Got first account id {}", firstAccountId);
+    return firstAccountId;
   }
 }
