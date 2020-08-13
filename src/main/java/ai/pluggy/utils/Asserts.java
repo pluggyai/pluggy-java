@@ -35,21 +35,31 @@ public abstract class Asserts {
 
 
   /**
-   * Asserts that a value is a valid URL.
+   * Asserts that a string value is a valid Date string, according to a specified dateFormatPattern.
+   * The pattern must be supported by DateTimeFormatter (See: <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html"/>)
    *
-   * @param value the value to check.
-   * @param name  the name of the parameter, used when creating the exception message.
+   * @param value             the value to check.
+   * @param dateFormatPattern the date string pattern to use for validating the date.
+   * @param name              the name of the parameter, used when creating the exception message.
    * @throws IllegalArgumentException if the value is null or is not a valid URL.
    */
-  public static void assertValidDateString(String value, DateTimeFormatter dateFormat,
+  public static void assertValidDateString(String value, String dateFormatPattern,
     String name) {
-    String invalidValueErrorMsg = String.format(
-      "Invalid date string format '%s' for field '%s', expected format: '%s'!",
-      value, name, dateFormat);
+    DateTimeFormatter dateFormat;
+    try {
+      dateFormat = DateTimeFormatter.ofPattern(dateFormatPattern);
+    } catch (IllegalArgumentException e) {
+      String invalidDatePatternErrorMsg = String.format(
+        "Invalid dateFormatPattern string: '%s'", dateFormatPattern);
+      throw new IllegalArgumentException(invalidDatePatternErrorMsg);
+    }
 
     try {
       LocalDate.parse(value, dateFormat);
     } catch (DateTimeParseException e) {
+      String invalidValueErrorMsg = String.format(
+        "Invalid date string format '%s' for field '%s', expected format: '%s'!",
+        value, name, dateFormatPattern);
       throw new IllegalArgumentException(invalidValueErrorMsg);
     }
   }

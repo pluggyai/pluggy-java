@@ -3,12 +3,11 @@ package ai.pluggy.client.request;
 import static ai.pluggy.utils.Asserts.assertNotNull;
 import static ai.pluggy.utils.Asserts.assertValidDateString;
 
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 public class TransactionsSearchRequest extends HashMap<String, Object> {
 
-  public static final DateTimeFormatter DATE_PARAM_FORMAT = DateTimeFormatter.ISO_DATE;
+  public static final String DATE_PARAM_FORMAT_ISO = "yyyy-MM-dd";
 
   /**
    * @param fromDate String - from date in 'YYYY-MM-DD' format
@@ -52,7 +51,7 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
 
 
   private void validateDateString(String dateString, String name) {
-    assertValidDateString(dateString, DATE_PARAM_FORMAT, name);
+    assertValidDateString(dateString, DATE_PARAM_FORMAT_ISO, name);
   }
 
   public Integer getPage() {
