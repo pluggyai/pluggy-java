@@ -9,7 +9,7 @@ on:
 env:
   PLUGGY_CLIENT_ID: "ccd5b9be-3be6-45fe-9512-5907f1619db0"
   PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
-  PLUGGY_BASE_URL: "https://dev-pluggy-api.herokuapp.com"
+  PLUGGY_BASE_URL: "https://api.pluggy.ai"
 
 jobs:
   build:
