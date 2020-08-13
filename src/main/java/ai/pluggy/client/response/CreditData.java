@@ -1,5 +1,8 @@
 package ai.pluggy.client.response;
 
+import lombok.Data;
+
+@Data
 public class CreditData {
 
   String level;

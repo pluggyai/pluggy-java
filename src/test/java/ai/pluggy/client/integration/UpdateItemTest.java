@@ -31,7 +31,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build update item request
     ParametersMap newParameters = ParametersMap.map("user", "qwe");
-    String newWebhookUrl = "localhost:3000";
+    String newWebhookUrl = "https://www.test.com";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
       .build();
@@ -60,7 +60,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     ItemResponse createdItemResponse = createPluggyBankItem(client);
 
     // build update item request
-    String newWebhookUrl = "localhost:3000";
+    String newWebhookUrl = "https://www.test2.com";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
       .build();
