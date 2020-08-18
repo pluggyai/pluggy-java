@@ -1,6 +1,5 @@
 package ai.pluggy.client.integration;
 
-import static ai.pluggy.client.integration.helper.ItemHelper.createItem;
 import static ai.pluggy.client.integration.helper.ItemHelper.createPluggyBankItem;
 import static ai.pluggy.client.integration.helper.ItemHelper.getItemStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +26,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
   void updateItem_beforeExecutionEnds_errorResponse() {
     // precondition: an item already exists
     Integer connectorId = 1;
-    ItemResponse itemResponse = createItem(client, connectorId);
+    ItemResponse itemResponse = createPluggyBankItem(client);
 
     // build update item request
     ParametersMap newParameters = ParametersMap.map("user", "qwe");
@@ -89,4 +88,65 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotEquals(createdItemResponse.getWebhookUrl(), newWebhookUrl);
   }
 
+  @SneakyThrows
+  @Test
+  void updateItem_afterCreated_withEmptyData_ok() {
+    // precondition: an item already exists
+    ItemResponse createdItemResponse = createPluggyBankItem(client);
+
+    // build empty update item request
+    UpdateItemRequest emptyUpdateItemRequest = UpdateItemRequest.builder()
+      .build();
+
+    // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
+    Poller.pollRequestUntil(
+      () -> getItemStatus(client, createdItemResponse.getId()),
+      (ItemResponse itemStatusResponse) -> Objects
+        .equals(itemStatusResponse.getStatus(), "UPDATED"),
+      500, 45000
+    );
+
+    // run update item request with empty params
+    Response<ItemResponse> updateItemResponseEmptyParams = client.service()
+      .updateItem(createdItemResponse.getId(), emptyUpdateItemRequest)
+      .execute();
+
+    // expect response (to empty params request) to be successful
+    assertTrue(updateItemResponseEmptyParams.isSuccessful());
+    ItemResponse updatedItem = updateItemResponseEmptyParams.body();
+
+    // expect item to be status = "UPDATING"
+    assertNotNull(updatedItem);
+    ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
+    assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+  }
+
+  @SneakyThrows
+  @Test
+  void updateItem_afterCreated_withNoData_ok() {
+    // precondition: an item already exists
+    ItemResponse createdItemResponse = createPluggyBankItem(client);
+
+    // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
+    Poller.pollRequestUntil(
+      () -> getItemStatus(client, createdItemResponse.getId()),
+      (ItemResponse itemStatusResponse) -> Objects
+        .equals(itemStatusResponse.getStatus(), "UPDATED"),
+      500, 45000
+    );
+
+    // run update item request with empty params
+    Response<ItemResponse> updateItemResponseNullParams = client.service()
+      .updateItem(createdItemResponse.getId())
+      .execute();
+
+    // expect response (to null-params request) to be successful
+    assertTrue(updateItemResponseNullParams.isSuccessful());
+    ItemResponse updatedItem = updateItemResponseNullParams.body();
+
+    // expect item to be status = "UPDATING"
+    assertNotNull(updatedItem);
+    ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
+    assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+  }
 }
