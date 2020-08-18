@@ -23,7 +23,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ParametersMap parametersMap = ParametersMap.map("user", "asd")
       .with("password", "qwe")
       .with("cuit", "20-34232323-2");
-    Integer connectorId = 1;
+    Integer connectorId = 101;
 
     // run request with 'connectorId', 'parameters' params
     CreateItemRequest createItemRequest = new CreateItemRequest(connectorId, parametersMap);

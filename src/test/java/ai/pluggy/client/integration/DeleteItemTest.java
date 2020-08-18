@@ -18,7 +18,7 @@ public class DeleteItemTest extends BaseApiIntegrationTest {
   @Test
   void deleteItem_existingItemId_ok() throws IOException {
     // ensure item exists
-    Integer connectorId = 1;
+    Integer connectorId = 101;
     ItemResponse item = createItem(client, connectorId);
     assertNotNull(item);
 

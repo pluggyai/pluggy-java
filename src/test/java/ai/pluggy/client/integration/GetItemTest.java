@@ -22,7 +22,7 @@ public class GetItemTest extends BaseApiIntegrationTest {
   @Test
   void getItem_existingItem_ok() throws IOException {
     // ensure item exists
-    Integer connectorId = 1;
+    Integer connectorId = 101;
     ItemResponse item = createItem(client, connectorId);
     assertNotNull(item);
 
