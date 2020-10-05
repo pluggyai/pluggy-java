@@ -45,7 +45,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
 
     // precondition: get account transactions (all results)
     Response<TransactionsResponse> allTransactionsResponse = client.service()
-      .getTransactions(firstAccountId)
+      .getTransactions(firstAccountId, new TransactionsSearchRequest().pageSize(100))
       .execute();
 
     TransactionsResponse allTransactionsResults = allTransactionsResponse.body();
@@ -79,11 +79,12 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
         minDate, middleDate));
 
     // get account transactions with sub-range date filters
-    String fromDateFilter = minDate.substring(0, 10);
+    String fromDateFilter = "2019-11-15";
     String toDateFilter = middleDate.substring(0, 10);
     TransactionsSearchRequest dateFilters = new TransactionsSearchRequest()
       .from(fromDateFilter)
-      .to(toDateFilter);
+      .to(toDateFilter)
+      .pageSize(100);
 
     Response<TransactionsResponse> transactionsFilteredResponse = client.service()
       .getTransactions(firstAccountId, dateFilters)
