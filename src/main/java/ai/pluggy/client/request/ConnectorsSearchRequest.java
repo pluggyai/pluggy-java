@@ -1,5 +1,6 @@
 package ai.pluggy.client.request;
 
+import ai.pluggy.utils.Asserts;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,4 +31,33 @@ public class ConnectorsSearchRequest extends HashMap<String, String> {
     }
   }
 
+  public ConnectorsSearchRequest setName(String name) {
+    Asserts.assertNotNull(name, "name");
+    put("name", name);
+    return this;
+  }
+
+  public ConnectorsSearchRequest setCountries(List<String> countries) {
+    String field = "countries";
+    Asserts.assertNotNull(countries, field);
+    put(field, String.join(",", countries));
+    return this;
+  }
+
+  public ConnectorsSearchRequest setTypes(List<String> types) {
+    String field = "types";
+    Asserts.assertNotNull(types, field);
+    put(field, String.join(",", types));
+    return this;
+  }
+
+  /**
+   * @param includeSandbox If set to true, the response will include sandbox connectors. Otherwise, they won't be included.
+   */
+  public ConnectorsSearchRequest setIncludeSandbox(Boolean includeSandbox) {
+    String field = "sandbox";
+    Asserts.assertNotNull(includeSandbox, field);
+    put(field, String.valueOf(includeSandbox));
+    return this;
+  }
 }
