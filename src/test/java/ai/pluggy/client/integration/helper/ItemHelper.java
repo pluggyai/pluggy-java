@@ -31,6 +31,7 @@ public class ItemHelper {
   public static ItemResponse createItem(PluggyClient client, Integer connectorId) {
     ParametersMap invalidParametersMap = ParametersMap.map("user", "asd")
       .with("password", "qwe")
+      .with("dni", "123123123")
       .with("cuit", "20-34232323-2");
 
     return createItem(client, connectorId, invalidParametersMap);

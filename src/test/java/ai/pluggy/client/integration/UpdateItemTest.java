@@ -25,11 +25,9 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
   @Test
   void updateItem_beforeExecutionEnds_errorResponse() {
     // precondition: an item already exists
-    Integer connectorId = 1;
     ItemResponse itemResponse = createPluggyBankItem(client);
 
     // build update item request
-    ParametersMap newParameters = ParametersMap.map("user", "qwe");
     String newWebhookUrl = "https://www.test.com";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)

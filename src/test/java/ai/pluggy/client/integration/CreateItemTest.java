@@ -22,7 +22,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     // create item params
     ParametersMap parametersMap = ParametersMap.map("user", "asd")
       .with("password", "qwe")
-      .with("cuit", "20-34232323-2");
+      .with("dni", "123123123");
     Integer connectorId = 101;
 
     // run request with 'connectorId', 'parameters' params
@@ -34,7 +34,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ItemResponse itemResponse1 = itemRequestResponse.body();
 
     assertNotNull(itemResponse1);
-    assertEquals(itemResponse1.getConnectorId(), connectorId);
+    assertEquals(itemResponse1.getConnector().getId(), connectorId);
 
     // run request with 'connectorId', 'parameters', 'webhookUrl' params
     String webhookUrl = "https://www.test.com/";
@@ -45,7 +45,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ItemResponse itemResponse2 = itemRequestWithWebhookResponse.body();
 
     assertNotNull(itemResponse2);
-    assertEquals(itemResponse2.getConnectorId(), connectorId);
+    assertEquals(itemResponse2.getConnector().getId(), connectorId);
   }
 
   @SneakyThrows

@@ -8,9 +8,7 @@ public class ItemResponse {
 
   String id;
   String user;
-  Integer userId;
   Connector connector;
-  Integer connectorId;
   Date createdAt;
   Date updatedAt;
   String status;

@@ -10,7 +10,7 @@ import org.junit.platform.commons.util.StringUtils;
 class BaseApiIntegrationTest {
 
   static final String CLIENT_ID = System.getenv("PLUGGY_CLIENT_ID");
-  private static final String CLIENT_SECRET = System.getenv("PLUGGY_CLIENT_SECRET");
+  static final String CLIENT_SECRET = System.getenv("PLUGGY_CLIENT_SECRET");
   static final String TEST_BASE_URL = System.getenv("PLUGGY_BASE_URL");
 
   PluggyClient client;
@@ -24,7 +24,7 @@ class BaseApiIntegrationTest {
       .build();
   }
 
-  private void checkEnvErrors() {
+  protected void checkEnvErrors() {
     List<String> missingEnvVars = new ArrayList<>();
     if (StringUtils.isBlank(CLIENT_ID)) {
       missingEnvVars.add("PLUGGY_CLIENT_ID");
