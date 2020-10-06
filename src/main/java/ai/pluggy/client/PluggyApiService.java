@@ -12,6 +12,7 @@ import ai.pluggy.client.response.Category;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
+import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
@@ -36,6 +37,12 @@ public interface PluggyApiService {
 
   @GET("/connectors/{id}")
   Call<Connector> getConnector(@Path("id") Integer connectorId);
+
+  @GET("/identity")
+  Call<IdentityResponse> getIdentityByItemId(@Query("itemId") String itemId);
+
+  @GET("/identity/{id}")
+  Call<IdentityResponse> getIdentityById(@Path("id") String identityId);
 
   @POST("/items")
   Call<ItemResponse> createItem(@Body CreateItemRequest createItemRequest);
