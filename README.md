@@ -1,5 +1,7 @@
 # Pluggy Java
 
+[![Actions Status](https://github.com/pluggyai/pluggy-java/workflows/Build%20%26%20Test/badge.svg)](https://github.com/pluggyai/pluggy-java/actions?query=workflow%3A"Build+%26+Test")
+
 Java Bindings for the Pluggy API (https://docs.pluggy.ai/).
 
 For available SDK API methods, check [PluggyApiService](./src/main/java/ai/pluggy/client/PluggyApiService.java) interface methods.
