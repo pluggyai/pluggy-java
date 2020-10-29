@@ -14,4 +14,5 @@ public class Connector {
   String type;
   List<CredentialLabel> credentials;
   String imageUrl;
+  Boolean hasMFA;
 }

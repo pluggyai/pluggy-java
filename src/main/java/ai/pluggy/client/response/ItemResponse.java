@@ -16,4 +16,5 @@ public class ItemResponse {
   Date lastUpdatedAt;
   String webhookUrl;
   ItemError error = null;
+  CredentialLabel parameter;
 }
