@@ -1,6 +1,7 @@
 package ai.pluggy.client.integration;
 
 import static ai.pluggy.client.integration.helper.TransactionHelper.getFirstAccountTransactions;
+import static ai.pluggy.client.integration.util.AssertionsUtils.assertSuccessful;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -13,6 +14,7 @@ import retrofit2.Response;
 
 public class GetTransactionTest extends BaseApiIntegrationTest {
 
+  @Disabled("currently, GET '/transactions/{id}' is responding with 404 - reenable once it's working again" )
   @SneakyThrows
   @Test
   void getTransaction_byExistingId_ok() {
@@ -24,6 +26,7 @@ public class GetTransactionTest extends BaseApiIntegrationTest {
       .getTransaction(existingTransactionId)
       .execute();
     
+    assertSuccessful(transactionResponse, client);
     Transaction transaction = transactionResponse.body();
 
     // expect retrieved transaction to be not null, and id to match the requested id
