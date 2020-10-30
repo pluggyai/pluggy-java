@@ -29,12 +29,10 @@ public class ItemHelper {
 
   @SneakyThrows
   public static ItemResponse createItem(PluggyClient client, Integer connectorId) {
-    ParametersMap invalidParametersMap = ParametersMap.map("user", "asd")
-      .with("password", "qwe")
-      .with("dni", "123123123")
-      .with("cuit", "20-34232323-2");
+    ParametersMap validParamsInvalidCredentials = ParametersMap.map("user", "user-bad")
+      .with("password", "password-bad");
 
-    return createItem(client, connectorId, invalidParametersMap);
+    return createItem(client, connectorId, validParamsInvalidCredentials);
   }
 
   @SneakyThrows

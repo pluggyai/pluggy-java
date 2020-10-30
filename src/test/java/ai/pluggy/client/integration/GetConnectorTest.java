@@ -16,7 +16,7 @@ class GetConnectorTest extends BaseApiIntegrationTest {
 
   @Test
   void getConnector_byExistingId_returnsOneResult() throws IOException {
-    Integer existingConnectorId = 101;
+    Integer existingConnectorId = 0;
     Response<Connector> response = client.service().getConnector(existingConnectorId).execute();
     Connector existingConnector = response.body();
     assertNotNull(existingConnector);

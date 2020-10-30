@@ -1,5 +1,6 @@
 package ai.pluggy.client.integration;
 
+import static ai.pluggy.client.integration.util.AssertionsUtils.assertSuccessful;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,17 +21,16 @@ public class CreateItemTest extends BaseApiIntegrationTest {
   @Test
   void createItem_withValidParams_responseOk() {
     // create item params
-    ParametersMap parametersMap = ParametersMap.map("user", "asd")
-      .with("password", "qwe")
-      .with("dni", "123123123");
-    Integer connectorId = 101;
+    ParametersMap parametersMap = ParametersMap.map("user", "user-ok")
+      .with("password", "password-ok");
+    Integer connectorId = 0;
 
     // run request with 'connectorId', 'parameters' params
     CreateItemRequest createItemRequest = new CreateItemRequest(connectorId, parametersMap);
 
     Call<ItemResponse> createItemRequestCall = client.service().createItem(createItemRequest);
     Response<ItemResponse> itemRequestResponse = createItemRequestCall.execute();
-    assertTrue(itemRequestResponse.isSuccessful());
+    assertSuccessful(itemRequestResponse, client);
     ItemResponse itemResponse1 = itemRequestResponse.body();
 
     assertNotNull(itemResponse1);
