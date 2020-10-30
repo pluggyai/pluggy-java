@@ -19,6 +19,7 @@ import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -50,7 +51,7 @@ public interface PluggyApiService {
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
 
-  @GET("/items/{id}")
+  @DELETE("/items/{id}")
   Call<DeleteItemResponse> deleteItem(@Path("id") String existingItemId);
 
   @GET("/accounts")
