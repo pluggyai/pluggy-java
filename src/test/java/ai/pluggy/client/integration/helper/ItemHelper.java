@@ -22,6 +22,7 @@ public class ItemHelper {
   public static final String NON_EXISTING_ITEM_ID = "ab9f7a00-7d45-458b-b288-4923e18a9e69";
 
   public static final Integer PLUGGY_BANK_CONNECTOR_ID = 0;
+  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID = 1;
 
   // Possible item statuses that indicate execution finished
   public static final List<String> ITEM_FINISH_STATUSES = Arrays
@@ -46,6 +47,12 @@ public class ItemHelper {
       .createItem(createItemRequest)
       .execute();
 
+    if (!itemRequestResponse.isSuccessful()) {
+      ErrorResponse errorResponse = client.parseError(itemRequestResponse);
+      throw new Error(
+        "Create item request responded with error, code=" + errorResponse.getCode() + ", message='"
+          + errorResponse.getMessage() + "'");
+    }
     assertTrue(itemRequestResponse.isSuccessful());
     ItemResponse itemResponse = itemRequestResponse.body();
     assertNotNull(itemResponse);
@@ -62,6 +69,17 @@ public class ItemHelper {
     ItemResponse pluggyBankExecution = createItem(client, PLUGGY_BANK_CONNECTOR_ID, parametersMap);
     return pluggyBankExecution;
   }
+
+  public static ItemResponse createPluggyBankMfaItem(PluggyClient client) {
+    ParametersMap parametersMap = ParametersMap
+      .map("user", "user-mfa")
+      .with("password", "password-ok")
+      .with("token", "111111");
+    ItemResponse pluggyBankExecution = createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID,
+      parametersMap);
+    return pluggyBankExecution;
+  }
+
 
   @SneakyThrows
   public static ItemResponse getItemStatus(PluggyClient client, String itemId) {

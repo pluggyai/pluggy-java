@@ -4,6 +4,7 @@ import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
+import ai.pluggy.client.request.UpdateItemMfaRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
@@ -54,6 +55,10 @@ public interface PluggyApiService {
   @PATCH("/items/{id}")
   Call<ItemResponse> updateItem(@Path("id") String itemId,
     @Body UpdateItemRequest updateItemRequest);
+
+  @POST("/items/{id}/mfa")
+  Call<ItemResponse> updateItemSendMfa(@Path("id") String itemId,
+    @Body UpdateItemMfaRequest mfaParameter);
 
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
