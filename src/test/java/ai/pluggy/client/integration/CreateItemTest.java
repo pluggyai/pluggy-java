@@ -4,6 +4,7 @@ import static ai.pluggy.client.integration.util.AssertionsUtils.assertSuccessful
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.request.CreateItemRequest;
@@ -68,6 +69,8 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ErrorResponse errorResponse = client.parseError(itemRequestResponse);
     assertNotNull(errorResponse);
     assertEquals(errorResponse.getCode(), 400);
+    assertNotNull(errorResponse.getDetails(), "should include validation error details for bad params");
+    assertTrue(errorResponse.getDetails().size() > 0);
 
     // webhookUrl param 'localhost' is invalid, expect error 400
     String localWebhookUrl = "localhost:9999";
@@ -78,6 +81,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ErrorResponse localWebhookErrorResponse = client.parseError(itemRequestWithLocalWebhookResponse);
     assertNotNull(localWebhookErrorResponse);
     assertEquals(localWebhookErrorResponse.getCode(), 400);
+    assertNull(localWebhookErrorResponse.getDetails(), "should not include validation error details for webhookUrl");
 
     // webhookUrl param http is invalid, expect error 400
     String httpWebhookUrl = "http://www.test.com";
@@ -88,5 +92,6 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     ErrorResponse httpWebhookErrorResponse = client.parseError(itemRequestWithHttpWebhookResponse);
     assertNotNull(httpWebhookErrorResponse);
     assertEquals(httpWebhookErrorResponse.getCode(), 400);
+    assertNull(localWebhookErrorResponse.getDetails(), "should not include validation error details for webhookUrl");
   }
 }
