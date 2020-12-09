@@ -12,4 +12,6 @@ public class Transaction {
   String date;
   Double balance;
   String category;
+  String providerCode;
+  TransactionStatus status;
 }
