@@ -12,4 +12,5 @@ public class CreditData {
   Double availableCreditLimit;
   Double balanceForeignCurrency;
   Double minimumPayment;
+  Double creditLimit;
 }
