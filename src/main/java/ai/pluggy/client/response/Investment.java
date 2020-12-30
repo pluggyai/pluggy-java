@@ -1,5 +1,6 @@
 package ai.pluggy.client.response;
 
+import java.util.Date;
 import lombok.Data;
 
 @Data
@@ -10,8 +11,9 @@ public class Investment {
   String name;
   Double balance;
   String currencyCode;
-  String type;
+  InvestmentType type;
   Double annualRate;
+  Double lastTwelveMonthsRate;
   String itemId;
   String code;
   Double value;
@@ -23,4 +25,14 @@ public class Investment {
   String owner;
   String amountProfit = null;
   Double amountWithdrawal;
+  InvestmentTransaction[] transactions;
+  Date dueDate;
+  String issuer;
+  Date issuerDate;
+  Double rate;
+  String rateType;
+  Double originalAmount;
+  Double lastMonthRate;
+  InvestmentStatus status;
+
 }
