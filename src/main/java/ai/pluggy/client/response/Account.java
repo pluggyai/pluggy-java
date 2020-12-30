@@ -19,7 +19,6 @@ public class Account {
   Double balance;
   String itemId;
   String currencyCode;
-  List<Transaction> transactions = new ArrayList<Transaction>();
   CreditData creditData;
   BankData bankData;
 }
