@@ -10,6 +10,7 @@ import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.CategoriesResponse;
 import ai.pluggy.client.response.Category;
+import ai.pluggy.client.response.ConnectTokenResponse;
 import ai.pluggy.client.response.Connector;
 import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
@@ -97,4 +98,6 @@ public interface PluggyApiService {
   @GET("/categories/{id}")
   Call<Category> getCategory(@Path("id") String categoryId);
 
+  @POST("/connecttokens")
+  Call<ConnectTokenResponse> createConnectToken();
 }
