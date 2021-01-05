@@ -11,7 +11,7 @@ public class Connector {
   String primaryColor;
   String institutionUrl;
   String country;
-  String type;
+  ConnectorType type;
   List<CredentialLabel> credentials;
   String imageUrl;
   Boolean hasMFA;
