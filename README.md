@@ -20,7 +20,7 @@ Currently, the package is available in Github Packages, so make sure to have the
 <dependency>
   <groupId>ai.pluggy</groupId>
   <artifactId>pluggy-java</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 
