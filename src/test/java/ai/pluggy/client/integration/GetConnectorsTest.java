@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.request.ConnectorsSearchRequest;
+import ai.pluggy.client.response.ConnectorType;
 import ai.pluggy.client.response.ConnectorsResponse;
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ class GetConnectorsTest extends BaseApiIntegrationTest {
       .getConnectors(new ConnectorsSearchRequest(null, Arrays.asList("BR", "AR"))).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
       .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("AR"),
-        Collections.singletonList("BUSINESS_BANK"))).execute().body();
+        Collections.singletonList(ConnectorType.BUSINESS_BANK))).execute().body();
 
     int allCount = defaultConnectors.getResults().size();
     int allIncludeSandboxCount = connectorsFilteredIncludeSandbox.getResults().size();
