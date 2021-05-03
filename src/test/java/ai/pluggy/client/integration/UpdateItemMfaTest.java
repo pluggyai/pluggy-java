@@ -44,7 +44,7 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
 
     // build update mfa item request
     UpdateItemMfaRequest updateItemMfaRequest = new UpdateItemMfaRequest()
-      .with(mfaCredentialFieldName, "123456");
+      .with(mfaCredentialFieldName, "1");
 
     // run update item with mfa param
     Response<ItemResponse> updateItemMfaResponse = client.service()
@@ -55,6 +55,13 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
     assertSuccessful(updateItemMfaResponse, client);
     assertTrue(updateItemMfaResponse.isSuccessful());
     ItemResponse updatedItem = updateItemMfaResponse.body();
+
+    Poller.pollRequestUntil(
+      () -> getItemStatus(client, createdItemResponse.getId()),
+      (ItemResponse itemStatusResponse) -> Objects
+        .equals(itemStatusResponse.getStatus(), "UPDATING"),
+      500, 45000
+    );
 
     // expect item to be status = "UPDATING"
     assertNotNull(updatedItem);

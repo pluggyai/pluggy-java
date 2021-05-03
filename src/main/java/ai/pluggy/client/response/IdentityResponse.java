@@ -23,4 +23,5 @@ public class IdentityResponse {
   List<IdentityRelation> identityRelations;
   Date createdAt;
   Date updatedAt;
+  String companyName;
 }

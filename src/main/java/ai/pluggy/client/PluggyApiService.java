@@ -1,11 +1,6 @@
 package ai.pluggy.client;
 
-import ai.pluggy.client.request.AccountsRequest;
-import ai.pluggy.client.request.ConnectorsSearchRequest;
-import ai.pluggy.client.request.CreateItemRequest;
-import ai.pluggy.client.request.TransactionsSearchRequest;
-import ai.pluggy.client.request.UpdateItemMfaRequest;
-import ai.pluggy.client.request.UpdateItemRequest;
+import ai.pluggy.client.request.*;
 import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.CategoriesResponse;
@@ -99,5 +94,5 @@ public interface PluggyApiService {
   Call<Category> getCategory(@Path("id") String categoryId);
 
   @POST("/connecttokens")
-  Call<ConnectTokenResponse> createConnectToken();
+  Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
 }
