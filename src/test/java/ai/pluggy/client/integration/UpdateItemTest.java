@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.integration.util.Poller;
-import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.util.Objects;
+
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
@@ -29,8 +29,10 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build update item request
     String newWebhookUrl = "https://www.test.com";
+    String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
+      .clientUserId(newClientUserId)
       .build();
 
     // run update item request
@@ -58,8 +60,10 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build update item request
     String newWebhookUrl = "https://www.test2.com";
+    String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
+      .clientUserId(newClientUserId)
       .build();
 
     // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.

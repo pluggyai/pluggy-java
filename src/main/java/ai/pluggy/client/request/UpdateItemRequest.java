@@ -13,4 +13,5 @@ public class UpdateItemRequest {
   Integer connectorId;
   ParametersMap parameters;
   String webhookUrl;
+  String clientUserId;
 }

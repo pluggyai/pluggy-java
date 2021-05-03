@@ -34,5 +34,6 @@ public class Investment {
   Double originalAmount;
   Double lastMonthRate;
   InvestmentStatus status;
-
+  String isin;
+  
 }
