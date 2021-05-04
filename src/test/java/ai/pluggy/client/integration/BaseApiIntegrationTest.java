@@ -4,6 +4,11 @@ import ai.pluggy.client.PluggyClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemsResponse;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.platform.commons.util.StringUtils;
 
@@ -40,6 +45,17 @@ class BaseApiIntegrationTest {
         .map(varName -> "'" + varName + "'")
         .collect(Collectors.joining(", "));
       throw new IllegalStateException("Must define " + envVarsListString + " env var(s)!");
+    }
+  }
+
+  @AfterEach
+  @SneakyThrows
+  void removeAllItems() {
+    ItemsResponse itemsResponse = client.service().getItems().execute().body();
+    if(itemsResponse != null){
+      for(ItemResponse itemResponse: itemsResponse.getResults()){
+        client.service().deleteItem(itemResponse.getId()).execute();
+      }
     }
   }
 }
