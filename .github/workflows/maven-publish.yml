@@ -7,9 +7,9 @@ on:
     types: [created]
 
 env:
-  PLUGGY_CLIENT_ID: "ccd5b9be-3be6-45fe-9512-5907f1619db0"
+  PLUGGY_CLIENT_ID: ${{ secrets.PLUGGY_CLIENT_ID }}
   PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
-  PLUGGY_BASE_URL: "https://api.pluggy.ai"
+  PLUGGY_BASE_URL: ${{ secrets.PLUGGY_BASE_URL }}
 
 jobs:
   build:
