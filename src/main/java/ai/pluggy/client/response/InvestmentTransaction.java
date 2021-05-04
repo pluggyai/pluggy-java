@@ -12,5 +12,5 @@ public class InvestmentTransaction {
   Double amount;
   Date date;
   Date tradeDate;
-  Double lsin;
+  Double isin;
 }
