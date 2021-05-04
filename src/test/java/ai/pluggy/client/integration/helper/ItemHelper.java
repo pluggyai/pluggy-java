@@ -24,7 +24,7 @@ public class ItemHelper {
   public static final String NON_EXISTING_ITEM_ID = "ab9f7a00-7d45-458b-b288-4923e18a9e69";
 
   public static final Integer PLUGGY_BANK_CONNECTOR_ID = 0;
-  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID_WAITING_USER_INPUT = 3;
+  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID = 3;
 
   // Possible item statuses that indicate execution finished
   public static final List<String> ITEM_FINISH_STATUSES = Arrays
@@ -81,7 +81,7 @@ public class ItemHelper {
       .map("user", "user-ok")
       .with("password", "password-ok")
       .with("token", "111111");
-    return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID_WAITING_USER_INPUT, parametersMap);
+    return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID, parametersMap);
   }
 
 
