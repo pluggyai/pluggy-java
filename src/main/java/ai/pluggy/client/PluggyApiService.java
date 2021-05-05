@@ -19,7 +19,6 @@ import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
-import ai.pluggy.client.response.ItemsResponse;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
 import retrofit2.Call;
@@ -62,9 +61,6 @@ public interface PluggyApiService {
   @POST("/items/{id}/mfa")
   Call<ItemResponse> updateItemSendMfa(@Path("id") String itemId,
     @Body UpdateItemMfaRequest mfaParameter);
-
-  @GET("/items")
-  Call<ItemsResponse> getItems();
   
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
