@@ -24,7 +24,8 @@ public class ItemHelper {
   public static final String NON_EXISTING_ITEM_ID = "ab9f7a00-7d45-458b-b288-4923e18a9e69";
 
   public static final Integer PLUGGY_BANK_CONNECTOR_ID = 0;
-  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID = 3;
+  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID = 1;
+  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_SECOND_STEP_MFA_ID = 3;
 
   // Possible item statuses that indicate execution finished
   public static final List<String> ITEM_FINISH_STATUSES = Arrays
@@ -80,8 +81,15 @@ public class ItemHelper {
     ParametersMap parametersMap = ParametersMap
       .map("user", "user-ok")
       .with("password", "password-ok")
-      .with("token", "111111");
+      .with("token", "123456");
     return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID, parametersMap);
+  }
+
+  public static ItemResponse createPluggyBankMfaSecondStepItem(PluggyClient client) {
+    ParametersMap parametersMap = ParametersMap
+      .map("user", "user-ok")
+      .with("password", "password-ok");
+    return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_SECOND_STEP_MFA_ID, parametersMap);
   }
 
 
