@@ -39,7 +39,7 @@ public class GetAccountTest extends BaseApiIntegrationTest {
   @Test
   void getAccountById_afterExecutionCompleted_responseOk() {
     // precondition: run sandbox accounts execution, wait for result, and retrieve it
-    AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client);
+    AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client, this.getItemsIdCreated());
 
     // get account response
     String firstAccountId = pluggyBankAccounts.getResults().get(0).getId();

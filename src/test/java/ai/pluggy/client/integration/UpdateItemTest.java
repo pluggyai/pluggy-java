@@ -50,6 +50,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // expect updatedItem response to be null
     ItemResponse updatedItem = updateItemResponse.body();
     assertNull(updatedItem);
+    
+    this.getItemsIdCreated().add(itemResponse.getId());
   }
 
   @SneakyThrows
@@ -88,6 +90,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     assertEquals(updatedItem.getWebhookUrl(), newWebhookUrl);
     assertNotEquals(createdItemResponse.getWebhookUrl(), newWebhookUrl);
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
   @SneakyThrows
@@ -121,6 +125,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
   @SneakyThrows
@@ -150,5 +156,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 }

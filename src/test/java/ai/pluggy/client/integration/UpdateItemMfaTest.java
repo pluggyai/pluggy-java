@@ -71,6 +71,8 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
 

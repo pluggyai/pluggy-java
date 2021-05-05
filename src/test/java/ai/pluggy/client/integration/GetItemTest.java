@@ -34,6 +34,8 @@ public class GetItemTest extends BaseApiIntegrationTest {
     // expect item response id to match requested
     assertNotNull(itemResponse);
     assertEquals(itemResponse.getId(), createdItemId);
+
+    this.getItemsIdCreated().add(item.getId());
   }
 
   @SneakyThrows
@@ -71,6 +73,8 @@ public class GetItemTest extends BaseApiIntegrationTest {
 
     assertNotNull(itemFinishedResponse.getError());
     assertEquals(itemFinishedResponse.getError().getCode(), expectedLoginErrorCode);
+
+    this.getItemsIdCreated().add(itemWithBadCredentials.getId());
   }
 
   @Test

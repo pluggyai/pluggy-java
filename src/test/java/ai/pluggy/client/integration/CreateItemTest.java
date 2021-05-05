@@ -50,6 +50,9 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     assertEquals(itemResponse2.getConnector().getId(), connectorId);
     assertEquals(itemResponse2.getClientUserId(), clientUserId);
     assertEquals(itemResponse2.getWebhookUrl(), webhookUrl);
+    
+    this.getItemsIdCreated().add(itemResponse1.getId());
+    this.getItemsIdCreated().add(itemResponse2.getId());
   }
 
   @SneakyThrows
