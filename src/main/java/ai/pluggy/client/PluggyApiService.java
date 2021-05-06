@@ -2,6 +2,7 @@ package ai.pluggy.client;
 
 import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
+import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
@@ -60,7 +61,7 @@ public interface PluggyApiService {
   @POST("/items/{id}/mfa")
   Call<ItemResponse> updateItemSendMfa(@Path("id") String itemId,
     @Body UpdateItemMfaRequest mfaParameter);
-
+  
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
 
@@ -99,5 +100,5 @@ public interface PluggyApiService {
   Call<Category> getCategory(@Path("id") String categoryId);
 
   @POST("/connecttokens")
-  Call<ConnectTokenResponse> createConnectToken();
+  Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
 }

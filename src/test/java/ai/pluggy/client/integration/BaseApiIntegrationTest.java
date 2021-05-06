@@ -4,6 +4,9 @@ import ai.pluggy.client.PluggyClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.platform.commons.util.StringUtils;
 
@@ -14,6 +17,12 @@ class BaseApiIntegrationTest {
   static final String TEST_BASE_URL = System.getenv("PLUGGY_BASE_URL");
 
   PluggyClient client;
+  
+  protected List<String> itemsIdCreated = new ArrayList<>();
+
+  public List<String> getItemsIdCreated() {
+    return itemsIdCreated;
+  }
 
   @BeforeEach
   void setUp() {
@@ -40,6 +49,15 @@ class BaseApiIntegrationTest {
         .map(varName -> "'" + varName + "'")
         .collect(Collectors.joining(", "));
       throw new IllegalStateException("Must define " + envVarsListString + " env var(s)!");
+    }
+  }
+  
+  @SneakyThrows
+  @AfterEach
+  protected void clearItems() {
+    for (String itemId : itemsIdCreated) {
+      System.out.printf("Item delete id: %s%n", itemId);
+      client.service().deleteItem(itemId).execute();
     }
   }
 }

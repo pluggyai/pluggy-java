@@ -46,6 +46,8 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     IdentityResponse identityResponse = identityByItemIdResponse.body();
     assertNotNull(identityResponse);
+    
+    this.getItemsIdCreated().add(item.getId());
   }
 
   @SneakyThrows
@@ -70,6 +72,8 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     ErrorResponse errorResponse = client.parseError(identityByItemIdResponse);
     assertEquals(404, errorResponse.getCode());
+
+    this.getItemsIdCreated().add(item.getId());
   }
 
 
@@ -111,6 +115,8 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
     assertNotNull(identityById);
     assertEquals(identityById.getId(), identityId);
     assertEquals(identityById.getFullName(), identityResponse.getFullName());
+
+    this.getItemsIdCreated().add(item.getId());
   }
 
 }

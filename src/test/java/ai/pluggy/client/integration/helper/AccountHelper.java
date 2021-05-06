@@ -11,6 +11,7 @@ import ai.pluggy.client.response.Account;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -19,11 +20,12 @@ import retrofit2.Response;
 @Log4j2
 public class AccountHelper {
 
-  public static AccountsResponse getPluggyBankAccounts(PluggyClient client)
+  public static AccountsResponse getPluggyBankAccounts(PluggyClient client, List<String> itemsIdCreated)
     throws InterruptedException, IOException {
     log.info("Retrieving accounts from pluggy bank connector...");
     ItemResponse pluggyBankExecution = createPluggyBankItem(client);
 
+    itemsIdCreated.add(pluggyBankExecution.getId());
     // poll check of connector item status until it's completed (status: "UPDATED")
     Poller.pollRequestUntil(
       () -> getItemStatus(client, pluggyBankExecution.getId()),
@@ -51,10 +53,10 @@ public class AccountHelper {
     return accountsResponse;
   }
 
-  public static String retrieveFirstAccountId(PluggyClient client)
+  public static String retrieveFirstAccountId(PluggyClient client, List<String> itemsIdCreated)
     throws InterruptedException, IOException {
     log.info("Retrieving first account id...");
-    AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client);
+    AccountsResponse pluggyBankAccounts = getPluggyBankAccounts(client, itemsIdCreated);
     String firstAccountId = pluggyBankAccounts.getResults().get(0).getId();
     log.info("Got first account id {}", firstAccountId);
     return firstAccountId;

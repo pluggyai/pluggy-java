@@ -12,4 +12,5 @@ public class InvestmentTransaction {
   Double amount;
   Date date;
   Date tradeDate;
+  String isin;
 }

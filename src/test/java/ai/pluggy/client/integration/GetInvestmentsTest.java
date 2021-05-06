@@ -36,5 +36,7 @@ public class GetInvestmentsTest extends BaseApiIntegrationTest {
     InvestmentsResponse investments = investmentsResponse.body();
     assertNotNull(investments);
     assertTrue(investments.getResults().size() > 0);
+
+    this.getItemsIdCreated().add(pluggyBankExecution.getId());
   }
 }

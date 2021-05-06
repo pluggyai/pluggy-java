@@ -17,4 +17,5 @@ public class ItemResponse {
   String webhookUrl;
   ItemError error = null;
   CredentialLabel parameter;
+  String clientUserId;
 }

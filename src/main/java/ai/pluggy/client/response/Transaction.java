@@ -14,4 +14,5 @@ public class Transaction {
   String category;
   String providerCode;
   TransactionStatus status;
+  PaymentData paymentData;
 }

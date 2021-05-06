@@ -1,7 +1,6 @@
 package ai.pluggy.client.integration;
 
-import static ai.pluggy.client.integration.helper.ItemHelper.createPluggyBankMfaItem;
-import static ai.pluggy.client.integration.helper.ItemHelper.getItemStatus;
+import static ai.pluggy.client.integration.helper.ItemHelper.*;
 import static ai.pluggy.client.integration.util.AssertionsUtils.assertSuccessful;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,13 +21,18 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
   @Test
   void updateItemMfa_afterCreated_withMfaCredential_ok() {
     // precondition: an MFA item already exists
-    ItemResponse createdItemResponse = createPluggyBankMfaItem(client);
+    ItemResponse createdItemResponse = createPluggyBankMfaSecondStepItem(client);
+    
+    System.out.println(createdItemResponse.getStatus());
 
     // wait for creation finish and waiting for MFA (status: "WAITING_USER_INPUT") before updating, to prevent update request error 400.
     Poller.pollRequestUntil(
       () -> getItemStatus(client, createdItemResponse.getId()),
-      (ItemResponse itemStatusResponse) -> Objects
-        .equals(itemStatusResponse.getStatus(), "WAITING_USER_INPUT"),
+      (ItemResponse itemStatusResponse) -> {
+        System.out.println(itemStatusResponse.getStatus());
+        return Objects
+        .equals(itemStatusResponse.getStatus(), "WAITING_USER_INPUT");
+      },
       500, 45000
     );
 
@@ -44,7 +48,7 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
 
     // build update mfa item request
     UpdateItemMfaRequest updateItemMfaRequest = new UpdateItemMfaRequest()
-      .with(mfaCredentialFieldName, "123456");
+      .with(mfaCredentialFieldName, "1");
 
     // run update item with mfa param
     Response<ItemResponse> updateItemMfaResponse = client.service()
@@ -56,10 +60,19 @@ public class UpdateItemMfaTest extends BaseApiIntegrationTest {
     assertTrue(updateItemMfaResponse.isSuccessful());
     ItemResponse updatedItem = updateItemMfaResponse.body();
 
+    Poller.pollRequestUntil(
+      () -> getItemStatus(client, createdItemResponse.getId()),
+      (ItemResponse itemStatusResponse) -> Objects
+        .equals(itemStatusResponse.getStatus(), "UPDATING"),
+      500, 45000
+    );
+
     // expect item to be status = "UPDATING"
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
 

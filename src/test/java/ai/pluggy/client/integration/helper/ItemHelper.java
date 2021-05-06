@@ -9,8 +9,10 @@ import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
+
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import retrofit2.Response;
@@ -23,6 +25,7 @@ public class ItemHelper {
 
   public static final Integer PLUGGY_BANK_CONNECTOR_ID = 0;
   public static final Integer PLUGGY_BANK_CONNECTOR_WITH_MFA_ID = 1;
+  public static final Integer PLUGGY_BANK_CONNECTOR_WITH_SECOND_STEP_MFA_ID = 3;
 
   // Possible item statuses that indicate execution finished
   public static final List<String> ITEM_FINISH_STATUSES = Arrays
@@ -41,7 +44,12 @@ public class ItemHelper {
     ParametersMap parametersMap) {
     log.info("Creating item execution for connector id '" + connectorId + "'...");
     // run request with 'connectorId', 'parameters' params
-    CreateItemRequest createItemRequest = new CreateItemRequest(connectorId, parametersMap);
+    CreateItemRequest createItemRequest = new CreateItemRequest(
+      connectorId, 
+      parametersMap, 
+      "https://webhookUrl.pluggy.ai", 
+      "clientUserId"
+    );
 
     Response<ItemResponse> itemRequestResponse = client.service()
       .createItem(createItemRequest)
@@ -66,18 +74,22 @@ public class ItemHelper {
     ParametersMap parametersMap = ParametersMap
       .map("user", "user-ok")
       .with("password", "password-ok");
-    ItemResponse pluggyBankExecution = createItem(client, PLUGGY_BANK_CONNECTOR_ID, parametersMap);
-    return pluggyBankExecution;
+    return createItem(client, PLUGGY_BANK_CONNECTOR_ID, parametersMap);
   }
 
   public static ItemResponse createPluggyBankMfaItem(PluggyClient client) {
     ParametersMap parametersMap = ParametersMap
-      .map("user", "user-mfa")
+      .map("user", "user-ok")
       .with("password", "password-ok")
-      .with("token", "111111");
-    ItemResponse pluggyBankExecution = createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID,
-      parametersMap);
-    return pluggyBankExecution;
+      .with("token", "123456");
+    return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_MFA_ID, parametersMap);
+  }
+
+  public static ItemResponse createPluggyBankMfaSecondStepItem(PluggyClient client) {
+    ParametersMap parametersMap = ParametersMap
+      .map("user", "user-ok")
+      .with("password", "password-ok");
+    return createItem(client, PLUGGY_BANK_CONNECTOR_WITH_SECOND_STEP_MFA_ID, parametersMap);
   }
 
 

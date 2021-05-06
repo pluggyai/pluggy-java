@@ -18,7 +18,7 @@ public class GetTransactionTest extends BaseApiIntegrationTest {
   @SneakyThrows
   @Test
   void getTransaction_byExistingId_ok() {
-    TransactionsResponse firstAccountTransactions = getFirstAccountTransactions(client);
+    TransactionsResponse firstAccountTransactions = getFirstAccountTransactions(client, this.getItemsIdCreated());
     String existingTransactionId = firstAccountTransactions.getResults().get(0).getId();
 
     // request existing transaction

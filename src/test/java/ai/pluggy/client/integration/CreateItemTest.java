@@ -37,16 +37,22 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     assertNotNull(itemResponse1);
     assertEquals(itemResponse1.getConnector().getId(), connectorId);
 
-    // run request with 'connectorId', 'parameters', 'webhookUrl' params
+    // run request with 'connectorId', 'parameters', 'webhookUrl', 'clientUserId', params
     String webhookUrl = "https://www.test.com/";
+    String clientUserId = "clientUserId";
     CreateItemRequest createItemRequestWithWebhook = new CreateItemRequest(connectorId,
-      parametersMap, webhookUrl);
+      parametersMap, webhookUrl, clientUserId);
     Response<ItemResponse> itemRequestWithWebhookResponse = client.service()
       .createItem(createItemRequestWithWebhook).execute();
     ItemResponse itemResponse2 = itemRequestWithWebhookResponse.body();
 
     assertNotNull(itemResponse2);
     assertEquals(itemResponse2.getConnector().getId(), connectorId);
+    assertEquals(itemResponse2.getClientUserId(), clientUserId);
+    assertEquals(itemResponse2.getWebhookUrl(), webhookUrl);
+    
+    this.getItemsIdCreated().add(itemResponse1.getId());
+    this.getItemsIdCreated().add(itemResponse2.getId());
   }
 
   @SneakyThrows

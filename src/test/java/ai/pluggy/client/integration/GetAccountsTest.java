@@ -28,6 +28,7 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
   void setUp() {
     super.setUp();
     pluggyBankExecution = createPluggyBankItem(client);
+    this.getItemsIdCreated().add(pluggyBankExecution.getId());
   }
 
 

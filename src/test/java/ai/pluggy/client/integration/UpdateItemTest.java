@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.integration.util.Poller;
-import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
 import java.util.Objects;
+
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
@@ -29,8 +29,10 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build update item request
     String newWebhookUrl = "https://www.test.com";
+    String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
+      .clientUserId(newClientUserId)
       .build();
 
     // run update item request
@@ -48,6 +50,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // expect updatedItem response to be null
     ItemResponse updatedItem = updateItemResponse.body();
     assertNull(updatedItem);
+    
+    this.getItemsIdCreated().add(itemResponse.getId());
   }
 
   @SneakyThrows
@@ -58,8 +62,10 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build update item request
     String newWebhookUrl = "https://www.test2.com";
+    String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
       .webhookUrl(newWebhookUrl)
+      .clientUserId(newClientUserId)
       .build();
 
     // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
@@ -84,6 +90,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     assertEquals(updatedItem.getWebhookUrl(), newWebhookUrl);
     assertNotEquals(createdItemResponse.getWebhookUrl(), newWebhookUrl);
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
   @SneakyThrows
@@ -117,6 +125,8 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 
   @SneakyThrows
@@ -146,5 +156,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
     assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+
+    this.getItemsIdCreated().add(createdItemResponse.getId());
   }
 }

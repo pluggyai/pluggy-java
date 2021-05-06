@@ -22,7 +22,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
   @Test
   void getTransactions_byExistingAccountId_ok() {
     // precondition: retrieve accounts data
-    String firstAccountId = retrieveFirstAccountId(client);
+    String firstAccountId = retrieveFirstAccountId(client, this.getItemsIdCreated());
 
     // get first account transactions
     Response<TransactionsResponse> transactionsResponse = client.service()
@@ -41,7 +41,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
   @Test
   void getTransactions_byExistingAccountId_withDateFilters_ok() {
     // precondition: retrieve accounts data
-    String firstAccountId = retrieveFirstAccountId(client);
+    String firstAccountId = retrieveFirstAccountId(client, this.getItemsIdCreated());
 
     // precondition: get account transactions (all results)
     Response<TransactionsResponse> allTransactionsResponse = client.service()
@@ -115,7 +115,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
   @Test
   void getTransactions_byExistingAccountId_withPageFilters_ok() {
     // precondition: retrieve accounts data
-    String firstAccountId = retrieveFirstAccountId(client);
+    String firstAccountId = retrieveFirstAccountId(client, this.getItemsIdCreated());
 
     // fetch first page
     int pageSize = 2;
