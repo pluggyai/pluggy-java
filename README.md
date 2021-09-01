@@ -12,9 +12,9 @@ Also, for examples of use, please check the [integration tests](./src/test/java/
 
 ### Install
 
-Using Maven, add dependency to your pom.xml:
+#### pom.xml
 
-Currently, the package is available in Github Packages, so make sure to have the GH Packages server config with your Personal GH Access Token in your `.m2/settings.xml` file. Navigate to [this guide](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages#authenticating-to-github-packages) for more details.
+Using Maven, add dependency to your pom.xml:
 
 ```xml
 <dependency>
@@ -22,6 +22,52 @@ Currently, the package is available in Github Packages, so make sure to have the
   <artifactId>pluggy-java</artifactId>
   <version>0.6.2</version>
 </dependency>
+```
+
+#### settings.xml
+
+Currently, the package is available in Github Packages, so make sure to have the GH Packages server config with your Personal GH Access Token in your `.m2/settings.xml` file. 
+Navigate to [this guide](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages#authenticating-to-github-packages) for more details.
+
+Replace GITHUB_USERNAME and GITHUB_TOKEN for your credentials
+
+```
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+
+  <profiles>
+    <profile>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/pluggyai/*</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <servers>
+    <server>
+      <id>github</id>
+      <username>{GITHUB_USERNAME}</username>
+      <password>{GITHUB_TOKEN}</password>
+    </server>
+  </servers>
+</settings>
 ```
 
 ### Basic Usage
