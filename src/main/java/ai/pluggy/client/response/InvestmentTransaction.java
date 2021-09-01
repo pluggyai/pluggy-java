@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class InvestmentTransaction {
 
+  String id;
   InvestmentTransactionType type;
   Double quantity;
   Double value;

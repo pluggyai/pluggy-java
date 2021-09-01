@@ -11,6 +11,8 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
+import java.util.Arrays;
+
 public class GetInvestment extends BaseApiIntegrationTest {
 
   @SneakyThrows
@@ -19,6 +21,7 @@ public class GetInvestment extends BaseApiIntegrationTest {
     // precondition: get existing investments
     InvestmentsResponse investments = getPluggyBankInvestments(client);
     String firstInvestmentId = investments.getResults().get(0).getId();
+    String firstInvestmentTransactionId = Arrays.stream(investments.getResults().get(0).getTransactions()).findFirst().get().getId();
 
     // get investment by existing id
     Response<Investment> investmentResponse = client.service().getInvestment(firstInvestmentId)
@@ -29,5 +32,10 @@ public class GetInvestment extends BaseApiIntegrationTest {
     Investment investment = investmentResponse.body();
     assertNotNull(investment);
     assertEquals(investment.getId(), firstInvestmentId);
+    assertEquals(
+      Arrays.stream(investment.getTransactions()).findFirst().get().getId(), 
+      firstInvestmentTransactionId
+    );
+
   }
 }
