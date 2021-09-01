@@ -10,6 +10,18 @@ This implementation uses [Retrofit](https://github.com/square/retrofit) and [OkH
 
 Also, for examples of use, please check the [integration tests](./src/test/java/ai/pluggy/client/integration) - practically all of the available endpoints have at least one test case.
 
+### Deploy
+
+After to merge in master it is necessary to create a new tag
+
+- go to `https://github.com/pluggyai/pluggy-java/tags`
+- click in `Releases`
+- click in `Draft a new release`
+- In `Choose a tag` type a new version of SDK for example `v0.6.2`
+- In `Target` has to be a `master`
+- Write a description of release (required)
+- Click in `Publish release`
+
 ### Install
 
 Using Maven, add dependency to your pom.xml:
