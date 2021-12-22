@@ -10,20 +10,8 @@ on:
   schedule:
     - cron: "0 0 * * *" # At the end of every day
 
-jobs:
-  envs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v1
-
-      - name: Login in Doppler
-        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_PROD }} --no-prompt
-
-      - name: Pass All Secrets to Next Steps
-        run: doppler secrets download --no-file --format=docker >> $GITHUB_ENV;   
+jobs: 
   build:
-    needs: envs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +30,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v1
+
+      - name: Login in Doppler
+        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_PROD }} --no-prompt
+
+      - name: Pass All Secrets to Next Steps
+        run: doppler secrets download --no-file --format=docker >> $GITHUB_ENV; 
       
       - name: Check Test Env Variables
         run: echo PLUGGY_CLIENT_ID $PLUGGY_CLIENT_ID PLUGGY_BASE_URL $PLUGGY_BASE_URL
@@ -49,7 +46,6 @@ jobs:
           PLUGGY_CLIENT_ID: ${{ env.PLUGGY_CLIENT_ID }}
           PLUGGY_CLIENT_SECRET: ${{ env.PLUGGY_CLIENT_SECRET }}
           PLUGGY_BASE_URL: ${{ env.PLUGGY_BASE_URL }}
-
         
       - name: Integration Tests
         run: mvn -B verify --file pom.xml
