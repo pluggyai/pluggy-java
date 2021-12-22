@@ -23,7 +23,7 @@ jobs:
       - name: Pass All Secrets to Next Steps
         run: doppler secrets download --no-file --format=docker >> $GITHUB_ENV;   
   build:
-    needs: build
+    needs: envs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
