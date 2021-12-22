@@ -12,7 +12,7 @@ on:
 
 jobs:
   envs:
-    runs-envs: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v1
