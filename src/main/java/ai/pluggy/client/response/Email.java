@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class Email {
 
-  // "Personal", "Work"
-  String type;
+  EmailType type;
   String value;
 }

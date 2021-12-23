@@ -11,7 +11,5 @@ public class Address {
   String city;
   String postalCode;
   String primaryAddress;
-
-  // "Personal", "Work"
-  String type;
+  AddressType type;
 }
