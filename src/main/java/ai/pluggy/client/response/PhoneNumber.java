@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class PhoneNumber {
 
-  // "Personal", "Work", "Residencial"
-  String type;
+  PhoneNumberType type;
   String value;
 }
