@@ -15,6 +15,5 @@ public class Transaction {
   String providerCode;
   TransactionStatus status;
   PaymentData paymentData;
-  // "CREDIT", "DEBIT"
-  String type;
+  TransactionType type;
 }
