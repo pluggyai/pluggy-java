@@ -23,8 +23,8 @@ public enum InvestmentSubtype {
   STOCK("STOCK"),
   @SerializedName("ETF")
   ETF("ETF"),
-  @SerializedName("REAL_STATE_FUND")
-  REAL_STATE_FUND("REAL_STATE_FUND"),
+  @SerializedName("REAL_ESTATE_FUND")
+  REAL_ESTATE_FUND("REAL_ESTATE_FUND"),
   @SerializedName("BDR")
   BDR("BDR"),
   @SerializedName("DERIVATIVES")
