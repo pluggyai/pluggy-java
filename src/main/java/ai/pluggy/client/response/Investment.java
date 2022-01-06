@@ -12,6 +12,7 @@ public class Investment {
   Double balance;
   String currencyCode;
   InvestmentType type;
+  InvestmentSubtype subtype;
   Double annualRate;
   Double lastTwelveMonthsRate;
   String itemId;

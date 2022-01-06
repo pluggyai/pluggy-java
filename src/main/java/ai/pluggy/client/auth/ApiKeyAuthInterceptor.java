@@ -4,6 +4,7 @@ import static ai.pluggy.utils.Asserts.assertNotNull;
 
 import ai.pluggy.client.response.AuthResponse;
 import ai.pluggy.exception.PluggyException;
+import ai.pluggy.utils.Utils;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,8 +28,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
   private final String clientId;
   private final String clientSecret;
   private final String authUrl;
-
-  private TokenProvider tokenProvider;
+  private final TokenProvider tokenProvider;
 
   public ApiKeyAuthInterceptor(String authUrl, String clientId, String clientSecret) {
     this(authUrl, clientId, clientSecret, new TokenProvider());
@@ -82,14 +82,13 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     Request authenticatedRequest = requestWithAuth(originalRequest, apiKey);
 
     // run request with 'api key', retrying once if apiKey was invalid or expired.
-    Response authenticatedResponse = proceedWithAuthRetry(chain, authenticatedRequest);
-
-    return authenticatedResponse;
+    return proceedWithAuthRetry(chain, authenticatedRequest);
   }
 
   private Request requestWithAuth(Request originalRequest, String apiKey) {
     return originalRequest.newBuilder()
-      .header(X_API_KEY_HEADER, apiKey)
+      .addHeader(X_API_KEY_HEADER, apiKey)
+      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
       .build();
   }
 
@@ -129,6 +128,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     tokenProvider.setApiKey(apiKey);
     return response.newBuilder()
       .body(ResponseBody.create(responseBodyString, body.contentType()))
+      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
       .build();
   }
 
@@ -176,13 +176,12 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     RequestBody body = RequestBody.create(jsonBody, mediaType);
 
-    Request request = requestBuilder
+    return requestBuilder
       .url(authUrl)
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
+      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
       .build();
-
-    return request;
   }
 }

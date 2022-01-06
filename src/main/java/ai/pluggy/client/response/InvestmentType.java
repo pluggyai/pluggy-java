@@ -16,6 +16,8 @@ public enum InvestmentType {
   FIXED_INCOME("FIXED_INCOME"),
   @SerializedName("ETF")
   ETF("ETF"),
+  @SerializedName("COE")
+  COE("COE"),
   @SerializedName("OTHER")
   OTHER("OTHER");
 
