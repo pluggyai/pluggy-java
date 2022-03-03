@@ -9,8 +9,12 @@ public enum InvestmentTransactionType {
   @SerializedName("BUY")
   BUY("BUY"),
   @SerializedName("SELL")
-  SELL("SELL");
-
+  SELL("SELL"),
+  @SerializedName("TAX")
+  TAX("TAX"),
+  @SerializedName("TRANSFER")
+  TRANSFER("TRANSFER");
+  
   @Getter
   private String value;
 }

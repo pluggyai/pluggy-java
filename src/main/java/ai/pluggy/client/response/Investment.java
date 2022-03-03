@@ -1,40 +1,43 @@
 package ai.pluggy.client.response;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 
 @Data
 public class Investment {
-
   String id;
-  String number;
-  String name;
-  Double balance;
-  String currencyCode;
-  InvestmentType type;
-  InvestmentSubtype subtype;
-  Double annualRate;
-  Double lastTwelveMonthsRate;
   String itemId;
   String code;
+  String isin;
+  String number;
+  String name;
+  String owner;
+  InvestmentType type;
+  InvestmentSubtype subtype;
+  String currencyCode;
+  Double rate;
+  String rateType;
+  Double fixedAnnualRate;
+  Double annualRate;
+  Double lastTwelveMonthsRate;
+  Double lastMonthRate;
+  Double balance;
   Double value;
   Double quantity;
   Double amount;
+  Date date;
+  Date dueDate;
   Double taxes;
   Double taxes2;
-  String date;
-  String owner;
+  Double amountOriginal;
   String amountProfit = null;
   Double amountWithdrawal;
-  InvestmentTransaction[] transactions;
-  Date dueDate;
   String issuer;
   Date issuerDate;
-  Double rate;
-  String rateType;
-  Double originalAmount;
-  Double lastMonthRate;
   InvestmentStatus status;
-  String isin;
-  
+  InvestmentTransaction[] transactions;
+  InvestmentMetadata metadata;
+  String providerId;
+  InvestmentInstitution institution;
 }

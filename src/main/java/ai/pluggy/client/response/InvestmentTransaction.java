@@ -5,13 +5,15 @@ import lombok.Data;
 
 @Data
 public class InvestmentTransaction {
-
   String id;
   InvestmentTransactionType type;
+  String description;
   Double quantity;
   Double value;
   Double amount;
+  String brokerageNumber;
+  String netAmount;
+  Expenses expenses;
   Date date;
   Date tradeDate;
-  String isin;
 }
