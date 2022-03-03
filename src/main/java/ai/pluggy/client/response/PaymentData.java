@@ -4,6 +4,10 @@ import lombok.Data;
 
 @Data
 public class PaymentData {
-  
-  Payer payer;
+
+  TransactionPaymentParticipant payer;
+  TransactionPaymentParticipant receiver;
+  String paymentMethod;
+  String referenceNumber;
+  String reason;
 }

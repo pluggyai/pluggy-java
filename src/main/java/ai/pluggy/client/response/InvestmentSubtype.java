@@ -13,6 +13,20 @@ public enum InvestmentSubtype {
   /* MUTUAL_FUND_INVESTMENT_SUBTYPES */
   @SerializedName("INVESTMENT_FUND")
   INVESTMENT_FUND("INVESTMENT_FUND"),
+  @SerializedName("MULTIMARKET_FUND")
+  MULTIMARKET_FUND("MULTIMARKET_FUND"),
+  @SerializedName("FIXED_INCOME_FUND")
+  FIXED_INCOME_FUND("FIXED_INCOME_FUND"),
+  @SerializedName("STOCK_FUND")
+  STOCK_FUND("STOCK_FUND"),
+  @SerializedName("ETF_FUND")
+  ETF_FUND("ETF_FUND"),
+  @SerializedName("OFFSHORE_FUND")
+  OFFSHORE_FUND("OFFSHORE_FUND"),
+  @SerializedName("FIP_FUND")
+  FIP_FUND("FIP_FUND"),
+  @SerializedName("EXCHANGE_FUND")
+  EXCHANGE_FUND("EXCHANGE_FUND"),
   
   /* SECURITY_INVESTMENT_SUBTYPES */
   @SerializedName("RETIREMENT")
@@ -29,6 +43,8 @@ public enum InvestmentSubtype {
   BDR("BDR"),
   @SerializedName("DERIVATIVES")
   DERIVATIVES("DERIVATIVES"),
+  @SerializedName("OPTION")
+  OPTION("OPTION"),
 
   /* FIXED_INCOME_INVESTMENT_SUBTYPES */
   @SerializedName("TREASURY")
