@@ -15,7 +15,6 @@ public enum InvestmentTransactionType {
   @SerializedName("TRANSFER")
   TRANSFER("TRANSFER");
   
-
   @Getter
   private String value;
 }

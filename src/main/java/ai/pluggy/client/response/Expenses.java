@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class Expenses {
-  
   String id;
   String transactionId;
   Double serviceTax;

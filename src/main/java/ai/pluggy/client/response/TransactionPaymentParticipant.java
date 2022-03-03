@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class TransactionPaymentParticipant {
-  
   String name;
   String branchNumber;
   String accountNumber;

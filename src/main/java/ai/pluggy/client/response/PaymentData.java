@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class PaymentData {
-
   TransactionPaymentParticipant payer;
   TransactionPaymentParticipant receiver;
   String paymentMethod;

@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class InvestmentTransaction {
-
   String id;
   InvestmentTransactionType type;
   String description;

@@ -1,11 +1,11 @@
 package ai.pluggy.client.response;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 
 @Data
 public class Investment {
-
   String id;
   String itemId;
   String code;
@@ -40,5 +40,4 @@ public class Investment {
   InvestmentMetadata metadata;
   String providerId;
   InvestmentInstitution institution;
-  
 }
