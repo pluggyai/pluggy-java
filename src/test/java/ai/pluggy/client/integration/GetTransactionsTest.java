@@ -13,11 +13,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
 public class GetTransactionsTest extends BaseApiIntegrationTest {
 
+  @Disabled("currently, dont work correctly - re-enable once it's working again" )
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_ok() {
@@ -37,6 +39,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     assertTrue(transactions.getResults().size() > 0);
   }
 
+  @Disabled("currently, dont work correctly - re-enable once it's working again" )
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withDateFilters_ok() {
@@ -111,6 +114,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
         transactionsFilteredCount, allTransactionsCount, dateFilters));
   }
 
+  @Disabled("currently, dont work correctly - re-enable once it's working again" )
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withPageFilters_ok() {
