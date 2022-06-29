@@ -86,9 +86,9 @@ public class ApiKeyAuthInterceptor implements Interceptor {
   }
 
   private Request requestWithAuth(Request originalRequest, String apiKey) {
+    // override the apiKey of the original request with the new one
     return originalRequest.newBuilder()
-      .addHeader(X_API_KEY_HEADER, apiKey)
-      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
+      .header(X_API_KEY_HEADER, apiKey)
       .build();
   }
 
