@@ -6,9 +6,14 @@ import ai.pluggy.client.response.AuthResponse;
 import ai.pluggy.exception.PluggyException;
 import ai.pluggy.utils.Utils;
 import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gson.reflect.TypeToken;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -35,7 +40,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
   }
 
   public ApiKeyAuthInterceptor(String authUrl, String clientId, String clientSecret,
-    TokenProvider tokenProvider) {
+                               TokenProvider tokenProvider) {
     assertNotNull(clientId, "clientId");
     assertNotNull(clientSecret, "clientSecret");
     assertNotNull(authUrl, "authUrl");
@@ -44,6 +49,25 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.tokenProvider = tokenProvider;
+  }
+
+  /**
+   * Helper to check if JWT token apiKey is expired
+   *
+   * @param token
+   */
+  private boolean isApiKeyExpired(String token) {
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String[] parts = token.split("\\."); // Splitting header, payload and signature
+    String jwtHeader = new String(decoder.decode(parts[1])); // extracting payload part
+
+    Map<String, String> parsedJwt = new Gson().fromJson(jwtHeader, new TypeToken<Map<String, String>>() {
+    }.getType());
+
+    long expiresAtInSeconds = Long.parseLong(parsedJwt.get("exp"));
+    long currentTimeInSeconds = (long) Math.floor((double) (new Date().getTime() / 1000));
+
+    return currentTimeInSeconds >= expiresAtInSeconds;
   }
 
   @NotNull
@@ -65,7 +89,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     String apiKey;
     if (originalRequestToken == null) {
       // No 'api key' in header -> get one from token provider.
-      if (tokenProvider.getApiKey() != null) {
+      if (tokenProvider.getApiKey() != null && !isApiKeyExpired(tokenProvider.getApiKey())) {
         apiKey = tokenProvider.getApiKey();
         logger.info("Using api key from stored tokenProvider.");
       } else {
@@ -98,21 +122,31 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     Response response = chain.proceed(originalRequest);
 
     // check auth errors
-    boolean isResponseAuthError = response.code() != 403 && response.code() != 401;
-    if (isResponseAuthError) {
+    boolean isResponseAuthError = response.code() == 403 || response.code() == 401;
+
+    if (!isResponseAuthError) {
       // no auth problems -> response was OK
       return response;
     }
 
-    // auth error -> API key expired? try to refresh API key, and retry original request.
+    // auth error response, check if it was due to expired token
+    String apiKey = originalRequest.header(X_API_KEY_HEADER);
+    boolean isApiKeyExpired = apiKey != null && this.isApiKeyExpired(apiKey);
+
+    if (!isApiKeyExpired) {
+      // apiKey not expired, auth error is unrelated to it -> return error response
+      return response;
+    }
+
+    // apiKey expired, try to refresh API key, and retry original request.
     response.close();
 
     logger.info("ApiKey expired, attempting to request a new one and retry original request...");
-    String apiKey = authenticate(chain);
-    tokenProvider.setApiKey(apiKey);
+    String newApiKey = authenticate(chain);
+    tokenProvider.setApiKey(newApiKey);
 
     logger.info("ApiKey refreshed OK. Retrying original request...");
-    Request authenticatedRequest = requestWithAuth(originalRequest, apiKey);
+    Request authenticatedRequest = requestWithAuth(originalRequest, newApiKey);
     return chain.proceed(authenticatedRequest);
   }
 
@@ -128,7 +162,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     tokenProvider.setApiKey(apiKey);
     return response.newBuilder()
       .body(ResponseBody.create(responseBodyString, body.contentType()))
-      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
+      .addHeader("User-Agent", String.format("PluggyJava/%s", Utils.getSdkVersion()))
       .build();
   }
 
@@ -181,7 +215,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
-      .addHeader("User-Agent", String.format("PluggyJava/%s",  Utils.getSdkVersion()))
+      .addHeader("User-Agent", String.format("PluggyJava/%s", Utils.getSdkVersion()))
       .build();
   }
 }
