@@ -3,6 +3,7 @@ package ai.pluggy.client.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.PluggyClient;
 import ai.pluggy.client.response.ErrorResponse;
@@ -43,13 +44,15 @@ public class ClientParseErrorTest {
   }
 
   @Test
-  void clientParseError_malformedErrorResponse_fails() throws IOException {
+  void clientParseError_malformedJsonResponse_returnsErrorResponse() throws IOException {
     // simulate error response
     String malformedErrorJson = "{";
     Response<Object> errorResponse = Response
       .error(400, ResponseBody.create(malformedErrorJson, MediaType.parse("application/json")));
 
-    // expect parsed error response
-    assertThrows(JsonParseException.class, () -> client.parseError(errorResponse));
+    ErrorResponse parsedErrorResponse = client.parseError(errorResponse);
+    assertNotNull(parsedErrorResponse);
+    assertNotNull(parsedErrorResponse.getMessage());
+    assertTrue(parsedErrorResponse.getMessage().contains(malformedErrorJson));
   }
 }

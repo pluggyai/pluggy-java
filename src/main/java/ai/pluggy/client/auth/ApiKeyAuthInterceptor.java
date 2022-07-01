@@ -2,8 +2,6 @@ package ai.pluggy.client.auth;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
-import ai.pluggy.client.response.AuthResponse;
-import ai.pluggy.exception.PluggyException;
 import ai.pluggy.utils.Utils;
 import com.google.gson.Gson;
 
@@ -19,10 +17,10 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ApiKeyAuthInterceptor implements Interceptor {
 
@@ -40,7 +38,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
   }
 
   public ApiKeyAuthInterceptor(String authUrl, String clientId, String clientSecret,
-                               TokenProvider tokenProvider) {
+    TokenProvider tokenProvider) {
     assertNotNull(clientId, "clientId");
     assertNotNull(clientSecret, "clientSecret");
     assertNotNull(authUrl, "authUrl");
@@ -61,8 +59,9 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     String[] parts = token.split("\\."); // Splitting header, payload and signature
     String jwtHeader = new String(decoder.decode(parts[1])); // extracting payload part
 
-    Map<String, String> parsedJwt = new Gson().fromJson(jwtHeader, new TypeToken<Map<String, String>>() {
-    }.getType());
+    Map<String, String> parsedJwt = new Gson().fromJson(jwtHeader,
+      new TypeToken<Map<String, String>>() {
+      }.getType());
 
     long expiresAtInSeconds = Long.parseLong(parsedJwt.get("exp"));
     long currentTimeInSeconds = (long) Math.floor((double) (new Date().getTime() / 1000));
@@ -77,9 +76,9 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     if (isAuthRequest(originalRequest)) {
       // already is an Auth request -> proceed -> grab apiKey response
-      Response response = interceptApiKeyResponse(chain, originalRequest);
-      logger.info("Stored api key response from Auth request.");
-      return response;
+      Response authResponse = chain.proceed(originalRequest);
+      interceptApiKeyResponse(authResponse);
+      return authResponse;
     }
     // -> is a regular request.
 
@@ -95,12 +94,15 @@ public class ApiKeyAuthInterceptor implements Interceptor {
       } else {
         logger.info("Requesting new api key...");
         // No api key stored -> fetch a new one and store it.
-        apiKey = authenticate(chain);
-        tokenProvider.setApiKey(apiKey);
-        logger.info("Auth api key response OK, storing in local tokenProvider.");
+        apiKey = authenticateInChain(chain);
       }
     } else {
       apiKey = originalRequestToken;
+    }
+
+    if (apiKey == null) {
+      // could not renew apiKey, just proceed with original request flow
+      return chain.proceed(originalRequest);
     }
 
     Request authenticatedRequest = requestWithAuth(originalRequest, apiKey);
@@ -142,56 +144,60 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     response.close();
 
     logger.info("ApiKey expired, attempting to request a new one and retry original request...");
-    String newApiKey = authenticate(chain);
-    tokenProvider.setApiKey(newApiKey);
+
+    String newApiKey = authenticateInChain(chain);
+
+    if (newApiKey == null) {
+      logger.info("ApiKey could not be refreshed.");
+      return response;
+    }
 
     logger.info("ApiKey refreshed OK. Retrying original request...");
     Request authenticatedRequest = requestWithAuth(originalRequest, newApiKey);
     return chain.proceed(authenticatedRequest);
   }
 
-  @NotNull
-  private Response interceptApiKeyResponse(@NotNull Chain chain, Request originalRequest)
-    throws IOException {
-    Response response = chain.proceed(originalRequest);
-    checkAuthResponseOk(response);
-    ResponseBody body = response.body();
-    assertNotNull(body, "/auth response.body()");
-    String responseBodyString = body.string();
-    String apiKey = extractApiKeyFromResponseBody(responseBodyString);
-    tokenProvider.setApiKey(apiKey);
-    return response.newBuilder()
-      .body(ResponseBody.create(responseBodyString, body.contentType()))
-      .addHeader("User-Agent", String.format("PluggyJava/%s", Utils.getSdkVersion()))
-      .build();
-  }
-
-  private String extractApiKeyFromResponseBody(String responseBody) throws IOException {
-    AuthResponse authResponse = new Gson().fromJson(responseBody, AuthResponse.class);
-    return authResponse.getApiKey();
-  }
-
-  private void checkAuthResponseOk(Response response) throws PluggyException {
-    if (!response.isSuccessful()) {
-      throw new PluggyException(
-        "Auth API request failed, code: " + response.code() + ", msg: " + response.message());
+  @Nullable
+  private String authenticateInChain(@NotNull Chain chain) throws IOException {
+    Request authRequest = buildAuthRequest(chain.request().newBuilder());
+    String newApiKey;
+    try (Response authResponse = chain.proceed(authRequest)) {
+      newApiKey = interceptApiKeyResponse(authResponse);
     }
+    return newApiKey;
+  }
+
+  private String interceptApiKeyResponse(Response response) {
+    String apiKey;
+
+    try {
+      apiKey = AuthenticationHelper.extractApiKeyFromResponse(response);
+    } catch (Exception e) {
+      logger.error(
+        String.format("Could not extract api key response from Auth request: [%s] %s",
+          e.getClass().toString(),
+          e.getMessage()));
+      return null;
+    }
+
+    if (apiKey == null) {
+      logger.error(
+        "Parsed api key response from Auth request but it was null, this could mean that the "
+          + "Pluggy API has changed, please check the docs and/or consider updating pluggy-java "
+          + "SDK to the latest version");
+      return null;
+    }
+
+    // could extract apiKey, store it and return the original response
+    tokenProvider.setApiKey(apiKey);
+    logger.info("Stored api key response from Auth request.");
+
+    return apiKey;
   }
 
   private boolean isAuthRequest(Request request) {
     String url = request.url().toString();
     return url.matches(authUrl);
-  }
-
-  public String authenticate(Chain chain) throws IOException {
-    Request request = buildAuthRequest(chain.request().newBuilder());
-
-    try (Response response = chain.proceed(request)) {
-      checkAuthResponseOk(response);
-      ResponseBody responseBody = response.body();
-      assertNotNull(responseBody, "/auth response.body()");
-      return extractApiKeyFromResponseBody(responseBody.string());
-    }
   }
 
   private Request buildAuthRequest(Request.Builder requestBuilder) {

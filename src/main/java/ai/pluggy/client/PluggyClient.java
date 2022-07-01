@@ -4,13 +4,14 @@ import static ai.pluggy.utils.Asserts.assertNotNull;
 import static ai.pluggy.utils.Asserts.assertValidUrl;
 
 import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
-import ai.pluggy.client.response.AuthResponse;
+import ai.pluggy.client.auth.AuthenticationHelper;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.exception.PluggyException;
 import ai.pluggy.utils.Utils;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,12 +21,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class PluggyClient {
 
+  public static final int ONE_MIB_BYTES = 1024 * 1024;
   public static String AUTH_URL_PATH = "/auth";
   private String baseUrl;
 
@@ -43,6 +47,36 @@ public final class PluggyClient {
 
   public static PluggyClientBuilder builder() {
     return new PluggyClientBuilder();
+  }
+
+  @NotNull
+  private static String buildResponseErrorMessage(Response response) {
+    String responseBodyString = null;
+    if (response.body() != null) {
+      try {
+        responseBodyString = response.peekBody(ONE_MIB_BYTES).string();
+      } catch (IOException e) {
+        // ignore, just leave responseBodyString as null
+      }
+    }
+
+    return buildResponseErrorMessage(response, responseBodyString);
+  }
+
+  private static String buildResponseErrorMessage(Response response, String responseBodyString) {
+    Request originalRequest = response.request();
+
+    String errorMessage = String.format("Pluggy '%s %s' request failed, message: %s (%d)",
+      originalRequest.method(),
+      originalRequest.url().encodedPath(),
+      response.message(),
+      response.code()
+    );
+
+    if (responseBodyString != null) {
+      errorMessage += " - response: '" + responseBodyString + "'";
+    }
+    return errorMessage;
   }
 
   public void setClientId(String clientId) {
@@ -79,25 +113,38 @@ public final class PluggyClient {
         "Response is successful, can't be parsed as an error response!");
     }
 
-    ResponseBody errorResponseBody = responseWithError.errorBody();
-    if (errorResponseBody == null) {
-      return null;
-    }
-
+    // extract the response body string to parse
     String errorResponseJson;
-    try {
-      errorResponseJson = errorResponseBody.string();
-    } catch (IOException e) {
-      throw new IOException("Could not convert error response to string", e);
+    try (ResponseBody errorResponseBody = responseWithError.errorBody()) {
+      assertNotNull(errorResponseBody, "responseWithError.body()");
+
+      try {
+        errorResponseJson = errorResponseBody.string();
+      } catch (IOException e) {
+        throw new IOException("Could not convert error response to string", e);
+      }
     }
 
-    ErrorResponse errorResponse = new Gson().fromJson(errorResponseJson, ErrorResponse.class);
+    // build the errorResponse object
+    ErrorResponse errorResponse;
+
+    try {
+      errorResponse = Utils.parseJsonResponse(errorResponseJson, ErrorResponse.class);
+    } catch (JsonSyntaxException e) {
+      // malformed or non-json response (ie. responded with 'Network error' string)
+      String rawResponseErrorMessage = buildResponseErrorMessage(responseWithError.raw(),
+        errorResponseJson);
+      errorResponse = new ErrorResponse();
+      errorResponse.setCode(responseWithError.code());
+      errorResponse.setMessage(rawResponseErrorMessage);
+    }
 
     return errorResponse;
   }
 
   /**
-   * Provides an API to build a PluggyClient instance while ensuring all parameters are defined and valid.
+   * Provides an API to build a PluggyClient instance while ensuring all parameters are defined and
+   * valid.
    */
   public static class PluggyClientBuilder {
 
@@ -134,10 +181,11 @@ public final class PluggyClient {
     }
 
     /**
-     * Opt-out from provided default ApiKeyAuthInterceptor, which takes care of apiKey authorization,
-     * by requesting a new apiKey token when it's not set, or by reactively refreshing an existing
-     * one and retrying a request in case of 401 or 403 unauthorized error responses.
-     *
+     * Opt-out from provided default ApiKeyAuthInterceptor, which takes care of apiKey
+     * authorization, by requesting a new apiKey token when it's not set, or by reactively
+     * refreshing an existing one and retrying a request in case of 401 or 403 unauthorized error
+     * responses.
+     * <p>
      * In case of opt-out, the client will have to provide it's own auth interceptor implementation,
      * which has to take care of including the "x-api-key" auth header to each http request.
      */
@@ -147,8 +195,8 @@ public final class PluggyClient {
     }
 
     /**
-     * Provides access to the OkHttpClient.Builder instance,
-     * for more complex builds and configurations (interceptors, SSL, etc.)
+     * Provides access to the OkHttpClient.Builder instance, for more complex builds and
+     * configurations (interceptors, SSL, etc.)
      */
     public OkHttpClient.Builder okHttpClientBuilder() {
       return okHttpClientBuilder;
@@ -209,7 +257,7 @@ public final class PluggyClient {
   /**
    * Request a new apiKey from API using defined clientId & clientSecret.
    */
-  public String authenticate() throws IOException {
+  public String authenticate() throws IOException, PluggyException {
     if (clientId == null || clientSecret == null) {
       throw new IllegalStateException(
         "Invalid state, both clientId and clientSecret must be defined!");
@@ -233,21 +281,23 @@ public final class PluggyClient {
       .addHeader("User-Agent", String.format("PluggyJava/%s", Utils.getSdkVersion()))
       .build();
 
-    AuthResponse authResponse;
+    String apiKey;
 
     try (okhttp3.Response response = this.httpClient.newCall(request).execute()) {
-      if (!response.isSuccessful()) {
-        throw new PluggyException(
-          "Pluggy Auth request failed, status: " + response.code() + ", message: " + response
-            .message());
-      }
+      try {
+        apiKey = AuthenticationHelper.extractApiKeyFromResponse(response);
+      } catch (IOException e) {
+        // unexpected IO exception
+        throw e;
+      } catch (Exception e) {
+        // non-successful or malformed JSON response
+        String pluggyResponseErrorMessage = buildResponseErrorMessage(response);
 
-      ResponseBody responseBody = response.body();
-      assertNotNull(responseBody, "response.body()");
-      authResponse = gson.fromJson(responseBody.string(), AuthResponse.class);
+        throw new PluggyException(pluggyResponseErrorMessage, response, e);
+      }
     }
 
-    return authResponse.getApiKey();
+    return apiKey;
   }
 
   public PluggyApiService service() {
