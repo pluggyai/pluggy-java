@@ -31,7 +31,6 @@ Currently, the package is available in Github Packages, so make sure to have the
 // Use builder to create a client instance
 PluggyClient pluggyClient = PluggyClient.builder()
   .clientIdAndSecret("your_client_id", "your_secret")
-  .baseUrl("https://api.pluggy.ai")
   .build();
 
 // Authenticate your client (optional - by default, auth token is requested & refreshed as needed by ApiKeyAuthInterceptor) 
