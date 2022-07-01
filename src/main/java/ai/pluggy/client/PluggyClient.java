@@ -291,8 +291,7 @@ public final class PluggyClient {
         throw e;
       } catch (Exception e) {
         // non-successful or malformed JSON response
-        String pluggyResponseErrorMessage = buildResponseErrorMessage(
-          response);
+        String pluggyResponseErrorMessage = buildResponseErrorMessage(response);
 
         throw new PluggyException(pluggyResponseErrorMessage, response, e);
       }
