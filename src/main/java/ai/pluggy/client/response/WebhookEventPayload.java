@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class WebhookEventPayload {
-    String id;
-    WebhookEventType event;
-    String url;
-    String itemId;
-    Object error;
-    Object data;
+  String id;
+  WebhookEventType event;
+  String url;
+  String itemId;
+  Object error;
+  Object data;
 }
