@@ -6,8 +6,7 @@ import lombok.Data;
 public class WebhookEventPayload {
   String id;
   WebhookEventType event;
-  String url;
   String itemId;
-  Object error;
-  Object data;
+  ItemError error;
+  WebhookData data;
 }
