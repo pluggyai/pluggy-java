@@ -9,4 +9,5 @@ public class WebhookEventPayload {
   String itemId;
   ItemError error;
   WebhookData data;
+  WebhookEventTriggeredBy triggeredBy;
 }
