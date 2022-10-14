@@ -34,7 +34,7 @@ class GetConnectorsTest extends BaseApiIntegrationTest {
     ConnectorsResponse connectorsFilteredIncludeSandbox = client.service()
       .getConnectors(new ConnectorsSearchRequest().setIncludeSandbox(true)).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
-      .getConnectors(new ConnectorsSearchRequest(null, Collections.singletonList("BR"),
+      .getConnectors(new ConnectorsSearchRequest(null, null,
         Collections.singletonList(ConnectorType.BUSINESS_BANK))).execute().body();
 
     int allCount = defaultConnectors.getResults().size();
