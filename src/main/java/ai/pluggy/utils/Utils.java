@@ -1,5 +1,6 @@
 package ai.pluggy.utils;
 
+import ai.pluggy.client.response.WebhookEventPayload;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.apache.maven.model.Model;
@@ -32,5 +33,9 @@ public abstract class Utils {
     }
 
     return new Gson().fromJson(responseBodyString, clazz);
+  }
+  
+  public static WebhookEventPayload parseWebhookEventPayload(String responseBodyString) {
+    return parseJsonResponse(responseBodyString, WebhookEventPayload.class);
   }
 }
