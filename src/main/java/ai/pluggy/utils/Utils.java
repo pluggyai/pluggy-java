@@ -35,6 +35,11 @@ public abstract class Utils {
     return new Gson().fromJson(responseBodyString, clazz);
   }
   
+  /**
+   * Parse the Json received from the webhook event
+   * @param responseBodyString
+   * @return the Json parsed as WebhookEventPayload
+   */
   public static WebhookEventPayload parseWebhookEventPayload(String responseBodyString) {
     return parseJsonResponse(responseBodyString, WebhookEventPayload.class);
   }
