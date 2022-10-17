@@ -30,7 +30,7 @@ public class WebhookEventParseTest {
   }
 
   @Test
-  void webhookEventConnectorUpdatedParse_jsonPayload_ok() throws IOException {
+  void webhookEventConnectorStatusUpdatedParse_jsonPayload_ok() throws IOException {
     String webhookNotificationJson = "{\n" +
     "  \"event\":\"connector/status_updated\",\n" +
     "  \"data\": {\n\"status\":\"UNSTABLE\"\n},\n" +
