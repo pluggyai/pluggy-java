@@ -1,5 +1,6 @@
 package ai.pluggy.client.response;
 
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 
@@ -15,4 +16,5 @@ public class Connector {
   List<CredentialLabel> credentials;
   String imageUrl;
   Boolean hasMFA;
+  Date createdAt;
 }
