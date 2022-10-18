@@ -5,7 +5,7 @@
 
   <groupId>ai.pluggy</groupId>
   <artifactId>pluggy-java</artifactId>
-  <version>0.9.1</version>
+  <version>0.10.0</version>
 
   <packaging>jar</packaging>
 
