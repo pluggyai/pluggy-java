@@ -16,6 +16,7 @@ public class IdentityResponse {
   String taxNumber;
   String documentType;
   String jobTitle;
+  InvestorProfile investorProfile;
   Date birthDate;
   List<Address> addresses;
   List<PhoneNumber> phoneNumbers;
