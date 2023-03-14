@@ -30,7 +30,7 @@ class GetConnectorsTest extends BaseApiIntegrationTest {
 
     // request connectors with filters
     ConnectorsResponse connectorsFilteredByName = client.service()
-      .getConnectors(new ConnectorsSearchRequest("C6 Bank")).execute().body();
+      .getConnectors(new ConnectorsSearchRequest("Nubank")).execute().body();
     ConnectorsResponse connectorsFilteredIncludeSandbox = client.service()
       .getConnectors(new ConnectorsSearchRequest().setIncludeSandbox(true)).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()

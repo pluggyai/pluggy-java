@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class Transaction {
-
   String id;
+  String accountId;
   String description;
+  String descriptionRaw;
   String currencyCode;
   Double amount;
   String date;
@@ -15,5 +16,6 @@ public class Transaction {
   String providerCode;
   TransactionStatus status;
   PaymentData paymentData;
+  TransactionCreditCardMetadata creditCardMetadata;
   TransactionType type;
 }
