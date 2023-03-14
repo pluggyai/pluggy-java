@@ -1,5 +1,4 @@
 package ai.pluggy.client.response;
-import java.util.Date;
 
 import lombok.Data;
 
@@ -11,7 +10,7 @@ public class Transaction {
   String descriptionRaw;
   String currencyCode;
   Double amount;
-  Date date;
+  String date;
   Double balance;
   String category;
   String providerCode;
