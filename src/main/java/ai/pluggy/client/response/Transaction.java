@@ -1,7 +1,6 @@
 package ai.pluggy.client.response;
 import java.util.Date;
 
-
 import lombok.Data;
 
 @Data
