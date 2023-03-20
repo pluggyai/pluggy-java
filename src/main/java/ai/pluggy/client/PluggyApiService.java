@@ -4,6 +4,7 @@ import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
+import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
@@ -17,6 +18,7 @@ import ai.pluggy.client.response.ConnectorsResponse;
 import ai.pluggy.client.response.DeleteItemResponse;
 import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.Investment;
+import ai.pluggy.client.response.InvestmentTransactionsResponse;
 import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import ai.pluggy.client.response.Transaction;
@@ -92,6 +94,10 @@ public interface PluggyApiService {
 
   @GET("/investments/{id}")
   Call<Investment> getInvestment(@Path("id") String investmentId);
+
+  @GET("/investments/{id}/transactions")
+  Call<InvestmentTransactionsResponse> getInvestmentTransactions(@Path("id") String investmentId, 
+    @QueryMap InvestmentTransactionsSearchRequest investmentTransactionsSearchRequest);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
