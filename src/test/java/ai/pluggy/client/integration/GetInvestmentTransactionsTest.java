@@ -17,7 +17,7 @@ public class GetInvestmentTransactionsTest extends BaseApiIntegrationTest {
     void getTransactions_byExistingInvestmentId_ok() {
         // precondition: get existing investments
         InvestmentsResponse investments = getPluggyBankInvestments(client);
-        // get all investments ids to iterate over them and get the transactions
+        // get first investment id to get the transactions from the investment
         String firstInvestmentId = investments.getResults().get(0).getId();
 
         // get investment transactions
