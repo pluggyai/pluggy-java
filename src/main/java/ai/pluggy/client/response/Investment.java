@@ -1,6 +1,5 @@
 package ai.pluggy.client.response;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 
@@ -36,6 +35,11 @@ public class Investment {
   String issuer;
   Date issuerDate;
   InvestmentStatus status;
+  /**
+   * @deprecated use `pluggyClient.service().getInvestmentTransactions(investmentId, searchFilters)` instead
+   * this field is null unless the application was created before 2023-03-21
+   */
+  @Deprecated
   InvestmentTransaction[] transactions;
   InvestmentMetadata metadata;
   String providerId;
