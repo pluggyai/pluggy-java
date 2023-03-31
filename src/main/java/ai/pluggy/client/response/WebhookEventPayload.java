@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class WebhookEventPayload {
   /**
-  * @deprecated use eventId instead
+  * @deprecated use eventId instead to identify the event.
   */
   @Deprecated
   String id; 
