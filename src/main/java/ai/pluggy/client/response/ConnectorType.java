@@ -11,7 +11,7 @@ public enum ConnectorType {
   @SerializedName("BUSINESS_BANK")
   BUSINESS_BANK("BUSINESS_BANK"),
   @SerializedName("PERSONAL_BANK")
-  PERSONAL_BANK("PERSONAL_BANK")
+  PERSONAL_BANK("PERSONAL_BANK"),
   @SerializedName("INVOICE")
   INVOICE("INVOICE"),
   @SerializedName("TELECOMMUNICATION")
