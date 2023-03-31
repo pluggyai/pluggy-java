@@ -33,7 +33,7 @@ PluggyClient pluggyClient = PluggyClient.builder()
   .clientIdAndSecret("your_client_id", "your_secret")
   .build();
 
-// Authenticate your client (optional - by default, auth token is requested & refreshed as needed by ApiKeyAuthInterceptor) 
+// Authenticate your client (optional - by default, auth token is requested & refreshed as needed by ApiKeyAuthInterceptor)
 pluggyClient.authenticate()
 
 // Synchronously perform a request
