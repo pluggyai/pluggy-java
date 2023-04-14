@@ -18,4 +18,5 @@ public class ItemResponse {
   ItemError error = null;
   CredentialLabel parameter;
   String clientUserId;
+  Integer consecutiveFailedLoginAttempts;
 }
