@@ -4,6 +4,7 @@ import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
+import ai.pluggy.client.request.IncomeReportsSearchRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
@@ -110,5 +111,5 @@ public interface PluggyApiService {
   Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
 
   @GET("/income-reports")
-  Call<IncomeReportResponse> getIncomeReport(@Query("itemId") String itemId);
+  Call<IncomeReportResponse> getIncomeReport(@QueryMap IncomeReportsSearchRequest incomeReportsSearchRequest);
 }
