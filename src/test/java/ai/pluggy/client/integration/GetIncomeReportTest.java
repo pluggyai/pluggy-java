@@ -37,9 +37,6 @@ public class GetIncomeReportTest extends BaseApiIntegrationTest {
         .getIncomeReport(incomeReportSearchRequest)
         .execute();
 
-    System.out.println(pluggyBankExecution);
-    System.out.println(incomeReportResponse.body());
-
     // expect income report response to be valid
     assertTrue(incomeReportResponse.isSuccessful());
     IncomeReportResponse incomeReport = incomeReportResponse.body();
