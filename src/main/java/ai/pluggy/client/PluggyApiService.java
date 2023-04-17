@@ -23,6 +23,7 @@ import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
+import ai.pluggy.client.response.IncomeReportResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -107,4 +108,7 @@ public interface PluggyApiService {
 
   @POST("/connecttokens")
   Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
+
+  @GET("/income-reports")
+  Call<IncomeReportResponse> getIncomeReport(@Query("itemId") String itemId);
 }
