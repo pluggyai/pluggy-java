@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import static ai.pluggy.client.integration.helper.ItemHelper.createPluggyBankItem;
 import static ai.pluggy.client.integration.helper.ItemHelper.getItemStatus;
 import ai.pluggy.client.integration.util.Poller;
-import ai.pluggy.client.request.IncomeReportsSearchRequest;
 import ai.pluggy.client.response.IncomeReportResponse;
 import ai.pluggy.client.response.ItemResponse;
 import lombok.SneakyThrows;
@@ -29,12 +28,9 @@ public class GetIncomeReportTest extends BaseApiIntegrationTest {
         (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
         500, 30000);
 
-    IncomeReportsSearchRequest incomeReportSearchRequest = new IncomeReportsSearchRequest()
-        .itemId(pluggyBankExecution.getId()).page(1);
-
     // get income report from exising item
     Response<IncomeReportResponse> incomeReportResponse = client.service()
-        .getIncomeReport(incomeReportSearchRequest)
+        .getIncomeReport(pluggyBankExecution.getId())
         .execute();
 
     // expect income report response to be valid
