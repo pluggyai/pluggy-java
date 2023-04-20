@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class Connector {
-
   Integer id;
   String name;
   String primaryColor;
@@ -14,6 +13,8 @@ public class Connector {
   String country;
   ConnectorType type;
   List<CredentialLabel> credentials;
+  String resetPasswordUrl;
+  Boolean oauth;
   String imageUrl;
   Boolean hasMFA;
   Date createdAt;
