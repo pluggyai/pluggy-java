@@ -278,7 +278,6 @@ public final class PluggyClient {
       .post(body)
       .addHeader("content-type", "application/json")
       .addHeader("cache-control", "no-cache")
-      .addHeader("User-Agent", String.format("PluggyJava/%s", Utils.getSdkVersion()))
       .build();
 
     String apiKey;

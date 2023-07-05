@@ -115,6 +115,8 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     // override the apiKey of the original request with the new one
     return originalRequest.newBuilder()
       .header(X_API_KEY_HEADER, apiKey)
+      // TOOD: add dynamic version
+      .header("User-Agent", "PluggyJava/0.15.1")
       .build();
   }
 
