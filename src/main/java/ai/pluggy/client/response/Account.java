@@ -1,8 +1,5 @@
 package ai.pluggy.client.response;
 
-
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 
 @Data

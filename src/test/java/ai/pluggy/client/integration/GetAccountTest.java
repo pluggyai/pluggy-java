@@ -12,11 +12,9 @@ import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ErrorResponse;
 import java.io.IOException;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
-@Log4j2
 public class GetAccountTest extends BaseApiIntegrationTest {
 
   @Test

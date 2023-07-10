@@ -2,7 +2,6 @@ package ai.pluggy.client.auth;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
-import ai.pluggy.utils.Utils;
 import com.google.gson.Gson;
 
 import java.io.IOException;
