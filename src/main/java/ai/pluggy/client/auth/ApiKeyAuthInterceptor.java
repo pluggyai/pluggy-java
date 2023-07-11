@@ -2,7 +2,6 @@ package ai.pluggy.client.auth;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
-import ai.pluggy.utils.Utils;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -116,7 +115,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     return originalRequest.newBuilder()
       .header(X_API_KEY_HEADER, apiKey)
       // TOOD: add dynamic version
-      .header("User-Agent", "PluggyJava/0.15.1")
+      .header("User-Agent", "PluggyJava/0.16.0")
       .build();
   }
 

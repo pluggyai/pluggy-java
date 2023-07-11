@@ -6,7 +6,6 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 public class CreateItemRequest {
-
   Integer connectorId;
   ParametersMap parameters;
   String webhookUrl;

@@ -35,7 +35,6 @@ import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 public interface PluggyApiService {
-
   @GET("/connectors")
   Call<ConnectorsResponse> getConnectors();
 

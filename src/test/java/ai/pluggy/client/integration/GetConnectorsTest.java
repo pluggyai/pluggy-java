@@ -7,7 +7,6 @@ import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.response.ConnectorType;
 import ai.pluggy.client.response.ConnectorsResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 

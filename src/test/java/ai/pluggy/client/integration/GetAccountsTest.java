@@ -14,12 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
-@Log4j2
 public class GetAccountsTest extends BaseApiIntegrationTest {
 
   private ItemResponse pluggyBankExecution;

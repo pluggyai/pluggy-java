@@ -2,12 +2,10 @@ package ai.pluggy.client.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.pluggy.client.PluggyClient;
 import ai.pluggy.client.response.ErrorResponse;
-import com.google.gson.JsonParseException;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;

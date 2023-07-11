@@ -11,13 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.platform.commons.util.StringUtils;
 
 class BaseApiIntegrationTest {
-
   static final String CLIENT_ID = System.getenv("PLUGGY_CLIENT_ID");
   static final String CLIENT_SECRET = System.getenv("PLUGGY_CLIENT_SECRET");
   static final String TEST_BASE_URL = System.getenv("PLUGGY_BASE_URL");
+  static final String RSA_PUBLIC_KEY = System.getenv("PLUGGY_RSA_PUBLIC_KEY");
 
   PluggyClient client;
-  
+
   protected List<String> itemsIdCreated = new ArrayList<>();
 
   public List<String> getItemsIdCreated() {
@@ -28,9 +28,9 @@ class BaseApiIntegrationTest {
   void setUp() {
     checkEnvErrors();
     client = PluggyClient.builder()
-      .baseUrl(TEST_BASE_URL)
-      .clientIdAndSecret(CLIENT_ID, CLIENT_SECRET)
-      .build();
+        .baseUrl(TEST_BASE_URL)
+        .clientIdAndSecret(CLIENT_ID, CLIENT_SECRET)
+        .build();
   }
 
   protected void checkEnvErrors() {
@@ -46,12 +46,12 @@ class BaseApiIntegrationTest {
     }
     if (missingEnvVars.size() > 0) {
       String envVarsListString = missingEnvVars.stream()
-        .map(varName -> "'" + varName + "'")
-        .collect(Collectors.joining(", "));
+          .map(varName -> "'" + varName + "'")
+          .collect(Collectors.joining(", "));
       throw new IllegalStateException("Must define " + envVarsListString + " env var(s)!");
     }
   }
-  
+
   @SneakyThrows
   @AfterEach
   protected void clearItems() {
