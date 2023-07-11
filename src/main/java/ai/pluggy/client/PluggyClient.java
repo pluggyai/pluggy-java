@@ -5,6 +5,7 @@ import static ai.pluggy.utils.Asserts.assertValidUrl;
 
 import ai.pluggy.client.auth.ApiKeyAuthInterceptor;
 import ai.pluggy.client.auth.AuthenticationHelper;
+import ai.pluggy.client.auth.EncryptedParametersInterceptor;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.exception.PluggyException;
 import ai.pluggy.utils.Utils;
@@ -28,14 +29,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class PluggyClient {
-
   public static final int ONE_MIB_BYTES = 1024 * 1024;
   public static String AUTH_URL_PATH = "/auth";
   private String baseUrl;
-
   private String clientId;
   private String clientSecret;
-
   private OkHttpClient httpClient;
   private PluggyApiService service;
 
@@ -156,6 +154,7 @@ public final class PluggyClient {
     private String clientId;
     private String clientSecret;
     private String baseUrl;
+    private String rsaPublicKey;
     private Builder okHttpClientBuilder;
     private boolean disableDefaultAuthInterceptor = false;
 
@@ -177,6 +176,11 @@ public final class PluggyClient {
     public PluggyClientBuilder baseUrl(String baseUrl) {
       assertNotNull(baseUrl, "baseUrl");
       this.baseUrl = baseUrl;
+      return this;
+    }
+
+    public PluggyClientBuilder rsaPublicKey(String rsaPublicKey) {
+      this.rsaPublicKey = rsaPublicKey;
       return this;
     }
 
@@ -209,6 +213,10 @@ public final class PluggyClient {
         String authUrlPath = baseUrl + PluggyClient.AUTH_URL_PATH;
         this.okHttpClientBuilder
           .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
+      }
+
+      if (this.rsaPublicKey != null) {
+        this.okHttpClientBuilder.addInterceptor(new EncryptedParametersInterceptor(this.rsaPublicKey));
       }
 
       return okHttpClientBuilder.build();
