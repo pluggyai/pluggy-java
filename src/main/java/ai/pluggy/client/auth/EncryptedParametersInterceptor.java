@@ -93,12 +93,12 @@ public class EncryptedParametersInterceptor implements Interceptor {
         }
     }
 
-    private JsonObject transformBodyToJsonObject(RequestBody body) {
+    private JsonObject transformBodyToJsonObject(RequestBody body) throws IOException {
         Buffer buffer = new Buffer();
         try {
             body.writeTo(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException error) {
+            throw error;
         }
         String bodyString = buffer.readUtf8();
 
