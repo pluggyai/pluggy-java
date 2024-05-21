@@ -18,4 +18,7 @@ public class Connector {
   String imageUrl;
   Boolean hasMFA;
   Date createdAt;
+  Boolean isOpenFinance;
+  Boolean supportsPaymentInitiation;
+  Boolean isSandbox;
 }
