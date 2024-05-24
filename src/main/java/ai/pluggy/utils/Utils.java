@@ -17,8 +17,7 @@ public abstract class Utils {
       MavenXpp3Reader reader = new MavenXpp3Reader();
       Model model = reader.read(new FileReader("pom.xml"));
       return model.getVersion();
-    }
-    catch(IOException | XmlPullParserException e) {
+    } catch(IOException | XmlPullParserException e) {
       return "";
     }
   }
@@ -34,7 +33,7 @@ public abstract class Utils {
 
     return new Gson().fromJson(responseBodyString, clazz);
   }
-  
+
   /**
    * Parse the Json received from the webhook event
    * @param responseBodyString
@@ -42,5 +41,24 @@ public abstract class Utils {
    */
   public static WebhookEventPayload parseWebhookEventPayload(String responseBodyString) {
     return parseJsonResponse(responseBodyString, WebhookEventPayload.class);
+  }
+
+  /**
+   * Get the ConnectorId enum constant from an integer value
+   * @param value the integer value
+   * @return the corresponding ConnectorId enum constant
+   * @throws IllegalArgumentException if the value does not correspond to any ConnectorId
+   */
+  public static ConnectorId getConnectorIdFromValue(int value) {
+    return ConnectorId.fromValue(value);
+  }
+
+  /**
+   * Get the integer value from a ConnectorId enum constant
+   * @param connectorId the ConnectorId enum constant
+   * @return the corresponding integer value
+   */
+  public static int getValueFromConnectorId(ConnectorId connectorId) {
+    return connectorId.getValue();
   }
 }
