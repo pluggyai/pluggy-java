@@ -65,11 +65,10 @@ public final class PluggyClient {
     Request originalRequest = response.request();
 
     String errorMessage = String.format("Pluggy '%s %s' request failed, message: %s (%d)",
-      originalRequest.method(),
-      originalRequest.url().encodedPath(),
-      response.message(),
-      response.code()
-    );
+        originalRequest.method(),
+        originalRequest.url().encodedPath(),
+        response.message(),
+        response.code());
 
     if (responseBodyString != null) {
       errorMessage += " - response: '" + responseBodyString + "'";
@@ -108,7 +107,7 @@ public final class PluggyClient {
   public ErrorResponse parseError(retrofit2.Response responseWithError) throws IOException {
     if (responseWithError.isSuccessful()) {
       throw new IllegalStateException(
-        "Response is successful, can't be parsed as an error response!");
+          "Response is successful, can't be parsed as an error response!");
     }
 
     // extract the response body string to parse
@@ -131,7 +130,7 @@ public final class PluggyClient {
     } catch (JsonSyntaxException e) {
       // malformed or non-json response (ie. responded with 'Network error' string)
       String rawResponseErrorMessage = buildResponseErrorMessage(responseWithError.raw(),
-        errorResponseJson);
+          errorResponseJson);
       errorResponse = new ErrorResponse();
       errorResponse.setCode(responseWithError.code());
       errorResponse.setMessage(rawResponseErrorMessage);
@@ -141,7 +140,8 @@ public final class PluggyClient {
   }
 
   /**
-   * Provides an API to build a PluggyClient instance while ensuring all parameters are defined and
+   * Provides an API to build a PluggyClient instance while ensuring all
+   * parameters are defined and
    * valid.
    */
   public static class PluggyClientBuilder {
@@ -161,8 +161,8 @@ public final class PluggyClient {
     private PluggyClientBuilder() {
       // init OkHttpClient.Builder instance, to expose it for configurability
       this.okHttpClientBuilder = new Builder()
-        .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+          .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+          .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
@@ -185,13 +185,18 @@ public final class PluggyClient {
     }
 
     /**
-     * Opt-out from provided default ApiKeyAuthInterceptor, which takes care of apiKey
-     * authorization, by requesting a new apiKey token when it's not set, or by reactively
-     * refreshing an existing one and retrying a request in case of 401 or 403 unauthorized error
+     * Opt-out from provided default ApiKeyAuthInterceptor, which takes care of
+     * apiKey
+     * authorization, by requesting a new apiKey token when it's not set, or by
+     * reactively
+     * refreshing an existing one and retrying a request in case of 401 or 403
+     * unauthorized error
      * responses.
      * <p>
-     * In case of opt-out, the client will have to provide it's own auth interceptor implementation,
-     * which has to take care of including the "x-api-key" auth header to each http request.
+     * In case of opt-out, the client will have to provide it's own auth interceptor
+     * implementation,
+     * which has to take care of including the "x-api-key" auth header to each http
+     * request.
      */
     public PluggyClientBuilder noAuthInterceptor() {
       this.disableDefaultAuthInterceptor = true;
@@ -199,7 +204,8 @@ public final class PluggyClient {
     }
 
     /**
-     * Provides access to the OkHttpClient.Builder instance, for more complex builds and
+     * Provides access to the OkHttpClient.Builder instance, for more complex builds
+     * and
      * configurations (interceptors, SSL, etc.)
      */
     public OkHttpClient.Builder okHttpClientBuilder() {
@@ -212,7 +218,7 @@ public final class PluggyClient {
         // auth header interceptor implementation.
         String authUrlPath = baseUrl + PluggyClient.AUTH_URL_PATH;
         this.okHttpClientBuilder
-          .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
+            .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
       }
 
       if (this.rsaPublicKey != null) {
@@ -224,8 +230,8 @@ public final class PluggyClient {
 
     private Gson buildGson() {
       return new GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
-        .create();
+          .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+          .create();
     }
 
     public PluggyClient build() {
@@ -243,11 +249,11 @@ public final class PluggyClient {
       OkHttpClient httpClient = buildOkHttpClient(baseUrl);
 
       Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(baseUrl)
-        .validateEagerly(true)
-        .addConverterFactory(GsonConverterFactory.create(buildGson()))
-        .client(httpClient)
-        .build();
+          .baseUrl(baseUrl)
+          .validateEagerly(true)
+          .addConverterFactory(GsonConverterFactory.create(buildGson()))
+          .client(httpClient)
+          .build();
 
       PluggyApiService pluggyRetrofitApiService = retrofit.create(PluggyApiService.class);
 
@@ -268,7 +274,7 @@ public final class PluggyClient {
   public String authenticate() throws IOException, PluggyException {
     if (clientId == null || clientSecret == null) {
       throw new IllegalStateException(
-        "Invalid state, both clientId and clientSecret must be defined!");
+          "Invalid state, both clientId and clientSecret must be defined!");
     }
 
     Map<String, String> parameters = new HashMap<>();
@@ -282,12 +288,12 @@ public final class PluggyClient {
     RequestBody body = RequestBody.create(jsonBody, mediaType);
 
     Request request = new Request.Builder()
-      .url(this.baseUrl + AUTH_URL_PATH)
-      .post(body)
-      .addHeader("content-type", "application/json")
-      .addHeader("cache-control", "no-cache")
-      .addHeader("User-Agent", "PluggyJava/0.16.2")
-      .build();
+        .url(this.baseUrl + AUTH_URL_PATH)
+        .post(body)
+        .addHeader("content-type", "application/json")
+        .addHeader("cache-control", "no-cache")
+        .addHeader("User-Agent", "PluggyJava/0.16.2")
+        .build();
 
     String apiKey;
 

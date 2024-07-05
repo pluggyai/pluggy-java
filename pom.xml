@@ -5,7 +5,7 @@
 
   <groupId>ai.pluggy</groupId>
   <artifactId>pluggy-java</artifactId>
-  <version>0.16.2</version>
+  <version>1.0.0</version>
 
   <packaging>jar</packaging>
 
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.12</version>
+      <version>1.18.32</version>
       <scope>provided</scope>
     </dependency>
 

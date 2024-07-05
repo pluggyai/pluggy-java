@@ -12,6 +12,7 @@ import static ai.pluggy.client.integration.helper.ItemHelper.getItemStatus;
 import ai.pluggy.client.integration.util.Poller;
 import ai.pluggy.client.response.IncomeReportResponse;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemStatus;
 import lombok.SneakyThrows;
 import retrofit2.Response;
 
@@ -25,7 +26,7 @@ public class GetIncomeReportTest extends BaseApiIntegrationTest {
     // poll check of connector item status until it's completed (status: "UPDATED")
     Poller.pollRequestUntil(
         () -> getItemStatus(client, pluggyBankExecution.getId()),
-        (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
+        (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), ItemStatus.UPDATED),
         500, 30000);
 
     // get income report from exising item

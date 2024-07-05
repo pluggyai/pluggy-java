@@ -11,7 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ai.pluggy.client.integration.util.Poller;
 import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.ErrorResponse;
+import ai.pluggy.client.response.ExecutionErrorCode;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemStatus;
+
 import java.io.IOException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -44,27 +47,26 @@ public class GetItemTest extends BaseApiIntegrationTest {
     // precondition: ensure item with bad credentials params exists
     Integer connectorId = 0;
     ParametersMap validParametersBadCredentialsMap = ParametersMap
-      .map("user", "_bad_user_")
-      .with("password", "_bad_password_");
+        .map("user", "_bad_user_")
+        .with("password", "_bad_password_");
 
     ItemResponse itemWithBadCredentials = createItem(client, connectorId,
-      validParametersBadCredentialsMap);
+        validParametersBadCredentialsMap);
     assertNotNull(itemWithBadCredentials);
 
     // wait for item execution to finish.
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, itemWithBadCredentials.getId()),
-      (ItemResponse itemStatusResponse) ->
-        ITEM_FINISH_STATUSES.indexOf(itemStatusResponse.getStatus()) > 0,
-      500, 35000
-    );
+        () -> getItemStatus(client, itemWithBadCredentials.getId()),
+        (ItemResponse itemStatusResponse) -> ITEM_FINISH_STATUSES
+            .indexOf(itemStatusResponse.getStatus().getValue()) > 0,
+        500, 35000);
 
     // expect item to be finished with login error status & code
-    String expectedItemStatus = "LOGIN_ERROR";
-    String expectedLoginErrorCode = "INVALID_CREDENTIALS";
+    ItemStatus expectedItemStatus = ItemStatus.LOGIN_ERROR;
+    ExecutionErrorCode expectedLoginErrorCode = ExecutionErrorCode.INVALID_CREDENTIALS;
 
     Response<ItemResponse> getItemFinishedResponse = client.service()
-      .getItem(itemWithBadCredentials.getId()).execute();
+        .getItem(itemWithBadCredentials.getId()).execute();
     assertTrue(getItemFinishedResponse.isSuccessful());
 
     ItemResponse itemFinishedResponse = getItemFinishedResponse.body();
@@ -80,7 +82,7 @@ public class GetItemTest extends BaseApiIntegrationTest {
   @Test
   void getItem_nonExistingItem_errorResponse404() throws IOException {
     Response<ItemResponse> getItemResponse = client.service().getItem(NON_EXISTING_ITEM_ID)
-      .execute();
+        .execute();
     ErrorResponse errorResponse = client.parseError(getItemResponse);
 
     // expect error response with 404 error

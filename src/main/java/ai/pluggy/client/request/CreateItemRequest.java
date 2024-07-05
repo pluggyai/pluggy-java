@@ -1,10 +1,12 @@
 package ai.pluggy.client.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor
+@Builder
 public class CreateItemRequest {
   Integer connectorId;
   ParametersMap parameters;
