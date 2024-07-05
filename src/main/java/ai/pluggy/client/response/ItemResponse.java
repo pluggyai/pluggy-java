@@ -14,7 +14,7 @@ public class ItemResponse {
   Connector connector;
   Date createdAt;
   Date updatedAt;
-  String status;
+  ItemStatus status;
   ExecutionStatus executionStatus;
   Date lastUpdatedAt;
   String webhookUrl;

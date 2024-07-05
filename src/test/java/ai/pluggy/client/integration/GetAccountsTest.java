@@ -9,6 +9,8 @@ import ai.pluggy.client.integration.util.Poller;
 import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.response.AccountsResponse;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemStatus;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -29,15 +31,14 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
     this.getItemsIdCreated().add(pluggyBankExecution.getId());
   }
 
-
   @Test
   void getAccounts_immediately_responseEmpty() throws IOException {
     ItemResponse itemCurrentStatus = getItemStatus(client, pluggyBankExecution.getId());
-    assertTrue(!Objects.equals(itemCurrentStatus.getStatus(), "UPDATED"));
+    assertTrue(!Objects.equals(itemCurrentStatus.getStatus(), ItemStatus.UPDATED));
 
     Response<AccountsResponse> getAccountsResponse = client.service()
-      .getAccounts(pluggyBankExecution.getId())
-      .execute();
+        .getAccounts(pluggyBankExecution.getId())
+        .execute();
 
     assertTrue(getAccountsResponse.isSuccessful());
 
@@ -51,15 +52,14 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
   void getAccounts_afterExecutionCompleted_responseWithResults() {
     // poll check of connector item status until it's completed (status: "UPDATED")
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, pluggyBankExecution.getId()),
-      (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
-      500, 30000
-    );
+        () -> getItemStatus(client, pluggyBankExecution.getId()),
+        (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), ItemStatus.UPDATED),
+        500, 30000);
 
     // get accounts response
     Response<AccountsResponse> getAccountsResponse = client.service()
-      .getAccounts(pluggyBankExecution.getId())
-      .execute();
+        .getAccounts(pluggyBankExecution.getId())
+        .execute();
 
     // expect accounts response to be OK and have at least 1 result.
     assertTrue(getAccountsResponse.isSuccessful());
@@ -72,8 +72,8 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
     // get accounts response - with filter params
     List<String> accountTypesFilter = Arrays.asList("BANK");
     Response<AccountsResponse> getAccountsFilteredResponse = client.service()
-      .getAccounts(new AccountsRequest(pluggyBankExecution.getId(), accountTypesFilter))
-      .execute();
+        .getAccounts(new AccountsRequest(pluggyBankExecution.getId(), accountTypesFilter))
+        .execute();
 
     // expect accounts response to be OK and have at least 1 result.
     assertTrue(getAccountsFilteredResponse.isSuccessful());
@@ -83,9 +83,10 @@ public class GetAccountsTest extends BaseApiIntegrationTest {
     int accountsFilteredCount = accountsFilteredResponse.getResults().size();
     assertTrue(accountsFilteredCount > 0);
 
-    // expect accounts filtered response to have less results than the non-filtered response
+    // expect accounts filtered response to have less results than the non-filtered
+    // response
     assertTrue(accountsFilteredCount < allAccountsCount, String.format(
-      "accountsFilteredCount: %d should be less than allAccountsCount: %d, using filter 'types': '%s'",
-      accountsFilteredCount, allAccountsCount, accountTypesFilter));
+        "accountsFilteredCount: %d should be less than allAccountsCount: %d, using filter 'types': '%s'",
+        accountsFilteredCount, allAccountsCount, accountTypesFilter));
   }
 }

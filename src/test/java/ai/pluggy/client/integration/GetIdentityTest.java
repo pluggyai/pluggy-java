@@ -10,6 +10,8 @@ import ai.pluggy.client.request.ParametersMap;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemStatus;
+
 import java.util.Objects;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
     // ensure item exists
     Integer connectorId = 0;
     ParametersMap validCredentials = ParametersMap.map("user", "user-ok")
-      .with("password", "password-ok");
+        .with("password", "password-ok");
     ItemResponse item = createItem(client, connectorId, validCredentials);
     assertNotNull(item);
 
@@ -31,22 +33,21 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     // wait until item completed (item status: "UPDATED")
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, item.getId()),
-      (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
-      500, 30000
-    );
+        () -> getItemStatus(client, item.getId()),
+        (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), ItemStatus.UPDATED),
+        500, 30000);
 
     // get identity by item id
     Response<IdentityResponse> identityByItemIdResponse = client.service()
-      .getIdentityByItemId(existingItemId)
-      .execute();
+        .getIdentityByItemId(existingItemId)
+        .execute();
 
     // expect response to be OK (and not null)
     assertEquals(200, identityByItemIdResponse.code());
 
     IdentityResponse identityResponse = identityByItemIdResponse.body();
     assertNotNull(identityResponse);
-    
+
     this.getItemsIdCreated().add(item.getId());
   }
 
@@ -56,7 +57,7 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
     // ensure item exists
     Integer connectorId = 0;
     ParametersMap validCredentials = ParametersMap.map("user", "user-ok")
-      .with("password", "password-ok");
+        .with("password", "password-ok");
     ItemResponse item = createItem(client, connectorId, validCredentials);
     assertNotNull(item);
 
@@ -64,8 +65,8 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     // get identity by item id
     Response<IdentityResponse> identityByItemIdResponse = client.service()
-      .getIdentityByItemId(existingItemId)
-      .execute();
+        .getIdentityByItemId(existingItemId)
+        .execute();
 
     // expect response to be 404 not found
     assertEquals(404, identityByItemIdResponse.code());
@@ -76,14 +77,13 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
     this.getItemsIdCreated().add(item.getId());
   }
 
-
   @SneakyThrows
   @Test
   void getIdentityById_existingIdentityOfExistingCompletedItemId_ok() {
     // ensure item exists
     Integer connectorId = 0;
     ParametersMap validCredentials = ParametersMap.map("user", "user-ok")
-      .with("password", "password-ok");
+        .with("password", "password-ok");
     ItemResponse item = createItem(client, connectorId, validCredentials);
     assertNotNull(item);
 
@@ -91,15 +91,14 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     // wait until item completed (item status: "UPDATED")
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, existingItemId),
-      (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), "UPDATED"),
-      500, 30000
-    );
+        () -> getItemStatus(client, existingItemId),
+        (ItemResponse itemResponse) -> Objects.equals(itemResponse.getStatus(), ItemStatus.UPDATED),
+        500, 30000);
 
     // ensure identity by item id exists
     Response<IdentityResponse> identityByItemIdResponse = client.service()
-      .getIdentityByItemId(existingItemId)
-      .execute();
+        .getIdentityByItemId(existingItemId)
+        .execute();
 
     IdentityResponse identityResponse = identityByItemIdResponse.body();
     String identityId = identityResponse.getId();
@@ -107,7 +106,7 @@ public class GetIdentityTest extends BaseApiIntegrationTest {
 
     // get identity by id
     Response<IdentityResponse> identityByIdResponse = client.service().getIdentityById(identityId)
-      .execute();
+        .execute();
 
     // expect response to be OK and to match originally requested identity
     assertEquals(identityByIdResponse.code(), 200);
