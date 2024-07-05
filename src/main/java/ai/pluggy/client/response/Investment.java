@@ -1,9 +1,12 @@
 package ai.pluggy.client.response;
 
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class Investment {
   String id;
   String itemId;
@@ -36,8 +39,11 @@ public class Investment {
   Date issuerDate;
   InvestmentStatus status;
   /**
-   * @deprecated use `pluggyClient.service().getInvestmentTransactions(investmentId, searchFilters)` instead
-   * this field is null unless the application was created before 2023-03-21
+   * @deprecated use
+   *             `pluggyClient.service().getInvestmentTransactions(investmentId,
+   *             searchFilters)` instead
+   *             this field is null unless the application was created before
+   *             2023-03-21
    */
   @Deprecated
   InvestmentTransaction[] transactions;

@@ -1,10 +1,14 @@
 package ai.pluggy.client.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 
 @Value
+@Builder
+@AllArgsConstructor
 public class CreateConnectTokenRequest {
-  
+
   String itemId;
   Options options;
 
@@ -18,5 +22,3 @@ public class CreateConnectTokenRequest {
     this.options = new Options(webhookUrl, clientUserId);
   }
 }
-
-

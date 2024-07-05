@@ -2,12 +2,15 @@ package ai.pluggy.client.response;
 
 import java.util.Date;
 import java.util.List;
+
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * GET /identity
  */
 @Data
+@Builder
 public class IdentityResponse {
 
   String id;

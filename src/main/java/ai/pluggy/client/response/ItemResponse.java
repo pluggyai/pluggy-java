@@ -1,9 +1,12 @@
 package ai.pluggy.client.response;
 
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class ItemResponse {
 
   String id;
@@ -12,7 +15,7 @@ public class ItemResponse {
   Date createdAt;
   Date updatedAt;
   String status;
-  String executionStatus;
+  ExecutionStatus executionStatus;
   Date lastUpdatedAt;
   String webhookUrl;
   ItemError error = null;
