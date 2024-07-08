@@ -126,7 +126,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // expect item to be status = "UPDATING"
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
-    assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+    assertEquals(updatingItemStatus.getStatus(), ItemStatus.UPDATING);
 
     this.getItemsIdCreated().add(createdItemResponse.getId());
   }
@@ -157,7 +157,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // expect item to be status = "UPDATING"
     assertNotNull(updatedItem);
     ItemResponse updatingItemStatus = getItemStatus(client, createdItemResponse.getId());
-    assertEquals(updatingItemStatus.getStatus(), "UPDATING");
+    assertEquals(updatingItemStatus.getStatus(), ItemStatus.UPDATING);
 
     this.getItemsIdCreated().add(createdItemResponse.getId());
   }
