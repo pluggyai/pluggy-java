@@ -13,6 +13,8 @@ import ai.pluggy.client.integration.util.Poller;
 import ai.pluggy.client.request.UpdateItemRequest;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.ItemStatus;
+
 import java.util.Objects;
 
 import lombok.SneakyThrows;
@@ -31,14 +33,14 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     String newWebhookUrl = "https://www.test.com";
     String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
-      .webhookUrl(newWebhookUrl)
-      .clientUserId(newClientUserId)
-      .build();
+        .webhookUrl(newWebhookUrl)
+        .clientUserId(newClientUserId)
+        .build();
 
     // run update item request
     Response<ItemResponse> updateItemResponse = client.service()
-      .updateItem(itemResponse.getId(), updateItemRequest)
-      .execute();
+        .updateItem(itemResponse.getId(), updateItemRequest)
+        .execute();
 
     // expect update item response to be an error
     ErrorResponse errorResponse = client.parseError(updateItemResponse);
@@ -50,7 +52,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // expect updatedItem response to be null
     ItemResponse updatedItem = updateItemResponse.body();
     assertNull(updatedItem);
-    
+
     this.getItemsIdCreated().add(itemResponse.getId());
   }
 
@@ -64,22 +66,22 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     String newWebhookUrl = "https://www.test2.com";
     String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
-      .webhookUrl(newWebhookUrl)
-      .clientUserId(newClientUserId)
-      .build();
+        .webhookUrl(newWebhookUrl)
+        .clientUserId(newClientUserId)
+        .build();
 
-    // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
+    // wait for creation finish (status: "UPDATED") before updating, to prevent
+    // update request error 400.
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, createdItemResponse.getId()),
-      (ItemResponse itemStatusResponse) -> Objects
-        .equals(itemStatusResponse.getStatus(), "UPDATED"),
-      500, 45000
-    );
+        () -> getItemStatus(client, createdItemResponse.getId()),
+        (ItemResponse itemStatusResponse) -> Objects
+            .equals(itemStatusResponse.getStatus(), ItemStatus.UPDATED),
+        500, 45000);
 
     // run update item request
     Response<ItemResponse> updateItemResponse = client.service()
-      .updateItem(createdItemResponse.getId(), updateItemRequest)
-      .execute();
+        .updateItem(createdItemResponse.getId(), updateItemRequest)
+        .execute();
 
     ItemResponse updatedItem = updateItemResponse.body();
 
@@ -102,20 +104,20 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
 
     // build empty update item request
     UpdateItemRequest emptyUpdateItemRequest = UpdateItemRequest.builder()
-      .build();
+        .build();
 
-    // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
+    // wait for creation finish (status: "UPDATED") before updating, to prevent
+    // update request error 400.
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, createdItemResponse.getId()),
-      (ItemResponse itemStatusResponse) -> Objects
-        .equals(itemStatusResponse.getStatus(), "UPDATED"),
-      500, 45000
-    );
+        () -> getItemStatus(client, createdItemResponse.getId()),
+        (ItemResponse itemStatusResponse) -> Objects
+            .equals(itemStatusResponse.getStatus(), ItemStatus.UPDATED),
+        500, 45000);
 
     // run update item request with empty params
     Response<ItemResponse> updateItemResponseEmptyParams = client.service()
-      .updateItem(createdItemResponse.getId(), emptyUpdateItemRequest)
-      .execute();
+        .updateItem(createdItemResponse.getId(), emptyUpdateItemRequest)
+        .execute();
 
     // expect response (to empty params request) to be successful
     assertTrue(updateItemResponseEmptyParams.isSuccessful());
@@ -135,18 +137,18 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     // precondition: an item already exists
     ItemResponse createdItemResponse = createPluggyBankItem(client);
 
-    // wait for creation finish (status: "UPDATED") before updating, to prevent update request error 400.
+    // wait for creation finish (status: "UPDATED") before updating, to prevent
+    // update request error 400.
     Poller.pollRequestUntil(
-      () -> getItemStatus(client, createdItemResponse.getId()),
-      (ItemResponse itemStatusResponse) -> Objects
-        .equals(itemStatusResponse.getStatus(), "UPDATED"),
-      500, 45000
-    );
+        () -> getItemStatus(client, createdItemResponse.getId()),
+        (ItemResponse itemStatusResponse) -> Objects
+            .equals(itemStatusResponse.getStatus(), ItemStatus.UPDATED),
+        500, 45000);
 
     // run update item request with empty params
     Response<ItemResponse> updateItemResponseNullParams = client.service()
-      .updateItem(createdItemResponse.getId())
-      .execute();
+        .updateItem(createdItemResponse.getId())
+        .execute();
 
     // expect response (to null-params request) to be successful
     assertTrue(updateItemResponseNullParams.isSuccessful());
