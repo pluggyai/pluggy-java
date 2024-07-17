@@ -11,7 +11,13 @@ public enum CredentialType {
   @SerializedName("password")
   PASSWORD("password"),
   @SerializedName("number")
-  NUMBER("number");
+  NUMBER("number"),
+  @SerializedName("select")
+  SELECT("select"),
+  @SerializedName("ethaddress")
+  ETHADDRESS("ethaddress"),
+  @SerializedName("hcaptcha")
+  HCAPTCHA("hcaptcha");
 
   @Getter
   private String value;
