@@ -1,5 +1,7 @@
 package ai.pluggy.client.response;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,11 +18,16 @@ public class CredentialLabel {
   String label;
   CredentialType type;
   Boolean mfa;
+  @Builder.Default
+  Boolean optional = false;
+  String data;
+  String assistiveText;
   String validation;
   String validationMessage;
   String placeholder;
-  @Builder.Default
-  Boolean optional = false;
+  String instructions;
+  Date expiresAt;
+  CredentialSelectOption[] options;
 
   // override noargs constructor to explicitly set defaults
   public CredentialLabel() {
