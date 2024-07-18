@@ -14,4 +14,5 @@ public class UpdateItemRequest {
   ParametersMap parameters;
   String webhookUrl;
   String clientUserId;
+  ProductType[] products;
 }
