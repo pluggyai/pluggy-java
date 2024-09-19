@@ -20,6 +20,7 @@ public class ItemResponse {
   String webhookUrl;
   ItemError error = null;
   CredentialLabel parameter;
+  ItemStatusDetail statusDetail;
   String clientUserId;
   Integer consecutiveFailedLoginAttempts;
 }
