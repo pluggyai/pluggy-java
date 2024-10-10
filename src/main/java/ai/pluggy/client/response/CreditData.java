@@ -15,4 +15,6 @@ public class CreditData {
   Double balanceForeignCurrency;
   Double minimumPayment;
   Double creditLimit;
+  HolderType holderType;
+  CreditCardStatus status;
 }
