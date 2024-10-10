@@ -9,4 +9,5 @@ public class BankData {
 
   String transferNumber;
   Double closingBalance;
+  Double automaticallyInvestedBalance;
 }
