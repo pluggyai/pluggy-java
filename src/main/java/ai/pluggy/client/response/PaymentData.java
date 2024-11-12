@@ -9,4 +9,5 @@ public class PaymentData {
   String paymentMethod;
   String referenceNumber;
   String reason;
+  BoletoMetadata boletoMetadata;
 }
