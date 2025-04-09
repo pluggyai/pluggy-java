@@ -16,12 +16,19 @@ public class Connector {
   String country;
   ConnectorType type;
   List<CredentialLabel> credentials;
+  List<ProductType> products;
+  Boolean oauthUrl;
   String resetPasswordUrl;
   Boolean oauth;
   String imageUrl;
   Boolean hasMFA;
+  Health health;
   Date createdAt;
   Boolean isOpenFinance;
+  Date updatedAt;
   Boolean supportsPaymentInitiation;
   Boolean isSandbox;
+  Boolean supportsScheduledPayments;
+  Boolean supportsSmartTransfers;
+  Boolean supportsBoletoManagement;
 }
