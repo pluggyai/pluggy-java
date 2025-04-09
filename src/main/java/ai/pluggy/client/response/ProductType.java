@@ -1,4 +1,4 @@
-package ai.pluggy.client.request;
+package ai.pluggy.client.response;
 
 import com.google.gson.annotations.SerializedName;
 
