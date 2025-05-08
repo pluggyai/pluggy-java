@@ -3,6 +3,10 @@ package ai.pluggy.utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 import okhttp3.HttpUrl;
 
 public abstract class Asserts {
@@ -17,6 +21,19 @@ public abstract class Asserts {
   public static void assertNotNull(Object value, String name) {
     if (value == null) {
       throw new IllegalArgumentException(String.format("'%s' cannot be null", name));
+    }
+  }
+
+  /**
+   * Asserts that an array is not empty.
+   *
+   * @param value the value to check.
+   * @param name  the name of the parameter, used when creating the exception message.
+   * @throws IllegalArgumentException if the value is null
+   */
+  public static void assertNotEmpty(List<String> value, String name) {
+    if (value != null && value.isEmpty()) {
+      throw new IllegalArgumentException(String.format("'%s' cannot be empty", name));
     }
   }
 

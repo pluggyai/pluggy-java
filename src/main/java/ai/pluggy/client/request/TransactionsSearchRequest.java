@@ -1,13 +1,25 @@
 package ai.pluggy.client.request;
 
+import static ai.pluggy.utils.Asserts.assertNotEmpty;
 import static ai.pluggy.utils.Asserts.assertNotNull;
 import static ai.pluggy.utils.Asserts.assertValidDateString;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class TransactionsSearchRequest extends HashMap<String, Object> {
 
   public static final String DATE_PARAM_FORMAT_ISO = "yyyy-MM-dd";
+
+  /**
+   * @param ids List<String> - list of ids to return
+   * @return this instance, useful to continue adding params
+   */
+  public TransactionsSearchRequest ids(List<String> ids) {
+    assertNotEmpty(ids, "ids");
+    put("ids", ids);
+    return this;
+  }
 
   /**
    * @param fromDate String - from date in 'YYYY-MM-DD' format
@@ -80,5 +92,13 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
       return null;
     }
     return (String) get("to");
+  }
+
+  public List<String> getIds() {
+    if (!containsKey("ids")) {
+      return null;
+    }
+
+    return (List<String>) get("ids");
   }
 }
