@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
+
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -167,7 +169,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     
     // fetch transactions by ids
     Response<TransactionsResponse> transactionsbyIds = client.service()
-      .getTransactions(firstAccountId, new TransactionsSearchRequest().ids(List.of(nextPageTransactions.get(0).getId())))
+      .getTransactions(firstAccountId, new TransactionsSearchRequest().ids(Arrays.asList(nextPageTransactions.get(0).getId())))
       .execute();
     assertEquals(transactionsbyIds.body().getResults().size(), 1);
 
