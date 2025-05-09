@@ -94,11 +94,10 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
     return (String) get("to");
   }
 
-  public List<String> getIds() {
+  public String getIds() {
     if (!containsKey("ids")) {
       return null;
     }
-    String ids = (String) get("ids");
-    return List.of(ids.split(","));
+    return (String) get("ids");
   }
 }
