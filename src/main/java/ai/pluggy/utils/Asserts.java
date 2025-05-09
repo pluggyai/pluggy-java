@@ -31,8 +31,8 @@ public abstract class Asserts {
    * @param name  the name of the parameter, used when creating the exception message.
    * @throws IllegalArgumentException if the value is null
    */
-  public static void assertNotEmpty(List<String> value, String name) {
-    if (value != null && value.isEmpty()) {
+  public static void assertNotEmpty(String[] value, String name) {
+    if (value != null && value.length < 1) {
       throw new IllegalArgumentException(String.format("'%s' cannot be empty", name));
     }
   }

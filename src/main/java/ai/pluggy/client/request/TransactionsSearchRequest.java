@@ -5,7 +5,6 @@ import static ai.pluggy.utils.Asserts.assertNotNull;
 import static ai.pluggy.utils.Asserts.assertValidDateString;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class TransactionsSearchRequest extends HashMap<String, Object> {
 
@@ -15,9 +14,9 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
    * @param ids List<String> - list of ids to return
    * @return this instance, useful to continue adding params
    */
-  public TransactionsSearchRequest ids(List<String> ids) {
+  public TransactionsSearchRequest ids(String[] ids) {
     assertNotEmpty(ids, "ids");
-    put("ids", ids);
+    put("ids", String.join(",", ids));
     return this;
   }
 
@@ -94,11 +93,11 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
     return (String) get("to");
   }
 
-  public List<String> getIds() {
+  public String[] getIds() {
     if (!containsKey("ids")) {
       return null;
     }
-
-    return (List<String>) get("ids");
+    String ids = (String) get("ids");
+    return ids.split(",");
   }
 }
