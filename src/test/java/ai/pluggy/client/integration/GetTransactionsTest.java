@@ -167,7 +167,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     
     // fetch transactions by ids
     Response<TransactionsResponse> transactionsbyIds = client.service()
-      .getTransactions(firstAccountId, new TransactionsSearchRequest().ids(List.of(nextPageTransactions.getFirst().getId())))
+      .getTransactions(firstAccountId, new TransactionsSearchRequest().ids(List.of(nextPageTransactions.get(0).getId())))
       .execute();
     assertEquals(transactionsbyIds.body().getResults().size(), 1);
 
