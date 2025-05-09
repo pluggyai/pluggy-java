@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
+
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -114,7 +116,6 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
         transactionsFilteredCount, allTransactionsCount, dateFilters));
   }
 
-  @Disabled("currently, dont work correctly - re-enable once it's working again" )
   @SneakyThrows
   @Test
   void getTransactions_byExistingAccountId_withPageFilters_ok() {
@@ -164,6 +165,14 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     assertNotNull(transactionsNextPage);
     List<Transaction> nextPageTransactions = transactionsNextPage.getResults();
     assertTrue(nextPageTransactions.size() > 0);
+
+    
+    // fetch transactions by ids
+    Response<TransactionsResponse> transactionsbyIds = client.service()
+      .getTransactions(firstAccountId, new TransactionsSearchRequest().ids(Arrays.asList(nextPageTransactions.get(0).getId())))
+      .execute();
+    assertEquals(transactionsbyIds.body().getResults().size(), 1);
+
 
     // expect first tx of next page to be different from the first page.
     assertNotEquals(nextPageTransactions.get(0).getId(),
