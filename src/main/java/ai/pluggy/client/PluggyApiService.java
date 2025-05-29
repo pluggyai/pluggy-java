@@ -23,7 +23,6 @@ import ai.pluggy.client.response.InvestmentsResponse;
 import ai.pluggy.client.response.ItemResponse;
 import ai.pluggy.client.response.Transaction;
 import ai.pluggy.client.response.TransactionsResponse;
-import ai.pluggy.client.response.IncomeReportResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -58,12 +57,12 @@ public interface PluggyApiService {
 
   @PATCH("/items/{id}")
   Call<ItemResponse> updateItem(@Path("id") String itemId,
-    @Body UpdateItemRequest updateItemRequest);
+      @Body UpdateItemRequest updateItemRequest);
 
   @POST("/items/{id}/mfa")
   Call<ItemResponse> updateItemSendMfa(@Path("id") String itemId,
-    @Body UpdateItemMfaRequest mfaParameter);
-  
+      @Body UpdateItemMfaRequest mfaParameter);
+
   @GET("/items/{id}")
   Call<ItemResponse> getItem(@Path("id") String itemId);
 
@@ -84,7 +83,7 @@ public interface PluggyApiService {
 
   @GET("/transactions")
   Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId,
-    @QueryMap TransactionsSearchRequest transactionsSearchRequest);
+      @QueryMap TransactionsSearchRequest transactionsSearchRequest);
 
   @GET("/transactions/{id}")
   Call<Transaction> getTransaction(@Path("id") String transactionId);
@@ -96,8 +95,8 @@ public interface PluggyApiService {
   Call<Investment> getInvestment(@Path("id") String investmentId);
 
   @GET("/investments/{id}/transactions")
-  Call<InvestmentTransactionsResponse> getInvestmentTransactions(@Path("id") String investmentId, 
-    @QueryMap InvestmentTransactionsSearchRequest investmentTransactionsSearchRequest);
+  Call<InvestmentTransactionsResponse> getInvestmentTransactions(@Path("id") String investmentId,
+      @QueryMap InvestmentTransactionsSearchRequest investmentTransactionsSearchRequest);
 
   @GET("/categories")
   Call<CategoriesResponse> getCategories();
@@ -107,7 +106,4 @@ public interface PluggyApiService {
 
   @POST("/connecttokens")
   Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
-
-  @GET("/income-reports")
-  Call<IncomeReportResponse> getIncomeReport(@Query("itemId") String itemId);
 }

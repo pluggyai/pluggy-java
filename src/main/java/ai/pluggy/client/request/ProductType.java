@@ -37,23 +37,8 @@ public enum ProductType {
   @SerializedName("IDENTITY")
   IDENTITY("IDENTITY"),
 
-  @SerializedName("OPPORTUNITIES")
-  OPPORTUNITIES("OPPORTUNITIES"),
-
-  @SerializedName("PORTFOLIO")
-  PORTFOLIO("PORTFOLIO"),
-
-  @SerializedName("INCOME_REPORTS")
-  INCOME_REPORTS("INCOME_REPORTS"),
-
   @SerializedName("MOVE_SECURITY")
-  MOVE_SECURITY("MOVE_SECURITY"),
-
-  @SerializedName("ACQUIRER_OPERATIONS")
-  ACQUIRER_OPERATIONS("ACQUIRER_OPERATIONS"),
-
-  @SerializedName("BENEFITS")
-  BENEFITS("BENEFITS");
+  MOVE_SECURITY("MOVE_SECURITY");
 
   @Getter
   private String value;
