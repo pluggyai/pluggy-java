@@ -25,16 +25,17 @@ class GetConnectorsTest extends BaseApiIntegrationTest {
   void getConnectors_withParams_returnsFilteredResults() throws IOException {
     // request connectors with empty filters
     ConnectorsResponse defaultConnectors = client.service()
-      .getConnectors(new ConnectorsSearchRequest()).execute().body();
+        .getConnectors(new ConnectorsSearchRequest()).execute().body();
 
     // request connectors with filters
     ConnectorsResponse connectorsFilteredByName = client.service()
-      .getConnectors(new ConnectorsSearchRequest("Nubank")).execute().body();
+        .getConnectors(new ConnectorsSearchRequest("Santander Empresas")).execute().body();
     ConnectorsResponse connectorsFilteredIncludeSandbox = client.service()
-      .getConnectors(new ConnectorsSearchRequest().setIncludeSandbox(true)).execute().body();
+        .getConnectors(new ConnectorsSearchRequest().setIncludeSandbox(true)).execute().body();
     ConnectorsResponse connectorsFilteredByOneCountryAndOneType = client.service()
-      .getConnectors(new ConnectorsSearchRequest(null, null,
-        Collections.singletonList(ConnectorType.BUSINESS_BANK))).execute().body();
+        .getConnectors(new ConnectorsSearchRequest(null, null,
+            Collections.singletonList(ConnectorType.BUSINESS_BANK)))
+        .execute().body();
 
     int allCount = defaultConnectors.getResults().size();
     int allIncludeSandboxCount = connectorsFilteredIncludeSandbox.getResults().size();
@@ -51,7 +52,8 @@ class GetConnectorsTest extends BaseApiIntegrationTest {
     assertTrue(byNameCount < allCount);
     assertTrue(byOneCountryAndOneTypeCount < allCount);
 
-    // assumes including sandbox results are more (or equal) than default total results
+    // assumes including sandbox results are more (or equal) than default total
+    // results
     assertTrue(allIncludeSandboxCount >= allCount);
   }
 }
