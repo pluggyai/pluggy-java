@@ -7,4 +7,7 @@ public class TransactionCreditCardMetadata {
     Integer installmentNumber;
     Integer totalInstallments;
     Double totalAmount;
+    Integer payeeMcc;
+    String cardNumber;
+    String billId;
 }
