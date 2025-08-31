@@ -10,6 +10,7 @@ public class Transaction {
   String descriptionRaw;
   String currencyCode;
   Double amount;
+  Double amountInAccountCurrency;
   String date;
   Double balance;
   String category;
@@ -18,4 +19,7 @@ public class Transaction {
   PaymentData paymentData;
   TransactionCreditCardMetadata creditCardMetadata;
   TransactionType type;
+  Merchant merchant;
+  String operationType;
+  String providerId;
 }
