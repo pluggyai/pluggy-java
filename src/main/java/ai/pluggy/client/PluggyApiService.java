@@ -8,21 +8,7 @@ import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
-import ai.pluggy.client.response.Account;
-import ai.pluggy.client.response.AccountsResponse;
-import ai.pluggy.client.response.CategoriesResponse;
-import ai.pluggy.client.response.Category;
-import ai.pluggy.client.response.ConnectTokenResponse;
-import ai.pluggy.client.response.Connector;
-import ai.pluggy.client.response.ConnectorsResponse;
-import ai.pluggy.client.response.DeleteItemResponse;
-import ai.pluggy.client.response.IdentityResponse;
-import ai.pluggy.client.response.Investment;
-import ai.pluggy.client.response.InvestmentTransactionsResponse;
-import ai.pluggy.client.response.InvestmentsResponse;
-import ai.pluggy.client.response.ItemResponse;
-import ai.pluggy.client.response.Transaction;
-import ai.pluggy.client.response.TransactionsResponse;
+import ai.pluggy.client.response.*;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -78,6 +64,12 @@ public interface PluggyApiService {
   @GET("/accounts/{id}")
   Call<Account> getAccount(@Path("id") String accountId);
 
+  @GET("/bills")
+  Call<BillsResponse> getBills(@Query("accountId") String accountId);
+  
+  @GET("/bills/{id}")
+  Call<Bill> getBill(@Path("id") String billId);
+  
   @GET("/transactions")
   Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId);
 
