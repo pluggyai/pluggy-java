@@ -66,7 +66,7 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
    * @return this instance, useful to continue adding params
    */
   public TransactionsSearchRequest billId(String billId) {
-    validateDateString(billId, "billId");
+    assertNotNull(billId, "billId");
     put("billId", billId);
     return this;
   }
