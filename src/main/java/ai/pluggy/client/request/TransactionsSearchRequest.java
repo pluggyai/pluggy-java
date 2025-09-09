@@ -61,6 +61,15 @@ public class TransactionsSearchRequest extends HashMap<String, Object> {
     return this;
   }
 
+  /**
+   * @param billId String - Credit Card Bill's primary identifier, if account is a credit card.
+   * @return this instance, useful to continue adding params
+   */
+  public TransactionsSearchRequest billId(String billId) {
+    assertNotNull(billId, "billId");
+    put("billId", billId);
+    return this;
+  }
 
   private void validateDateString(String dateString, String name) {
     assertValidDateString(dateString, DATE_PARAM_FORMAT_ISO, name);
