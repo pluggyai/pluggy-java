@@ -10,4 +10,7 @@ public class BankData {
   String transferNumber;
   Double closingBalance;
   Double automaticallyInvestedBalance;
+  Double overdraftContractedLimit;
+  Double overdraftUsedLimit;
+  Double unarrangedOverdraftAmount;
 }
