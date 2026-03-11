@@ -9,4 +9,6 @@ public class Options {
 
   String webhookUrl;
   String clientUserId;
+  String oauthRedirectUri;
+  Boolean avoidDuplicates;
 }
