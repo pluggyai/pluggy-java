@@ -14,11 +14,11 @@ public class CreateConnectTokenRequest {
 
   public CreateConnectTokenRequest(String webhookUrl, String clientUserId) {
     this.itemId = null;
-    this.options = new Options(webhookUrl, clientUserId);
+    this.options = new Options(webhookUrl, clientUserId, null, null);
   }
 
   public CreateConnectTokenRequest(String itemId, String webhookUrl, String clientUserId) {
     this.itemId = itemId;
-    this.options = new Options(webhookUrl, clientUserId);
+    this.options = new Options(webhookUrl, clientUserId, null, null);
   }
 }
