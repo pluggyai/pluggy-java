@@ -38,7 +38,13 @@ jobs:
         run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_PROD }} --no-prompt
 
       - name: Pass All Secrets to Next Steps
-        run: doppler secrets download --no-file --format=docker >> $GITHUB_ENV; 
+        run: |
+          while IFS='=' read -r key value; do
+            if [ -n "$key" ]; then
+              echo "::add-mask::$value"
+              echo "$key=$value" >> "$GITHUB_ENV"
+            fi
+          done < <(doppler secrets download --no-file --format=docker)
       
       - name: Check Test Env Variables
         run: echo PLUGGY_CLIENT_ID $PLUGGY_CLIENT_ID PLUGGY_BASE_URL $PLUGGY_BASE_URL
