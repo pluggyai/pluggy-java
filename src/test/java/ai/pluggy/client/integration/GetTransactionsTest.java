@@ -124,7 +124,7 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     String firstAccountId = retrieveFirstAccountId(client, this.getItemsIdCreated());
 
     // fetch first page
-    int pageSize = 2;
+    int pageSize = 1;
     int firstPage = 1;
     TransactionsSearchRequest firstPageParams = new TransactionsSearchRequest()
         .page(firstPage)
@@ -142,10 +142,10 @@ public class GetTransactionsTest extends BaseApiIntegrationTest {
     int firstPageTxsCount = firstPageTransactions.size();
     Integer allTxsCount = transactionsFirstPage.getTotal();
 
-    // expect to have more pages left
-    assertTrue(allTxsCount >= firstPageTxsCount,
-        String.format("expected total '%d' txs count to be greater than first page txs "
-            + "count '%d', for account id '%s'", allTxsCount, firstPageTxsCount, firstAccountId));
+    // expect at least 2 txs total so a non-empty page 2 exists
+    assertTrue(allTxsCount >= 2,
+        String.format("expected total txs count to be at least 2 (got '%d') for account id '%s', "
+            + "so paginating with pageSize=1 yields a non-empty page 2", allTxsCount, firstAccountId));
 
     // expect first page to be complete (ie. to equal page size param)
     assertEquals(firstPageTxsCount, pageSize,
