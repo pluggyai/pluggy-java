@@ -36,7 +36,12 @@ public class Investment {
   String amountProfit = null;
   Double amountWithdrawal;
   String issuer;
+  String issuerCNPJ;
+  /** @deprecated field was misnamed — use {@link #issueDate} instead; this field is always null */
+  @Deprecated
   Date issuerDate;
+  Date issueDate;
+  Date purchaseDate;
   InvestmentStatus status;
   /**
    * @deprecated use
