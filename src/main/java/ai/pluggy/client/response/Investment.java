@@ -36,7 +36,12 @@ public class Investment {
   String amountProfit = null;
   Double amountWithdrawal;
   String issuer;
+  String issuerCNPJ;
+  /** @deprecated The API key is {@code issueDate} — this field is always {@code null} due to a naming mismatch. Use {@link #issueDate} instead. */
+  @Deprecated
   Date issuerDate;
+  Date issueDate;
+  Date purchaseDate;
   InvestmentStatus status;
   /**
    * @deprecated use
