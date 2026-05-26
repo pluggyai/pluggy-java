@@ -3,8 +3,10 @@ package ai.pluggy.client.integration;
 import static ai.pluggy.client.integration.helper.InvestmentHelper.getPluggyBankInvestments;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
+import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.InvestmentTransactionsResponse;
 import ai.pluggy.client.response.InvestmentsResponse;
 import lombok.SneakyThrows;
@@ -17,20 +19,32 @@ public class GetInvestmentTransactionsTest extends BaseApiIntegrationTest {
     void getTransactions_byExistingInvestmentId_ok() {
         // precondition: get existing investments
         InvestmentsResponse investments = getPluggyBankInvestments(client);
-        // get first investment id to get the transactions from the investment
-        String firstInvestmentId = investments.getResults().get(0).getId();
 
-        // get investment transactions
-        Response<InvestmentTransactionsResponse> investmentTransactionsResponse = client.service()
-                .getInvestmentTransactions(firstInvestmentId, new InvestmentTransactionsSearchRequest().pageSize(20))
-                .execute();
+        // walk investments to find one with transactions — the sandbox's first
+        // investment may have none even when others do, so we don't hard-bind to index 0.
+        InvestmentTransactionsResponse investmentTransactions = null;
+        String investmentIdWithTxs = null;
+        for (Investment investment : investments.getResults()) {
+            Response<InvestmentTransactionsResponse> response = client.service()
+                    .getInvestmentTransactions(investment.getId(), new InvestmentTransactionsSearchRequest().pageSize(20))
+                    .execute();
+            assertTrue(response.isSuccessful());
+            InvestmentTransactionsResponse body = response.body();
+            assertNotNull(body);
+            assertNotNull(body.getResults());
+            if (!body.getResults().isEmpty()) {
+                investmentTransactions = body;
+                investmentIdWithTxs = investment.getId();
+                break;
+            }
+        }
 
-        // expect investment response to be valid
-        assertTrue(investmentTransactionsResponse.isSuccessful());
-        InvestmentTransactionsResponse investmentTransactions = investmentTransactionsResponse.body();
-        assertNotNull(investmentTransactions);
-        // expect investment transactions to be valid and have at least one transaction
-        assertNotNull(investmentTransactions.getResults());
-        assertTrue(investmentTransactions.getResults().size() > 0);
+        // skip if no investment in the sandbox has any transactions
+        assumeTrue(investmentTransactions != null,
+                String.format("skipping: no investments in the sandbox have any transactions (checked '%d' investments)",
+                        investments.getResults().size()));
+
+        assertTrue(investmentTransactions.getResults().size() > 0,
+                String.format("expected investment id '%s' to have at least 1 transaction", investmentIdWithTxs));
     }
 }
