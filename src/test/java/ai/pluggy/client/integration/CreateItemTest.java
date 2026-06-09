@@ -39,7 +39,7 @@ public class CreateItemTest extends BaseApiIntegrationTest {
 
         // run request with 'connectorId', 'parameters', 'webhookUrl', 'clientUserId',
         // params
-        String webhookUrl = "https://www.test.com/";
+        String webhookUrl = "https://pluggy-java-tests.requestcatcher.com/create";
         String clientUserId = "clientUserId";
         CreateItemRequest createItemRequestWithWebhook = new CreateItemRequest(connectorId,
                 parametersMap, webhookUrl, clientUserId);
