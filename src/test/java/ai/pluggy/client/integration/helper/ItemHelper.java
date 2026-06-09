@@ -45,9 +45,9 @@ public class ItemHelper {
     log.info("Creating item execution for connector id '" + connectorId + "'...");
     // run request with 'connectorId', 'parameters' params
     CreateItemRequest createItemRequest = new CreateItemRequest(
-      connectorId, 
-      parametersMap, 
-      "https://webhookUrl.pluggy.ai", 
+      connectorId,
+      parametersMap,
+      "https://pluggy-java-tests.requestcatcher.com/test",
       "clientUserId"
     );
 
