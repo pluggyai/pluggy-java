@@ -1,5 +1,7 @@
 package ai.pluggy.client.response;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,4 +15,6 @@ public class BankData {
   Double overdraftContractedLimit;
   Double overdraftUsedLimit;
   Double unarrangedOverdraftAmount;
+  Boolean hasReservedBalance;
+  List<ReservedBalance> reservedBalances;
 }

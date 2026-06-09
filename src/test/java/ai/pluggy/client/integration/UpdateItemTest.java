@@ -30,7 +30,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     ItemResponse itemResponse = createPluggyBankItem(client);
 
     // build update item request
-    String newWebhookUrl = "https://www.test.com";
+    String newWebhookUrl = "https://pluggy-java-tests.requestcatcher.com/update-before";
     String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
         .webhookUrl(newWebhookUrl)
@@ -63,7 +63,7 @@ public class UpdateItemTest extends BaseApiIntegrationTest {
     ItemResponse createdItemResponse = createPluggyBankItem(client);
 
     // build update item request
-    String newWebhookUrl = "https://www.test2.com";
+    String newWebhookUrl = "https://pluggy-java-tests.requestcatcher.com/update-after";
     String newClientUserId = "clientUserId";
     UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
         .webhookUrl(newWebhookUrl)
