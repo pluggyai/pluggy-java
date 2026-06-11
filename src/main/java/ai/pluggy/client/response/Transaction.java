@@ -22,5 +22,6 @@ public class Transaction {
   TransactionType type;
   Merchant merchant;
   String operationType;
+  String operationTypeAdditionalInfo;
   String providerId;
 }
