@@ -70,7 +70,38 @@ For inbound webhook payloads, use `ai.pluggy.utils.Utils.parseWebhookEventPayloa
 
 ## Release flow
 
-Version lives in `pom.xml`. `release.yml` runs on every push to `master`: it reads `project.version` from the pom, creates the tag `v<version>` if it doesn't already exist, and publishes a GitHub Release. The GitHub Release in turn triggers `maven-publish.yml`, which deploys the jar to GitHub Packages (`maven.pkg.github.com/pluggyai/pluggy-java`). Consequence: bumping the version in `pom.xml` and merging to master ships a release — **do not bump the version unless you intend to cut one**.
+The version in `pom.xml` (`<version>` on line 7) is the **single source of truth** — there is no automatic version bumping. Releases are fully automated off the version in the pom:
+
+```
+bump <version> in pom.xml  ──►  merge to master
+        │
+        ▼
+release.yml  (on: push to master; also workflow_dispatch w/ `force`)
+  reads project.version → TAG = v<version>
+  if TAG already exists (and not forced): NO-OP, nothing is published
+  else: creates annotated tag v<version>, generates notes from
+        git log <prev-tag>..HEAD, publishes a GitHub Release
+        │  (GitHub Release "created" event)
+        ▼
+maven-publish.yml  (on: release created; also workflow_dispatch w/ `tag_version`)
+  build  : mvn -B package
+  test   : mvn -B verify   (integration tests, creds from Doppler)
+  deploy : mvn deploy -Dmaven.test.skip.exec -s settings.xml
+           → GitHub Packages (maven.pkg.github.com/pluggyai/pluggy-java)
+           (deploy job needs `packages: write`)
+```
+
+### How to cut a release
+
+1. Bump `<version>` in `pom.xml` (semver: `feat:` commits since the last tag → minor, `fix:`/`chore:` only → patch).
+2. Open a PR with the bump. PR title must be a conventional commit (enforced by `pr-title.yml`), e.g. `chore(release): bump version to 1.10.0`.
+3. Merge to `master`. The merge triggers `release.yml`, which tags `v<version>`, cuts the GitHub Release, and that in turn triggers `maven-publish.yml` to build → test → deploy.
+4. Verify: `gh run list --workflow=release.yml`, `gh release view v<version>`, and that the deploy job in `maven-publish.yml` succeeded.
+
+**Gotchas:**
+- **Forgetting the bump is a silent no-op.** If the pom version already has a tag, the push to master publishes nothing. Don't bump the version unless you intend to cut a release, and *do* bump it when you do.
+- The `maven-release-plugin` is configured in `pom.xml` (`tagNameFormat = v@{project.version}`) but is **not** used by CI — tagging is done by `release.yml`'s shell, not `mvn release:*`.
+- Manual escape hatches: run `release.yml` via `workflow_dispatch` with `force=true` to re-release an existing tag; run `maven-publish.yml` via `workflow_dispatch` with a `tag_version` input to re-deploy an existing tag without re-tagging.
 
 ## Style
 
