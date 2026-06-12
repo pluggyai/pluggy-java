@@ -40,7 +40,7 @@ jobs:
           ref: ${{ github.event.release.tag_name || github.event.inputs.tag_version || 'master' }}
 
       - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v1
+        uses: dopplerhq/cli-action@v4
 
       - name: Login in Doppler
         run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_PROD }} --no-prompt
