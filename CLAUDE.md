@@ -29,6 +29,14 @@ mvn -B verify -Dit.test=GetConnectorsTest -DfailIfNoTests=false
 
 No lint/format plugin is configured (no checkstyle, spotless, PMD, errorprone) — formatting is enforced only by `.editorconfig`. Don't go looking for one.
 
+## Claude commands
+
+Three slash commands under `.claude/commands/` codify the recurring SDK ↔ API workflows:
+
+- `sync-api` — fetch the live OpenAPI spec from `api.pluggy.ai/oas3.json`, diff it against `PluggyApiService` and the DTOs under `client/request/` + `client/response/`, and produce a gap report. Use periodically to catch missing fields and casing mismatches before users do.
+- `add-model-fields` — Java/Lombok templates for adding fields to existing DTOs, with the Gson `IDENTITY` casing gotcha called out.
+- `add-endpoint` — templates for adding a new endpoint method to `PluggyApiService` with the right Retrofit annotations and DTO naming conventions.
+
 Integration tests require the following env vars (loaded from Doppler in CI, see `.github/workflows/maven.yml`):
 
 - `PLUGGY_CLIENT_ID`
