@@ -292,7 +292,7 @@ public final class PluggyClient {
         .post(body)
         .addHeader("content-type", "application/json")
         .addHeader("cache-control", "no-cache")
-        .addHeader("User-Agent", "PluggyJava/0.16.2")
+        .addHeader("User-Agent", "PluggyJava/1.11.0")
         .build();
 
     String apiKey;
