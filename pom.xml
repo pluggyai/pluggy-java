@@ -86,6 +86,24 @@
   </dependencies>
 
   <build>
+    <!-- Filter pluggy.properties so ${project.version} is replaced at build time; the
+         Version helper reads it to keep the User-Agent in sync with the pom version. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>pluggy.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>pluggy.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <!-- Test Surefire Plugin -->
       <plugin>

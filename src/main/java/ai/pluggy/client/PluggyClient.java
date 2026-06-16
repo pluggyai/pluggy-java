@@ -9,6 +9,7 @@ import ai.pluggy.client.auth.EncryptedParametersInterceptor;
 import ai.pluggy.client.response.ErrorResponse;
 import ai.pluggy.exception.PluggyException;
 import ai.pluggy.utils.Utils;
+import ai.pluggy.utils.Version;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -292,7 +293,7 @@ public final class PluggyClient {
         .post(body)
         .addHeader("content-type", "application/json")
         .addHeader("cache-control", "no-cache")
-        .addHeader("User-Agent", "PluggyJava/1.11.0")
+        .addHeader("User-Agent", Version.userAgent())
         .build();
 
     String apiKey;
