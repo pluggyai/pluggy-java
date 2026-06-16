@@ -13,4 +13,8 @@ public class TransactionCreditCardMetadata {
     Date purchaseDate;
     String cardNumber;
     String billId;
+    CreditCardAccountFeeType feeType;
+    String feeTypeAdditionalInfo;
+    CreditCardAccountOtherCreditType otherCreditsType;
+    String otherCreditsAdditionalInfo;
 }
