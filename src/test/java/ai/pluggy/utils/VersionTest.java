@@ -21,4 +21,13 @@ public class VersionTest {
   public void userAgent_hasExpectedPrefix() {
     assertTrue(Version.userAgent().startsWith("PluggyJava/"));
   }
+
+  @Test
+  public void userAgent_includesJavaVersionSuffix() {
+    // e.g. "PluggyJava/1.11.0 (Java 1.8.0_292)" — gives the API visibility into the consumer's JVM.
+    String userAgent = Version.userAgent();
+    assertTrue(userAgent.startsWith("PluggyJava/" + Version.get() + " (Java "),
+        "userAgent should start with 'PluggyJava/<version> (Java ', got: '" + userAgent + "'");
+    assertTrue(userAgent.endsWith(")"), "userAgent should end with ')', got: '" + userAgent + "'");
+  }
 }

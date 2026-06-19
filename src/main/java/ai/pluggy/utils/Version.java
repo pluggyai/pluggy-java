@@ -21,9 +21,12 @@ public final class Version {
     return VERSION;
   }
 
-  /** {@code User-Agent} header value, e.g. {@code "PluggyJava/1.11.0"}. */
+  /**
+   * {@code User-Agent} header value, e.g. {@code "PluggyJava/1.11.0 (Java 1.8.0_292)"}. The Java
+   * version suffix gives the API visibility into the consumer's JVM.
+   */
   public static String userAgent() {
-    return "PluggyJava/" + VERSION;
+    return "PluggyJava/" + VERSION + " (Java " + System.getProperty("java.version") + ")";
   }
 
   private static String load() {
