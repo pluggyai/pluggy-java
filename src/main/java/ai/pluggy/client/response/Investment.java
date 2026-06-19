@@ -36,7 +36,16 @@ public class Investment {
   String amountProfit = null;
   Double amountWithdrawal;
   String issuer;
+  String issuerCNPJ;
+  /**
+   * @deprecated the API field is {@code issueDate}; this misnamed field always
+   *             resolves to {@code null} under Gson's {@code IDENTITY} naming.
+   *             Use {@link #issueDate} instead.
+   */
+  @Deprecated
   Date issuerDate;
+  Date issueDate;
+  Date purchaseDate;
   InvestmentStatus status;
   /**
    * @deprecated use
