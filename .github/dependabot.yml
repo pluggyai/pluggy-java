@@ -4,7 +4,17 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Only minor + patch updates. Major bumps (e.g. actions/checkout v2 -> v7)
+    # are breaking and reviewed manually, not via Dependabot.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
+    # Only minor + patch updates. Major bumps (e.g. okhttp 4 -> 5, junit 5 -> 6)
+    # are breaking and reviewed manually, not via Dependabot.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
