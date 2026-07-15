@@ -17,4 +17,5 @@ public class TransactionCreditCardMetadata {
     String feeTypeAdditionalInfo;
     CreditCardAccountOtherCreditType otherCreditsType;
     String otherCreditsAdditionalInfo;
+    String billForecastDate;
 }
