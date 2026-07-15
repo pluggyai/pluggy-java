@@ -12,6 +12,7 @@ public class Bill {
 
   String id;
   Date dueDate;
+  Date billClosingDate;
   Double totalAmount;
   String totalAmountCurrencyCode;
   Double minimumPaymentAmount;
