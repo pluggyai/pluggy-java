@@ -11,5 +11,5 @@ public class ReservedBalance {
 
   String name;
   String identification;
-  List<ReservedBalanceAmount> amounts;
+  List<ReservedBalanceAmount> availableAmounts;
 }
