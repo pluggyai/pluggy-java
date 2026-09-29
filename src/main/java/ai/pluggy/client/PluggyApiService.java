@@ -5,6 +5,7 @@ import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
+import ai.pluggy.client.request.ItemResourcesSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
@@ -54,6 +55,17 @@ public interface PluggyApiService {
 
   @DELETE("/items/{id}")
   Call<DeleteItemResponse> deleteItem(@Path("id") String existingItemId);
+
+  /**
+   * Open Finance only: the resources the financial institution declared for the item's consent.
+   * Items on other connectors return an empty page.
+   */
+  @GET("/items/{id}/resources")
+  Call<ItemResourcesResponse> getItemResources(@Path("id") String itemId);
+
+  @GET("/items/{id}/resources")
+  Call<ItemResourcesResponse> getItemResources(@Path("id") String itemId,
+      @QueryMap ItemResourcesSearchRequest itemResourcesSearchRequest);
 
   @GET("/accounts")
   Call<AccountsResponse> getAccounts(@Query("itemId") String itemId);
