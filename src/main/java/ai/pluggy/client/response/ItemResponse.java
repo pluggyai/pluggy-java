@@ -32,9 +32,10 @@ public class ItemResponse {
   Date resourcesCollectedAt;
 
   /**
-   * Whether the financial institution declares at least one of this item's resources
-   * {@code PENDING_AUTHORISATION}: the user still has to approve it at their bank. Always false
-   * for connectors other than Open Finance.
+   * Open Finance only. Whether the financial institution declares at least one of this item's
+   * resources {@code PENDING_AUTHORISATION}: the user still has to approve it at their bank. False
+   * when the resource list was read and none is; null for connectors other than Open Finance, and
+   * while the resource list has not been read yet ({@code resourcesCollectedAt} is null).
    */
   Boolean hasResourcesPendingAuthorization;
 }

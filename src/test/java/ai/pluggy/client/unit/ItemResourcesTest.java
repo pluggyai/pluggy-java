@@ -1,7 +1,6 @@
 package ai.pluggy.client.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -133,15 +132,15 @@ public class ItemResourcesTest {
   }
 
   @Test
-  void getItem_resourcesNeverCollected_nullDateAndFalse() throws IOException {
+  void getItem_resourcesNeverCollected_bothNull() throws IOException {
     responseJson = "{\"id\":\"" + ITEM_ID + "\","
       + "\"resourcesCollectedAt\":null,"
-      + "\"hasResourcesPendingAuthorization\":false}";
+      + "\"hasResourcesPendingAuthorization\":null}";
 
     ItemResponse item = client.service().getItem(ITEM_ID).execute().body();
 
     assertNotNull(item);
     assertNull(item.getResourcesCollectedAt());
-    assertFalse(item.getHasResourcesPendingAuthorization());
+    assertNull(item.getHasResourcesPendingAuthorization());
   }
 }
