@@ -53,3 +53,23 @@ if(connectorsResponse.isSuccessful()) {
   ErrorResponse errorResponse = pluggyClient.parseError(connectorsResponse)
 }
 ```
+
+### Transactions (cursor pagination)
+
+`getTransactions` (`GET /transactions`) is deprecated and returns `410` for newer applications. Use `getTransactionsV2` (`GET /v2/transactions`) and follow the cursor until there is no next page:
+
+```java
+List<Transaction> transactions = new ArrayList<>();
+TransactionsCursorSearchRequest request = new TransactionsCursorSearchRequest().dateFrom("2026-01-01");
+while (true) {
+  TransactionsCursorResponse page = pluggyClient.service()
+    .getTransactionsV2(accountId, request)
+    .execute()
+    .body();
+  transactions.addAll(page.getResults());
+  if (!page.hasNext()) {
+    break;
+  }
+  request = new TransactionsCursorSearchRequest().dateFrom("2026-01-01").after(page.getNextCursor());
+}
+```

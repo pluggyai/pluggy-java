@@ -1,7 +1,9 @@
 package ai.pluggy.client.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Only available when item.status is 'PARTIAL_SUCCESS'.
@@ -17,6 +19,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemStatusDetail {
   /**
    * Collection details for 'ACCOUNTS' product, or null if it was not requested at

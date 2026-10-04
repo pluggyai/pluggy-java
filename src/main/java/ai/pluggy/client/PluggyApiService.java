@@ -6,6 +6,7 @@ import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.ItemResourcesSearchRequest;
+import ai.pluggy.client.request.TransactionsCursorSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
 import ai.pluggy.client.request.UpdateItemRequest;
@@ -76,18 +77,48 @@ public interface PluggyApiService {
   @GET("/accounts/{id}")
   Call<Account> getAccount(@Path("id") String accountId);
 
+  /**
+   * Real-time balance fetched from the institution. Only available for Open Finance connectors;
+   * accounts on other connectors get an error response.
+   */
+  @GET("/accounts/{id}/balance")
+  Call<AccountBalance> getAccountBalance(@Path("id") String accountId);
+
   @GET("/bills")
   Call<BillsResponse> getBills(@Query("accountId") String accountId);
   
   @GET("/bills/{id}")
   Call<Bill> getBill(@Path("id") String billId);
   
+  /**
+   * @deprecated {@code GET /transactions} is deprecated and returns 410 for newer applications.
+   * Use {@link #getTransactionsV2(String)} (cursor pagination) instead.
+   */
+  @Deprecated
   @GET("/transactions")
   Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId);
 
+  /**
+   * @deprecated {@code GET /transactions} is deprecated and returns 410 for newer applications.
+   * Use {@link #getTransactionsV2(String, TransactionsCursorSearchRequest)} (cursor pagination)
+   * instead.
+   */
+  @Deprecated
   @GET("/transactions")
   Call<TransactionsResponse> getTransactions(@Query("accountId") String accountId,
       @QueryMap TransactionsSearchRequest transactionsSearchRequest);
+
+  /**
+   * First page of an account's transactions, cursor-paginated. Fetch the following pages by
+   * passing {@link TransactionsCursorResponse#getNextCursor()} as
+   * {@link TransactionsCursorSearchRequest#after(String)} until it returns null.
+   */
+  @GET("/v2/transactions")
+  Call<TransactionsCursorResponse> getTransactionsV2(@Query("accountId") String accountId);
+
+  @GET("/v2/transactions")
+  Call<TransactionsCursorResponse> getTransactionsV2(@Query("accountId") String accountId,
+      @QueryMap TransactionsCursorSearchRequest transactionsCursorSearchRequest);
 
   @GET("/transactions/{id}")
   Call<Transaction> getTransaction(@Path("id") String transactionId);
