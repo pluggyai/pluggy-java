@@ -6,6 +6,7 @@ import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.ItemResourcesSearchRequest;
+import ai.pluggy.client.request.ItemsCursorSearchRequest;
 import ai.pluggy.client.request.TransactionsCursorSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
@@ -56,6 +57,33 @@ public interface PluggyApiService {
 
   @DELETE("/items/{id}")
   Call<DeleteItemResponse> deleteItem(@Path("id") String existingItemId);
+
+  /**
+   * First page of the team's items, newest first, cursor-paginated. Fetch the following pages by
+   * passing {@link ItemsCursorResponse#getNextCursor()} as
+   * {@link ItemsCursorSearchRequest#after(String)} until it returns null.
+   *
+   * <p><b>Availability: opt-in, paid plans only.</b> Listing items is disabled by default and is
+   * only available to paid-plan teams that have explicitly requested it from Pluggy support. Teams
+   * without it enabled get {@code 403 LIST_ITEMS_FEATURE_NOT_ENABLED}. For most integrations,
+   * store each itemId when it is created (Pluggy Connect {@code onSuccess} or the
+   * {@code item/created} webhook) and use {@link #getItem(String)} instead.
+   */
+  @GET("/v2/items")
+  Call<ItemsCursorResponse> getItems();
+
+  /**
+   * Items filtered by {@code clientUserId} and/or {@code connectorId}, newest first,
+   * cursor-paginated. See {@link #getItems()}.
+   *
+   * <p><b>Availability: opt-in, paid plans only.</b> Listing items is disabled by default and is
+   * only available to paid-plan teams that have explicitly requested it from Pluggy support. Teams
+   * without it enabled get {@code 403 LIST_ITEMS_FEATURE_NOT_ENABLED}. For most integrations,
+   * store each itemId when it is created (Pluggy Connect {@code onSuccess} or the
+   * {@code item/created} webhook) and use {@link #getItem(String)} instead.
+   */
+  @GET("/v2/items")
+  Call<ItemsCursorResponse> getItems(@QueryMap ItemsCursorSearchRequest itemsCursorSearchRequest);
 
   /**
    * Open Finance only: the resources the financial institution declared for the item's consent.
