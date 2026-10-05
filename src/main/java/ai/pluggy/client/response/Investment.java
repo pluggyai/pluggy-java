@@ -2,11 +2,15 @@ package ai.pluggy.client.response;
 
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Investment {
   String id;
   String itemId;
@@ -33,6 +37,10 @@ public class Investment {
   Double taxes;
   Double taxes2;
   Double amountOriginal;
+  /**
+   * Profit/Loss to date over the investment. The API sends a number; kept as String (Gson reads
+   * the number into it) so existing callers don't break. Parse with {@code Double.valueOf}.
+   */
   String amountProfit = null;
   Double amountWithdrawal;
   String issuer;
@@ -59,4 +67,14 @@ public class Investment {
   InvestmentMetadata metadata;
   String providerId;
   InvestmentInstitution institution;
+  /** The date when the grace period ends (fixed-income investments only). */
+  Date gracePeriodDate;
+  /** B3 lot/price conversion factor (variable income). */
+  Double priceFactor;
+  /** Whether the product is tax-exempt (LCI, LCA, CRI, CRA, incentivized debentures). */
+  Boolean taxExempt;
+  /** Coupon-payment schedule for coupon-bearing fixed income / Treasury bonds. */
+  InvestmentCouponPayment couponPayment;
+  /** Underlying debtor of receivables-backed paper (CRI / CRA). */
+  InvestmentDebtor debtor;
 }

@@ -1,7 +1,9 @@
 package ai.pluggy.client.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * One resource the financial institution declared for an item's Open Finance consent, reported
@@ -9,6 +11,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemResource {
 
   /** The institution's identifier for the resource. */

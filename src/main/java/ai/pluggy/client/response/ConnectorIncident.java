@@ -2,8 +2,10 @@ package ai.pluggy.client.response;
 
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * An incident affecting a connector right now, as published on
@@ -14,6 +16,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConnectorIncident {
   String id;
 

@@ -53,3 +53,48 @@ if(connectorsResponse.isSuccessful()) {
   ErrorResponse errorResponse = pluggyClient.parseError(connectorsResponse)
 }
 ```
+
+### Transactions (cursor pagination)
+
+`getTransactions` (`GET /transactions`) is deprecated and returns `410` for newer applications. Use `getTransactionsV2` (`GET /v2/transactions`) and follow the cursor until there is no next page:
+
+```java
+List<Transaction> transactions = new ArrayList<>();
+TransactionsCursorSearchRequest request = new TransactionsCursorSearchRequest().dateFrom("2026-01-01");
+while (true) {
+  TransactionsCursorResponse page = pluggyClient.service()
+    .getTransactionsV2(accountId, request)
+    .execute()
+    .body();
+  transactions.addAll(page.getResults());
+  if (!page.hasNext()) {
+    break;
+  }
+  request = new TransactionsCursorSearchRequest().dateFrom("2026-01-01").after(page.getNextCursor());
+}
+```
+
+### Listing items (opt-in)
+
+> **Opt-in, paid plans only.** Listing items is disabled by default and is only available to paid-plan teams that have explicitly requested it from Pluggy support. Teams without it enabled get `403` with `codeDescription` `LIST_ITEMS_FEATURE_NOT_ENABLED`. For most integrations, store each `itemId` when it is created (Pluggy Connect `onSuccess` or the `item/created` webhook) and use `getItem(id)` instead.
+
+`getItems` (`GET /v2/items`) returns items newest first, optionally filtered by `clientUserId` and/or `connectorId`, and is cursor-paginated like `getTransactionsV2`:
+
+```java
+List<ItemResponse> items = new ArrayList<>();
+ItemsCursorSearchRequest request = new ItemsCursorSearchRequest().clientUserId("user-123");
+while (true) {
+  Response<ItemsCursorResponse> response = pluggyClient.service().getItems(request).execute();
+  if (!response.isSuccessful()) {
+    ErrorResponse error = pluggyClient.parseError(response);
+    // "LIST_ITEMS_FEATURE_NOT_ENABLED" when listing items is not enabled for your team
+    throw new IllegalStateException(error.getCodeDescription() + ": " + error.getMessage());
+  }
+  ItemsCursorResponse page = response.body();
+  items.addAll(page.getResults());
+  if (!page.hasNext()) {
+    break;
+  }
+  request = new ItemsCursorSearchRequest().clientUserId("user-123").after(page.getNextCursor());
+}
+```
