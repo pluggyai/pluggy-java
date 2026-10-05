@@ -96,6 +96,38 @@ public interface PluggyApiService {
   Call<ItemResourcesResponse> getItemResources(@Path("id") String itemId,
       @QueryMap ItemResourcesSearchRequest itemResourcesSearchRequest);
 
+  /**
+   * Retrieve the SCR (Bacen's Sistema de Informações de Crédito) for the document behind an item,
+   * for the last 4 available base dates. The response is Bacen's own payload, forwarded unchanged.
+   *
+   * <p>Opt-in: requires the SCR feature to be enabled for your team (ask Pluggy support); otherwise
+   * 403 SCR_FEATURE_NOT_ENABLED (see {@link ErrorResponse#getCodeDescription()}). Only available for
+   * Open Finance items with a known CPF/CNPJ (otherwise 422 SCR_ITEM_NOT_SUPPORTED).
+   *
+   * @param itemId item primary identifier
+   */
+  @GET("/items/{id}/scr")
+  Call<ScrResponse> getItemScr(@Path("id") String itemId);
+
+  /**
+   * Retrieve the SCR (Bacen's Sistema de Informações de Crédito) for the document behind an item,
+   * for a range of base dates. Base dates are months, and Bacen consolidates each one with a few
+   * months of delay, so the current month returns nothing.
+   *
+   * <p>Opt-in: requires the SCR feature to be enabled for your team (ask Pluggy support); otherwise
+   * 403 SCR_FEATURE_NOT_ENABLED (see {@link ErrorResponse#getCodeDescription()}). Only available for
+   * Open Finance items with a known CPF/CNPJ (otherwise 422 SCR_ITEM_NOT_SUPPORTED).
+   *
+   * @param itemId item primary identifier
+   * @param from first base date to consult, as YYYYMM (e.g. {@code 202604}); null to default to 3
+   *     base dates before {@code to}
+   * @param to last base date to consult, as YYYYMM (e.g. {@code 202607}); null to default to 2
+   *     months before the current one
+   */
+  @GET("/items/{id}/scr")
+  Call<ScrResponse> getItemScr(@Path("id") String itemId, @Query("from") String from,
+      @Query("to") String to);
+
   @GET("/accounts")
   Call<AccountsResponse> getAccounts(@Query("itemId") String itemId);
 

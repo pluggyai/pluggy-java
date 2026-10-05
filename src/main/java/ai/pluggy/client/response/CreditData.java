@@ -25,4 +25,11 @@ public class CreditData {
   HolderType holderType;
   CreditCardStatus status;
   List<DisaggregatedCreditLimit> disaggregatedCreditLimits;
+  /** Additional credit cards associated with the main one. */
+  List<AdditionalCard> additionalCards;
+  /**
+   * Whether the credit limit can be adjusted (e.g. the customer can request an increase). Only
+   * returned when reported by the institution.
+   */
+  Boolean isLimitFlexible;
 }

@@ -42,4 +42,13 @@ public class ItemResponse {
    * while the resource list has not been read yet ({@code resourcesCollectedAt} is null).
    */
   Boolean hasResourcesPendingAuthorization;
+
+  /** Consent expiration date (Open Finance items). */
+  Date consentExpiresAt;
+
+  /** Date of the next auto-sync, or null if auto-sync is disabled for this item. */
+  Date nextAutoSyncAt;
+
+  /** User action the item is waiting on (e.g. a QR code to scan), when there is one. */
+  ItemUserAction userAction;
 }

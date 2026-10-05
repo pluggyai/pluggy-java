@@ -24,4 +24,9 @@ public class Transaction {
   String operationType;
   String operationTypeAdditionalInfo;
   String providerId;
+  /**
+   * Sequential position of the transaction within the same day, used to preserve ordering when
+   * multiple transactions share the same date.
+   */
+  Integer order;
 }

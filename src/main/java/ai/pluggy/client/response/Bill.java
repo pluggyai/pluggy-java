@@ -24,4 +24,6 @@ public class Bill {
   List<FinancialCharge> financeCharges;
   Date createdAt;
   Date updatedAt;
+  /** Payments associated to the bill. */
+  List<BillPayment> payments;
 }
