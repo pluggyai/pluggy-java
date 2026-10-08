@@ -104,8 +104,8 @@ maven-publish.yml  (declares `on: release created`, but in practice must be
 
 ### How to cut a release
 
-1. Bump `<version>` in `pom.xml` (semver: `feat:` commits since the last tag → minor, `fix:`/`chore:` only → patch).
-2. Open a PR with the bump. PR title must be a conventional commit (enforced by `pr-title.yml`), e.g. `chore(release): bump version to 1.10.0`.
+1. Bump `<version>` in `pom.xml` (semver: `feat:` commits since the last tag → minor, `fix:`/`chore:` only → patch). **The bump goes in the same PR as the change it ships** (as #111 and #112 did): a `feat:`/`fix:` PR without it merges and publishes nothing. A separate `chore(release)` PR is only for releasing changes that were merged without a bump.
+2. Open the PR. Its title must be a conventional commit (enforced by `pr-title.yml`), e.g. `feat: add Smart Transfers` or `chore(release): bump version to 1.10.0`.
 3. Merge to `master`. The merge triggers `release.yml`, which tags `v<version>` and cuts the GitHub Release.
 4. **Publish manually** (this does NOT happen on its own — see gotcha): `gh workflow run maven-publish.yml -f tag_version=v<version>`.
 5. Verify: `gh release view v<version>`, the `maven-publish.yml` deploy job is green, and the version shows in `gh api /orgs/pluggyai/packages/maven/ai.pluggy.pluggy-java/versions`.
