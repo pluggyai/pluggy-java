@@ -13,6 +13,9 @@ import ai.pluggy.client.response.CredentialSelectOption;
 import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.SmartTransferPayment;
+import ai.pluggy.client.response.SmartTransferPreauthorization;
+import ai.pluggy.client.response.SmartTransferPreauthorizationBalance;
 import ai.pluggy.client.response.TransactionsCursorResponse;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -29,7 +32,8 @@ public class BuilderNoArgsConstructorTest {
   private static final List<Class<?>> RESPONSE_CLASSES = Arrays.asList(
     Account.class, AccountBalance.class, AccountsResponse.class, Bill.class, Connector.class,
     CredentialSelectOption.class, IdentityResponse.class, Investment.class, ItemResponse.class,
-    TransactionsCursorResponse.class);
+    SmartTransferPayment.class, SmartTransferPreauthorization.class,
+    SmartTransferPreauthorizationBalance.class, TransactionsCursorResponse.class);
 
   @Test
   void builderResponseClasses_havePublicNoArgsConstructor() throws Exception {

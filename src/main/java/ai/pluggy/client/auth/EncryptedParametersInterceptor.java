@@ -50,8 +50,10 @@ public class EncryptedParametersInterceptor implements Interceptor {
 
         JsonObject jsonBody = this.transformBodyToJsonObject(originalBody);
 
+        // only item credentials are encrypted: other bodies with a "parameters" field (e.g. Smart
+        // Transfer preauthorizations) are sent as-is, and item requests without one (e.g. MFA) too
         if (!Arrays.asList(methods).contains(method)
-                || !originalRequest.url().encodedPath().contains(path) && !jsonBody.has("parameters")) {
+                || !originalRequest.url().encodedPath().contains(path) || !jsonBody.has("parameters")) {
             return chain.proceed(originalRequest);
         }
 

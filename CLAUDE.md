@@ -58,10 +58,12 @@ The SDK is a thin Retrofit interface wrapped in a builder-configured client. Thr
 
 Single Retrofit interface annotated with `@GET/@POST/@PATCH/@DELETE`. To add a new endpoint, add a method here; request/response DTOs live in `client/request/` and `client/response/`. The full list of supported endpoints is whatever is declared in this interface — there is no other routing layer.
 
+The only payments surface is Smart Transfers (`/smart-transfers/*`): `SmartTransfer*` DTOs plus the generic `PaymentRecipient` / `PaymentInstitution` / `PaymentRecipientAccount`, which other payment endpoints can reuse. Types that appear both in the create request and in the response (`SmartTransferCallbackUrls`, `SmartTransferPreauthorizationConfiguration`) live in `client/response/` and are referenced from the request.
+
 **3. Two interceptors handle cross-cutting concerns**
 
 - `ApiKeyAuthInterceptor` (`client/auth/`): transparently fetches the `x-api-key` JWT via `POST /auth` on first use, caches it in `TokenProvider`, decodes the JWT `exp` claim to detect expiry, and on a 401/403 with an expired key refreshes once and retries the original request. Also sets `User-Agent: PluggyJava/<version>` — note this string is hardcoded in two places (`PluggyClient.authenticate` and `ApiKeyAuthInterceptor.requestWithAuth`) and is not auto-derived from `pom.xml`.
-- `EncryptedParametersInterceptor` (`client/auth/`): only attached when `rsaPublicKey(...)` is set on the builder. RSA/ECB/OAEPPadding-encrypts the `parameters` JSON field on POST/PATCH `/items` requests before they leave OkHttp.
+- `EncryptedParametersInterceptor` (`client/auth/`): only attached when `rsaPublicKey(...)` is set on the builder. RSA/ECB/OAEPPadding-encrypts the `parameters` JSON field on POST/PATCH `/items` requests before they leave OkHttp. All three conditions are required: Smart Transfer preauthorizations also send a `parameters` field, which must go out as plain JSON, and item requests without one (MFA) must pass through.
 
 ### JSON / Gson conventions — important gotcha
 
@@ -102,8 +104,8 @@ maven-publish.yml  (declares `on: release created`, but in practice must be
 
 ### How to cut a release
 
-1. Bump `<version>` in `pom.xml` (semver: `feat:` commits since the last tag → minor, `fix:`/`chore:` only → patch).
-2. Open a PR with the bump. PR title must be a conventional commit (enforced by `pr-title.yml`), e.g. `chore(release): bump version to 1.10.0`.
+1. Bump `<version>` in `pom.xml` (semver: `feat:` commits since the last tag → minor, `fix:`/`chore:` only → patch). **The bump goes in the same PR as the change it ships** (as #111 and #112 did): a `feat:`/`fix:` PR without it merges and publishes nothing. A separate `chore(release)` PR is only for releasing changes that were merged without a bump.
+2. Open the PR. Its title must be a conventional commit (enforced by `pr-title.yml`), e.g. `feat: add Smart Transfers` or `chore(release): bump version to 1.10.0`.
 3. Merge to `master`. The merge triggers `release.yml`, which tags `v<version>` and cuts the GitHub Release.
 4. **Publish manually** (this does NOT happen on its own — see gotcha): `gh workflow run maven-publish.yml -f tag_version=v<version>`.
 5. Verify: `gh release view v<version>`, the `maven-publish.yml` deploy job is green, and the version shows in `gh api /orgs/pluggyai/packages/maven/ai.pluggy.pluggy-java/versions`.

@@ -4,9 +4,13 @@ import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
+import ai.pluggy.client.request.CreateSmartTransferPaymentRequest;
+import ai.pluggy.client.request.CreateSmartTransferPreauthorizationRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.ItemResourcesSearchRequest;
 import ai.pluggy.client.request.ItemsCursorSearchRequest;
+import ai.pluggy.client.request.SmartTransferPreauthorizationPaymentsSearchRequest;
+import ai.pluggy.client.request.SmartTransferPreauthorizationsSearchRequest;
 import ai.pluggy.client.request.TransactionsCursorSearchRequest;
 import ai.pluggy.client.request.TransactionsSearchRequest;
 import ai.pluggy.client.request.UpdateItemMfaRequest;
@@ -201,4 +205,77 @@ public interface PluggyApiService {
 
   @POST("/connecttokens")
   Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
+
+  /**
+   * Create a Smart Transfer preauthorization. Redirect the payer to the returned
+   * {@link SmartTransferPreauthorization#getConsentUrl()} to authorize it; once its status is
+   * {@code COMPLETED}, payments can be created under it with
+   * {@link #createSmartTransferPayment(CreateSmartTransferPaymentRequest)}.
+   *
+   * <p>Set {@code linkedJourney} to also ask the payer for permission to read the source account
+   * balance (see {@link #getSmartTransferPreauthorizationBalance(String)}).
+   */
+  @POST("/smart-transfers/preauthorizations")
+  Call<SmartTransferPreauthorization> createSmartTransferPreauthorization(
+      @Body CreateSmartTransferPreauthorizationRequest createSmartTransferPreauthorizationRequest);
+
+  /** First page of the Smart Transfer preauthorizations. */
+  @GET("/smart-transfers/preauthorizations")
+  Call<SmartTransferPreauthorizationsResponse> getSmartTransferPreauthorizations();
+
+  @GET("/smart-transfers/preauthorizations")
+  Call<SmartTransferPreauthorizationsResponse> getSmartTransferPreauthorizations(
+      @QueryMap SmartTransferPreauthorizationsSearchRequest smartTransferPreauthorizationsSearchRequest);
+
+  /**
+   * Retrieve a Smart Transfer preauthorization. This also refreshes the status of its
+   * {@code dataConsent} from the institution; the list returns the last known status.
+   */
+  @GET("/smart-transfers/preauthorizations/{id}")
+  Call<SmartTransferPreauthorization> getSmartTransferPreauthorization(
+      @Path("id") String preauthorizationId);
+
+  /**
+   * Read the source account balance of a Smart Transfer preauthorization in real time from the
+   * institution. Requires a preauthorization created with {@code linkedJourney} whose
+   * {@code dataConsent} is {@code AUTHORISED}; otherwise 400
+   * {@code SMART_TRANSFER_DATA_CONSENT_NOT_REQUESTED} or 403
+   * {@code SMART_TRANSFER_DATA_CONSENT_NOT_AVAILABLE} (see
+   * {@link ErrorResponse#getCodeDescription()}).
+   *
+   * <p>Every call counts toward the institution's monthly Open Finance quota for the account; 429
+   * {@code BALANCE_OPEN_FINANCE_RATE_LIMIT} when it is reached.
+   */
+  @GET("/smart-transfers/preauthorizations/{id}/balance")
+  Call<SmartTransferPreauthorizationBalance> getSmartTransferPreauthorizationBalance(
+      @Path("id") String preauthorizationId);
+
+  /**
+   * Cancel only the balance permission of a Smart Transfer preauthorization. The preauthorization
+   * stays active and its payments keep working. Safe to retry: a permission that already ended
+   * answers with {@code dataConsent.status} {@code REJECTED}.
+   *
+   * @return the preauthorization, with the cancelled permission
+   */
+  @DELETE("/smart-transfers/preauthorizations/{id}/data-consent")
+  Call<SmartTransferPreauthorization> cancelSmartTransferPreauthorizationDataConsent(
+      @Path("id") String preauthorizationId);
+
+  /** First page of a Smart Transfer preauthorization's payments, newest first. */
+  @GET("/smart-transfers/preauthorizations/{id}/payments")
+  Call<SmartTransferPaymentsResponse> getSmartTransferPreauthorizationPayments(
+      @Path("id") String preauthorizationId);
+
+  @GET("/smart-transfers/preauthorizations/{id}/payments")
+  Call<SmartTransferPaymentsResponse> getSmartTransferPreauthorizationPayments(
+      @Path("id") String preauthorizationId,
+      @QueryMap SmartTransferPreauthorizationPaymentsSearchRequest smartTransferPreauthorizationPaymentsSearchRequest);
+
+  /** Create a payment under a {@code COMPLETED} Smart Transfer preauthorization. */
+  @POST("/smart-transfers/payments")
+  Call<SmartTransferPayment> createSmartTransferPayment(
+      @Body CreateSmartTransferPaymentRequest createSmartTransferPaymentRequest);
+
+  @GET("/smart-transfers/payments/{id}")
+  Call<SmartTransferPayment> getSmartTransferPayment(@Path("id") String paymentId);
 }

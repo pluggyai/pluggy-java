@@ -98,3 +98,28 @@ while (true) {
   request = new ItemsCursorSearchRequest().clientUserId("user-123").after(page.getNextCursor());
 }
 ```
+
+### Smart Transfers
+
+A Smart Transfer preauthorization is the payer's consent, given once at their bank, to send transfers to a set of payment recipients. Create it, send the payer to its `consentUrl`, and once its status is `COMPLETED` create payments under it:
+
+```java
+CreateSmartTransferPreauthorizationRequest request = CreateSmartTransferPreauthorizationRequest.builder()
+  .connectorId(connectorId)
+  .parameters(new SmartTransferPreauthorizationParameter("12345678900"))
+  .recipientIds(Collections.singletonList(recipientId))
+  .linkedJourney(true) // optional: also ask for permission to read the source account balance
+  .build();
+SmartTransferPreauthorization preauthorization = pluggyClient.service()
+  .createSmartTransferPreauthorization(request)
+  .execute()
+  .body();
+// redirect the payer to preauthorization.getConsentUrl()
+
+SmartTransferPayment payment = pluggyClient.service()
+  .createSmartTransferPayment(new CreateSmartTransferPaymentRequest(preauthorization.getId(), recipientId, 100.0))
+  .execute()
+  .body();
+```
+
+With `linkedJourney`, `getSmartTransferPreauthorizationBalance(id)` reads the source account balance (and its overdraft, when the institution shares it) once `dataConsent` is `AUTHORISED`. Each call reads it from the institution in real time and counts toward that account's monthly Open Finance quota. `cancelSmartTransferPreauthorizationDataConsent(id)` cancels only that permission; the preauthorization keeps working.
