@@ -155,8 +155,9 @@ public class TransactionsV2Test {
 
   @Test
   void getAccountBalance_parsesBalance() throws IOException {
-    responseJson = "{\"balance\":1523.47,\"currencyCode\":\"BRL\","
-      + "\"updateDateTime\":\"2026-10-01T10:15:00.000Z\"}";
+    responseJson = "{\"balance\":1523.47,\"blockedBalance\":100.25,"
+      + "\"automaticallyInvestedBalance\":92119.12,\"closingBalance\":1623.72,"
+      + "\"currencyCode\":\"BRL\",\"updateDateTime\":\"2026-10-01T10:15:00.000Z\"}";
 
     AccountBalance balance = client.service().getAccountBalance(ACCOUNT_ID).execute().body();
 
@@ -164,7 +165,25 @@ public class TransactionsV2Test {
     assertEquals("/accounts/" + ACCOUNT_ID + "/balance", lastRequest.url().encodedPath());
     assertNotNull(balance);
     assertEquals(1523.47, balance.getBalance());
+    assertEquals(100.25, balance.getBlockedBalance());
+    assertEquals(92119.12, balance.getAutomaticallyInvestedBalance());
+    assertEquals(1623.72, balance.getClosingBalance());
     assertEquals("BRL", balance.getCurrencyCode());
     assertEquals("2026-10-01T10:15:00.000Z", balance.getUpdateDateTime());
+  }
+
+  @Test
+  void getAccountBalance_optionalBalancesAreNullWhenAbsent() throws IOException {
+    // The API omits these amounts when the institution does not report them.
+    responseJson = "{\"balance\":1523.47,\"currencyCode\":\"BRL\","
+      + "\"updateDateTime\":\"2026-10-01T10:15:00.000Z\"}";
+
+    AccountBalance balance = client.service().getAccountBalance(ACCOUNT_ID).execute().body();
+
+    assertNotNull(balance);
+    assertEquals(1523.47, balance.getBalance());
+    assertNull(balance.getBlockedBalance());
+    assertNull(balance.getAutomaticallyInvestedBalance());
+    assertNull(balance.getClosingBalance());
   }
 }
