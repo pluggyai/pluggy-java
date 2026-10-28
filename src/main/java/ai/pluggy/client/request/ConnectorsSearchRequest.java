@@ -64,4 +64,15 @@ public class ConnectorsSearchRequest extends HashMap<String, String> {
     put(field, String.valueOf(includeSandbox));
     return this;
   }
+
+  /**
+   * @param supportsPixBiometric If set to true, only connectors that support Pix por biometria are
+   *     returned; if false, they are left out.
+   */
+  public ConnectorsSearchRequest setSupportsPixBiometric(Boolean supportsPixBiometric) {
+    String field = "supportsPixBiometric";
+    Asserts.assertNotNull(supportsPixBiometric, field);
+    put(field, String.valueOf(supportsPixBiometric));
+    return this;
+  }
 }

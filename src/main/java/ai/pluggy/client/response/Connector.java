@@ -37,6 +37,8 @@ public class Connector {
   Boolean supportsBoletoManagement;
   /** Whether the connector supports automatic Pix. */
   Boolean supportsAutomaticPix;
+  /** Whether the connector supports Pix por biometria. */
+  Boolean supportsPixBiometric;
   /**
    * Which sub-products the institution serves, in the Open Finance directory's vocabulary (e.g.
    * {@code INVESTMENTS:TREASURE_TITLES}). Absent for direct connectors.

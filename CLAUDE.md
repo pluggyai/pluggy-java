@@ -58,7 +58,7 @@ The SDK is a thin Retrofit interface wrapped in a builder-configured client. Thr
 
 Single Retrofit interface annotated with `@GET/@POST/@PATCH/@DELETE`. To add a new endpoint, add a method here; request/response DTOs live in `client/request/` and `client/response/`. The full list of supported endpoints is whatever is declared in this interface — there is no other routing layer.
 
-The only payments surface is Smart Transfers (`/smart-transfers/*`): `SmartTransfer*` DTOs plus the generic `PaymentRecipient` / `PaymentInstitution` / `PaymentRecipientAccount`, which other payment endpoints can reuse. Types that appear both in the create request and in the response (`SmartTransferCallbackUrls`, `SmartTransferPreauthorizationConfiguration`) live in `client/response/` and are referenced from the request.
+The payments surface is Smart Transfers (`/smart-transfers/*`) and Pix por biometria (`/payments/requests/pix-biometric`, `/pix-biometric/enrollments/*`, `PixBiometric*` DTOs, plus minimal `PaymentRequest` / `PaymentIntent` models and `GET /payments/intents`; `PixBiometricBalance` reuses `SmartTransferOverdraft`). Smart Transfers has `SmartTransfer*` DTOs plus the generic `PaymentRecipient` / `PaymentInstitution` / `PaymentRecipientAccount`, which other payment endpoints can reuse. Types that appear both in the create request and in the response (`SmartTransferCallbackUrls`, `SmartTransferPreauthorizationConfiguration`) live in `client/response/` and are referenced from the request.
 
 **3. Two interceptors handle cross-cutting concerns**
 

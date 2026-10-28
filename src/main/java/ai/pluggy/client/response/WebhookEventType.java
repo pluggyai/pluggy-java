@@ -17,6 +17,12 @@ public enum WebhookEventType {
   ITEM_LOGIN_SUCCEEDED,
   @SerializedName("connector/status_updated")
   CONNECTOR_STATUS_UPDATED,
+  @SerializedName("pix_biometric_enrollment/authorized")
+  PIX_BIOMETRIC_ENROLLMENT_AUTHORIZED,
+  @SerializedName("pix_biometric_enrollment/revoked")
+  PIX_BIOMETRIC_ENROLLMENT_REVOKED,
+  @SerializedName("pix_biometric_enrollment/error")
+  PIX_BIOMETRIC_ENROLLMENT_ERROR,
   @SerializedName("all")
   ALL;
 

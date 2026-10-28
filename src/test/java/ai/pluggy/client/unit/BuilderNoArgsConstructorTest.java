@@ -13,6 +13,10 @@ import ai.pluggy.client.response.CredentialSelectOption;
 import ai.pluggy.client.response.IdentityResponse;
 import ai.pluggy.client.response.Investment;
 import ai.pluggy.client.response.ItemResponse;
+import ai.pluggy.client.response.PaymentIntent;
+import ai.pluggy.client.response.PaymentRequest;
+import ai.pluggy.client.response.PixBiometricBalance;
+import ai.pluggy.client.response.PixBiometricEnrollment;
 import ai.pluggy.client.response.SmartTransferPayment;
 import ai.pluggy.client.response.SmartTransferPreauthorization;
 import ai.pluggy.client.response.SmartTransferPreauthorizationBalance;
@@ -32,6 +36,8 @@ public class BuilderNoArgsConstructorTest {
   private static final List<Class<?>> RESPONSE_CLASSES = Arrays.asList(
     Account.class, AccountBalance.class, AccountsResponse.class, Bill.class, Connector.class,
     CredentialSelectOption.class, IdentityResponse.class, Investment.class, ItemResponse.class,
+    PaymentIntent.class, PaymentRequest.class, PixBiometricBalance.class,
+    PixBiometricEnrollment.class,
     SmartTransferPayment.class, SmartTransferPreauthorization.class,
     SmartTransferPreauthorizationBalance.class, TransactionsCursorResponse.class);
 
