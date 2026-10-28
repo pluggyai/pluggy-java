@@ -4,11 +4,14 @@ import ai.pluggy.client.request.AccountsRequest;
 import ai.pluggy.client.request.ConnectorsSearchRequest;
 import ai.pluggy.client.request.CreateConnectTokenRequest;
 import ai.pluggy.client.request.CreateItemRequest;
+import ai.pluggy.client.request.CreatePixBiometricPaymentRequest;
 import ai.pluggy.client.request.CreateSmartTransferPaymentRequest;
 import ai.pluggy.client.request.CreateSmartTransferPreauthorizationRequest;
 import ai.pluggy.client.request.InvestmentTransactionsSearchRequest;
 import ai.pluggy.client.request.ItemResourcesSearchRequest;
 import ai.pluggy.client.request.ItemsCursorSearchRequest;
+import ai.pluggy.client.request.PaymentIntentsSearchRequest;
+import ai.pluggy.client.request.PixBiometricEnrollmentsSearchRequest;
 import ai.pluggy.client.request.SmartTransferPreauthorizationPaymentsSearchRequest;
 import ai.pluggy.client.request.SmartTransferPreauthorizationsSearchRequest;
 import ai.pluggy.client.request.TransactionsCursorSearchRequest;
@@ -278,4 +281,58 @@ public interface PluggyApiService {
 
   @GET("/smart-transfers/payments/{id}")
   Call<SmartTransferPayment> getSmartTransferPayment(@Path("id") String paymentId);
+
+  /**
+   * Create a Pix por biometria payment request. Send the payer to the returned
+   * {@link PaymentRequest#getPaymentUrl()}, where they link their account (creating a passkey) and
+   * pay; later payments are made with the linked account.
+   */
+  @POST("/payments/requests/pix-biometric")
+  Call<PaymentRequest> createPaymentRequestPixBiometric(
+      @Body CreatePixBiometricPaymentRequest createPixBiometricPaymentRequest);
+
+  /** First page of the Pix por biometria enrollments (linked accounts). */
+  @GET("/pix-biometric/enrollments")
+  Call<PixBiometricEnrollmentsResponse> getPixBiometricEnrollments();
+
+  @GET("/pix-biometric/enrollments")
+  Call<PixBiometricEnrollmentsResponse> getPixBiometricEnrollments(
+      @QueryMap PixBiometricEnrollmentsSearchRequest pixBiometricEnrollmentsSearchRequest);
+
+  @GET("/pix-biometric/enrollments/{id}")
+  Call<PixBiometricEnrollment> getPixBiometricEnrollment(@Path("id") String enrollmentId);
+
+  /**
+   * Read the account balance of a Pix por biometria enrollment created with
+   * {@code linkedJourney}, in real time from the institution. Every call counts toward the
+   * institution's monthly quota for the account.
+   */
+  @GET("/pix-biometric/enrollments/{id}/balance")
+  Call<PixBiometricBalance> getPixBiometricEnrollmentBalance(@Path("id") String enrollmentId);
+
+  /**
+   * Revoke a Pix por biometria enrollment. This cannot be undone: the payer must link again.
+   *
+   * @return the revoked enrollment
+   */
+  @POST("/pix-biometric/enrollments/{id}/revoke")
+  Call<PixBiometricEnrollment> revokePixBiometricEnrollment(@Path("id") String enrollmentId);
+
+  /**
+   * Cancel only the balance permission of a Pix por biometria enrollment. The enrollment stays
+   * active.
+   *
+   * @return the enrollment, with the cancelled permission
+   */
+  @DELETE("/pix-biometric/enrollments/{id}/data-consent")
+  Call<PixBiometricEnrollment> cancelPixBiometricEnrollmentDataConsent(
+      @Path("id") String enrollmentId);
+
+  /** Payment intents, optionally filtered by payment request or Pix por biometria enrollment. */
+  @GET("/payments/intents")
+  Call<PaymentIntentsResponse> getPaymentIntents();
+
+  @GET("/payments/intents")
+  Call<PaymentIntentsResponse> getPaymentIntents(
+      @QueryMap PaymentIntentsSearchRequest paymentIntentsSearchRequest);
 }

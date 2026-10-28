@@ -123,3 +123,29 @@ SmartTransferPayment payment = pluggyClient.service()
 ```
 
 With `linkedJourney`, `getSmartTransferPreauthorizationBalance(id)` reads the source account balance (and its overdraft, when the institution shares it) once `dataConsent` is `AUTHORISED`. Each call reads it from the institution in real time and counts toward that account's monthly Open Finance quota. `cancelSmartTransferPreauthorizationDataConsent(id)` cancels only that permission; the preauthorization keeps working.
+
+### Pix por biometria
+
+Pix por biometria lets a payer link their bank account once (creating a passkey on their device) and then pay with biometrics. Create a payment request, send the payer to its `paymentUrl`, and once they link their account an enrollment (linked account) exists; list the connectors that support it with `new ConnectorsSearchRequest().setSupportsPixBiometric(true)`:
+
+```java
+PaymentRequest paymentRequest = pluggyClient.service()
+  .createPaymentRequestPixBiometric(CreatePixBiometricPaymentRequest.builder()
+    .amount(49.9)
+    .recipientId(recipientId)
+    .customerId(customerId) // optional: the payer does not type their CPF
+    .linkedJourney(true) // optional: also offer to share the account balance
+    .build())
+  .execute()
+  .body();
+// redirect the payer to paymentRequest.getPaymentUrl()
+
+PixBiometricEnrollmentsResponse enrollments = pluggyClient.service()
+  .getPixBiometricEnrollments(new PixBiometricEnrollmentsSearchRequest()
+    .customerId(customerId)
+    .status(PixBiometricEnrollmentStatus.AUTHORIZED))
+  .execute()
+  .body();
+```
+
+Enrollment changes arrive as the `pix_biometric_enrollment/authorized`, `/revoked` and `/error` webhook events (`WebhookEventPayload.getEnrollmentId()`). With `linkedJourney` and a `dataConsent` of `AUTHORISED`, `getPixBiometricEnrollmentBalance(id)` reads the account balance in real time from the institution, and each call counts toward its monthly quota. `cancelPixBiometricEnrollmentDataConsent(id)` cancels only that permission; `revokePixBiometricEnrollment(id)` ends the link for good. Payments made with an enrollment are listed with `getPaymentIntents(new PaymentIntentsSearchRequest().enrollmentId(id))`.
