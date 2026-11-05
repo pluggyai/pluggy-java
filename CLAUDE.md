@@ -52,7 +52,7 @@ The SDK is a thin Retrofit interface wrapped in a builder-configured client. Thr
 
 **1. `PluggyClient` (builder → Retrofit) — `src/main/java/ai/pluggy/client/PluggyClient.java`**
 
-`PluggyClient.builder().clientIdAndSecret(...).baseUrl(...).build()` constructs an `OkHttpClient`, wires it into a Retrofit instance, and creates a `PluggyApiService` proxy. Default base URL is `https://api.pluggy.ai`; default timeouts are 10s connect / 180s read. The builder exposes `okHttpClientBuilder()` for advanced customization (SSL, custom interceptors, etc.) before `build()`. `noAuthInterceptor()` opts the caller out of the default auth interceptor — they must then add the `x-api-key` header themselves.
+`PluggyClient.builder().clientIdAndSecret(...).baseUrl(...).build()` constructs an `OkHttpClient`, wires it into a Retrofit instance, and creates a `PluggyApiService` proxy. Default base URL is `https://api.pluggy.ai`; default timeouts are 10s connect / 180s read. Redirects are not followed by default, because OkHttp would keep `x-api-key` (and the body on 307/308) when redirected to another host, so a 3xx surfaces as a non-successful response; every route in `PluggyApiService` must therefore be the current one, not one that redirects. The builder exposes `okHttpClientBuilder()` for advanced customization (SSL, custom interceptors, etc.) before `build()`, and can be built more than once: SDK interceptors go on a per-client copy. `noAuthInterceptor()` opts the caller out of the default auth interceptor — they must then add the `x-api-key` header themselves.
 
 **2. `PluggyApiService` — the API surface**
 
@@ -62,7 +62,7 @@ The payments surface is Smart Transfers (`/smart-transfers/*`) and Pix por biome
 
 **3. Two interceptors handle cross-cutting concerns**
 
-- `ApiKeyAuthInterceptor` (`client/auth/`): transparently fetches the `x-api-key` JWT via `POST /auth` on first use, caches it in `TokenProvider`, decodes the JWT `exp` claim to detect expiry, and on a 401/403 with an expired key refreshes once and retries the original request. Also sets `User-Agent: PluggyJava/<version>` — note this string is hardcoded in two places (`PluggyClient.authenticate` and `ApiKeyAuthInterceptor.requestWithAuth`) and is not auto-derived from `pom.xml`.
+- `ApiKeyAuthInterceptor` (`client/auth/`): transparently fetches the `x-api-key` JWT via `POST /auth` on first use, caches it in `TokenProvider`, decodes the JWT `exp` claim to detect expiry, and on a 401/403 with an expired key refreshes once and retries the original request. An `x-api-key` already on the request is the caller's credential: it is sent as-is and never refreshed or replaced with the team key. Also sets `User-Agent: PluggyJava/<version>` — note this string is hardcoded in two places (`PluggyClient.authenticate` and `ApiKeyAuthInterceptor.requestWithAuth`) and is not auto-derived from `pom.xml`.
 - `EncryptedParametersInterceptor` (`client/auth/`): only attached when `rsaPublicKey(...)` is set on the builder. RSA/ECB/OAEPPadding-encrypts the `parameters` JSON field on POST/PATCH `/items` requests before they leave OkHttp. All three conditions are required: Smart Transfer preauthorizations also send a `parameters` field, which must go out as plain JSON, and item requests without one (MFA) must pass through.
 
 ### JSON / Gson conventions — important gotcha
