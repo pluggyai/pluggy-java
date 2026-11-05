@@ -5,30 +5,23 @@ on:
     branches:
       - master
   workflow_dispatch:
-    inputs:
-      force:
-        description: 'Force release even if tag exists'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-tags: true
+          persist-credentials: false
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: '8'
           distribution: 'temurin'
@@ -36,84 +29,61 @@ jobs:
       - name: Extract version from pom.xml
         id: get_version
         run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
-
-      - name: Fetch all tags
-        run: git fetch --tags --force
+          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+          printf 'tag=v%s\n' "$version" >> "$GITHUB_OUTPUT"
+          echo "Extracted version: $version"
 
       - name: Check if tag exists
         id: check_tag
+        env:
+          TAG: ${{ steps.get_version.outputs.tag }}
         run: |
-          TAG="${{ steps.get_version.outputs.tag }}"
-          FORCE_RELEASE="${{ github.event.inputs.force }}"
-          
-          if [ "$FORCE_RELEASE" = "true" ] || [ "$FORCE_RELEASE" = true ]; then
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Force release enabled, proceeding with release"
-          elif git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Tag $TAG already exists, skipping release"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
             echo "Tag $TAG does not exist, proceeding with release"
           fi
 
       - name: Generate release notes
-        id: release_notes
         if: steps.check_tag.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
         run: |
-          TAG="${{ steps.get_version.outputs.tag }}"
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # First release - get all commits
-            RELEASE_NOTES=$(git log --pretty=format:"- %s (%h)" --no-merges)
-          else
-            # Get commits since last tag
-            RELEASE_NOTES=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
-          fi
-          
-          # Create release notes with header
+          previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           {
-            echo "## Release ${{ steps.get_version.outputs.version }}"
+            echo "## Release $VERSION"
             echo ""
             echo "### Changes"
             echo ""
-            echo "$RELEASE_NOTES"
+            if [ -z "$previous_tag" ]; then
+              git log --pretty=format:"- %s (%h)" --no-merges
+            else
+              git log "$previous_tag..HEAD" --pretty=format:"- %s (%h)" --no-merges
+            fi
           } > release_notes.txt
-          
-          # Output for GitHub release
-          {
-            echo "notes<<EOF"
-            cat release_notes.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
 
       - name: Create Git tag
         if: steps.check_tag.outputs.exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.get_version.outputs.tag }}
+          VERSION: ${{ steps.get_version.outputs.version }}
         run: |
-          TAG="${{ steps.get_version.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Delete tag if it exists locally (for force release)
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag -d "$TAG" || true
-          fi
-          
-          git tag -a "$TAG" -m "Release ${{ steps.get_version.outputs.version }}"
-          git push origin "$TAG" --force
+          git config --local credential.https://github.com.helper \
+            "!f() { echo 'username=x-access-token'; echo \"password=\$GITHUB_TOKEN\"; }; f"
+          git tag -a "$TAG" -m "Release $VERSION"
+          git push origin "$TAG"
 
       - name: Create GitHub Release
         if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.get_version.outputs.tag }}
-          name: Release ${{ steps.get_version.outputs.version }}
-          body: ${{ steps.release_notes.outputs.notes }}
-          draft: false
-          prerelease: false
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.get_version.outputs.tag }}
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: gh release create "$TAG" --title "Release $VERSION" --notes-file release_notes.txt
 
