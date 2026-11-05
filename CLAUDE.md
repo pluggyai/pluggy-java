@@ -42,7 +42,7 @@ Integration tests require the following env vars. In CI they are repository secr
 - `PLUGGY_CLIENT_ID`
 - `PLUGGY_CLIENT_SECRET`
 - `PLUGGY_BASE_URL`
-- `PLUGGY_RSA_PUBLIC_KEY` (optional; only needed when exercising `EncryptedParametersInterceptor`. Without it, `CreateItemTest#createItem_withEncryptedParameters_responseOk` still passes but sends the parameters unencrypted)
+- `PLUGGY_RSA_PUBLIC_KEY` (optional; only needed when exercising `EncryptedParametersInterceptor`. Without it, `CreateItemTest#createItem_withEncryptedParameters_responseOk` is skipped, since `rsaPublicKey(null)` throws instead of silently disabling encryption)
 
 Missing any of the first three causes `BaseApiIntegrationTest` to fail-fast in `@BeforeEach`. Each test that creates items appends the new id to `itemsIdCreated`; the base class's `@AfterEach` deletes them, so integration tests are responsible for tracking what they create.
 
@@ -62,7 +62,7 @@ The payments surface is Smart Transfers (`/smart-transfers/*`) and Pix por biome
 
 **3. Two interceptors handle cross-cutting concerns**
 
-- `ApiKeyAuthInterceptor` (`client/auth/`): transparently fetches the `x-api-key` JWT via `POST /auth` on first use, caches it in `TokenProvider`, decodes the JWT `exp` claim to detect expiry, and on a 401/403 with an expired key refreshes once and retries the original request. An `x-api-key` already on the request is the caller's credential: it is sent as-is and never refreshed or replaced with the team key. Also sets `User-Agent: PluggyJava/<version> (Java <java.version>)` via `ai.pluggy.utils.Version`, which reads `project.version` from the filtered `pluggy.properties`, so bumping `pom.xml` is all a release needs.
+- `ApiKeyAuthInterceptor` (`client/auth/`): transparently fetches the `x-api-key` JWT via `POST /auth` on first use, caches it in `TokenProvider`, decodes the JWT `exp` claim to detect expiry, and on a 401/403 with an expired key refreshes once and retries the original request. An `x-api-key` already on the request is the caller's credential: it is sent as-is and never refreshed or replaced with the team key. An issued key whose `exp` can't be read is reused until the API rejects it, then refreshed once; if the refresh fails, the original 401/403 is returned with its body still readable. Also sets `User-Agent: PluggyJava/<version> (Java <java.version>)` via `ai.pluggy.utils.Version`, which reads `project.version` from the filtered `pluggy.properties`, so bumping `pom.xml` is all a release needs.
 - `EncryptedParametersInterceptor` (`client/auth/`): only attached when `rsaPublicKey(...)` is set on the builder. RSA/ECB/OAEPPadding-encrypts the `parameters` JSON field on POST/PATCH `/items` requests before they leave OkHttp. All three conditions are required: Smart Transfer preauthorizations also send a `parameters` field, which must go out as plain JSON, and item requests without one (MFA) must pass through.
 
 ### JSON / Gson conventions — important gotcha
