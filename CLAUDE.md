@@ -37,12 +37,12 @@ Three slash commands under `.claude/commands/` codify the recurring SDK ↔ API 
 - `add-model-fields` — Java/Lombok templates for adding fields to existing DTOs, with the Gson `IDENTITY` casing gotcha called out.
 - `add-endpoint` — templates for adding a new endpoint method to `PluggyApiService` with the right Retrofit annotations and DTO naming conventions.
 
-Integration tests require the following env vars (loaded from Doppler in CI, see `.github/workflows/maven.yml`):
+Integration tests require the following env vars. In CI they are repository secrets synced from Doppler (change values in Doppler, not in GitHub: the sync overwrites them) and passed only to the integration-test step, see `.github/workflows/maven.yml`:
 
 - `PLUGGY_CLIENT_ID`
 - `PLUGGY_CLIENT_SECRET`
 - `PLUGGY_BASE_URL`
-- `PLUGGY_RSA_PUBLIC_KEY` (optional; only needed when exercising `EncryptedParametersInterceptor`)
+- `PLUGGY_RSA_PUBLIC_KEY` (optional; only needed when exercising `EncryptedParametersInterceptor`. Without it, `CreateItemTest#createItem_withEncryptedParameters_responseOk` still passes but sends the parameters unencrypted)
 
 Missing any of the first three causes `BaseApiIntegrationTest` to fail-fast in `@BeforeEach`. Each test that creates items appends the new id to `itemsIdCreated`; the base class's `@AfterEach` deletes them, so integration tests are responsible for tracking what they create.
 
@@ -86,9 +86,9 @@ The version in `pom.xml` (`<version>` on line 7) is the **single source of truth
 bump <version> in pom.xml  ──►  merge to master
         │
         ▼
-release.yml  (on: push to master; also workflow_dispatch w/ `force`)
+release.yml  (on: push to master; also workflow_dispatch)
   reads project.version → TAG = v<version>
-  if TAG already exists (and not forced): NO-OP, nothing is published
+  if TAG already exists: NO-OP, nothing is published
   else: creates annotated tag v<version>, generates notes from
         git log <prev-tag>..HEAD, publishes a GitHub Release
         │  ⚠️ the "created" event does NOT auto-run maven-publish (see gotchas)
@@ -96,7 +96,7 @@ release.yml  (on: push to master; also workflow_dispatch w/ `force`)
 maven-publish.yml  (declares `on: release created`, but in practice must be
                     run MANUALLY via workflow_dispatch w/ `tag_version`)
   build  : mvn -B package
-  test   : mvn -B verify   (integration tests, creds from Doppler)
+  test   : mvn -B verify   (integration tests, creds from repo secrets)
   deploy : mvn deploy -Dmaven.test.skip.exec -s settings.xml
            → GitHub Packages (maven.pkg.github.com/pluggyai/pluggy-java)
            (deploy job needs `packages: write`)
@@ -112,10 +112,10 @@ maven-publish.yml  (declares `on: release created`, but in practice must be
 
 **Gotchas:**
 - **The GitHub Release does NOT auto-publish to Packages — you must dispatch `maven-publish.yml` yourself.** `release.yml` creates the Release using the default `GITHUB_TOKEN`, and GitHub deliberately does not fire workflow triggers (including `maven-publish`'s `release: created`) for events raised by `GITHUB_TOKEN`, to prevent recursive runs. So the deploy step never triggers automatically — every real publish has been a manual `workflow_dispatch`. After tagging, run `gh workflow run maven-publish.yml -f tag_version=v<version>`. A tagged release with nothing in Packages is this bug, not a build failure. *Permanent fix (not yet applied): create the Release with a PAT instead of `GITHUB_TOKEN`, or add a step at the end of `release.yml` that dispatches `maven-publish.yml`.*
-- **CI uses a GitHub Actions allowlist (`allowed_actions: selected`).** Only GitHub-owned actions plus a short pinned list (currently `dopplerhq/cli-action@v1`, `softprops/action-gh-release@v1`) are permitted. Any non-allowlisted action — or a *bumped version* of an allowlisted one (e.g. `dopplerhq/cli-action@v4`) — makes the whole workflow fail at **`startup_failure` with no jobs**. This is why `dependabot.yml` ignores `semver-major`; if a workflow suddenly won't start, check `gh api repos/pluggyai/pluggy-java/actions/permissions/selected-actions` and either pin back or add the action (repo admin: Settings → Actions → Allowed actions).
+- **CI uses a GitHub Actions allowlist (`allowed_actions: selected`).** The workflows use only GitHub-owned actions, pinned to full commit SHAs. Any other action must be allowlisted at that exact SHA; otherwise the whole workflow fails at **`startup_failure` with no jobs**. If a workflow suddenly won't start, check `gh api repos/pluggyai/pluggy-java/actions/permissions/selected-actions` and either drop the action or allowlist its exact pin (repo admin: Settings → Actions → Allowed actions).
 - **Forgetting the bump is a silent no-op.** If the pom version already has a tag, the push to master publishes nothing. Don't bump the version unless you intend to cut a release, and *do* bump it when you do.
 - The `maven-release-plugin` is configured in `pom.xml` (`tagNameFormat = v@{project.version}`) but is **not** used by CI — tagging is done by `release.yml`'s shell, not `mvn release:*`.
-- Manual escape hatches: run `release.yml` via `workflow_dispatch` with `force=true` to re-release an existing tag; run `maven-publish.yml` via `workflow_dispatch` with a `tag_version` input to re-deploy an existing tag without re-tagging.
+- Manual escape hatch: run `maven-publish.yml` via `workflow_dispatch` with a `tag_version` input (validated as a `v<semver>` tag) to re-deploy an existing tag without re-tagging. Published tags are immutable: `release.yml` has no way to move or re-create one.
 
 ## Style
 
