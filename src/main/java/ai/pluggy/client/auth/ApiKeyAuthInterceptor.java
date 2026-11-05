@@ -85,19 +85,21 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     // check if 'api key' is present. If not, we need to get one first.
     String originalRequestToken = originalRequest.header(X_API_KEY_HEADER);
 
+    if (originalRequestToken != null) {
+      // the caller chose this credential -> send it as-is, and leave any rejection to the
+      // caller. Refreshing it here would run the request with the team's credentials instead.
+      return chain.proceed(requestWithAuth(originalRequest, originalRequestToken));
+    }
+
     String apiKey;
-    if (originalRequestToken == null) {
-      // No 'api key' in header -> get one from token provider.
-      if (tokenProvider.getApiKey() != null && !isApiKeyExpired(tokenProvider.getApiKey())) {
-        apiKey = tokenProvider.getApiKey();
-        logger.info("Using api key from stored tokenProvider.");
-      } else {
-        logger.info("Requesting new api key...");
-        // No api key stored -> fetch a new one and store it.
-        apiKey = authenticateInChain(chain);
-      }
+    // No 'api key' in header -> get one from token provider.
+    if (tokenProvider.getApiKey() != null && !isApiKeyExpired(tokenProvider.getApiKey())) {
+      apiKey = tokenProvider.getApiKey();
+      logger.info("Using api key from stored tokenProvider.");
     } else {
-      apiKey = originalRequestToken;
+      logger.info("Requesting new api key...");
+      // No api key stored -> fetch a new one and store it.
+      apiKey = authenticateInChain(chain);
     }
 
     if (apiKey == null) {

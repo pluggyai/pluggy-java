@@ -163,7 +163,10 @@ public final class PluggyClient {
       // init OkHttpClient.Builder instance, to expose it for configurability
       this.okHttpClientBuilder = new Builder()
           .readTimeout(DEFAULT_HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-          .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+          .connectTimeout(DEFAULT_HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+          // OkHttp would keep the x-api-key header, and the body on 307/308, when
+          // redirected to another host. A redirect surfaces as a non-successful response.
+          .followRedirects(false);
     }
 
     public PluggyClientBuilder clientIdAndSecret(String clientId, String clientSecret) {
@@ -208,25 +211,33 @@ public final class PluggyClient {
      * Provides access to the OkHttpClient.Builder instance, for more complex builds
      * and
      * configurations (interceptors, SSL, etc.)
+     * <p>
+     * Redirects are not followed by default. Enabling them with followRedirects(true)
+     * means that the "x-api-key" header, and on a 307 or 308 the request body, can be
+     * sent to whichever host a redirect points to.
      */
     public OkHttpClient.Builder okHttpClientBuilder() {
       return okHttpClientBuilder;
     }
 
     private OkHttpClient buildOkHttpClient(String baseUrl) {
+      // add the SDK interceptors to a copy, so a builder that is built again doesn't
+      // carry over the interceptors, and so the credentials, of its earlier clients.
+      Builder clientBuilder = okHttpClientBuilder.build().newBuilder();
+
       if (!disableDefaultAuthInterceptor) {
         // use ApiKeyAuthInterceptor, unless decided to opt-out and use your own
         // auth header interceptor implementation.
         String authUrlPath = baseUrl + PluggyClient.AUTH_URL_PATH;
-        this.okHttpClientBuilder
+        clientBuilder
             .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
       }
 
       if (this.rsaPublicKey != null) {
-        this.okHttpClientBuilder.addInterceptor(new EncryptedParametersInterceptor(this.rsaPublicKey));
+        clientBuilder.addInterceptor(new EncryptedParametersInterceptor(this.rsaPublicKey));
       }
 
-      return okHttpClientBuilder.build();
+      return clientBuilder.build();
     }
 
     private Gson buildGson() {
