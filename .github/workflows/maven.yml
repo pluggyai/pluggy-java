@@ -10,16 +10,22 @@ on:
   schedule:
     - cron: "0 0 * * *" # At the end of every day
 
-jobs: 
+permissions:
+  contents: read
+
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
-          java-version: 1.8
+          java-version: '8'
+          distribution: temurin
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
@@ -27,40 +33,22 @@ jobs:
         run: mvn -B package --file pom.xml
   test:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
-          java-version: 1.8
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v1
-
-      - name: Login in Doppler
-        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_PROD }} --no-prompt
-
-      - name: Pass All Secrets to Next Steps
-        run: |
-          while IFS='=' read -r key value; do
-            if [ -n "$key" ]; then
-              echo "::add-mask::$value"
-              echo "$key=$value" >> "$GITHUB_ENV"
-            fi
-          done < <(doppler secrets download --no-file --format=docker)
-      
-      - name: Check Test Env Variables
-        run: echo PLUGGY_CLIENT_ID $PLUGGY_CLIENT_ID PLUGGY_BASE_URL $PLUGGY_BASE_URL
-        env:
-          PLUGGY_CLIENT_ID: ${{ env.PLUGGY_CLIENT_ID }}
-          PLUGGY_CLIENT_SECRET: ${{ env.PLUGGY_CLIENT_SECRET }}
-          PLUGGY_BASE_URL: ${{ env.PLUGGY_BASE_URL }}
+          java-version: '8'
+          distribution: temurin
         
       - name: Integration Tests
         run: mvn -B verify --file pom.xml
         env:
-          PLUGGY_CLIENT_ID: ${{ env.PLUGGY_CLIENT_ID }}
-          PLUGGY_CLIENT_SECRET: ${{ env.PLUGGY_CLIENT_SECRET }}
-          PLUGGY_BASE_URL: ${{ env.PLUGGY_BASE_URL }}
+          PLUGGY_CLIENT_ID: ${{ secrets.PLUGGY_CLIENT_ID }}
+          PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
+          PLUGGY_BASE_URL: ${{ secrets.PLUGGY_BASE_URL }}

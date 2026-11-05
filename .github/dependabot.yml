@@ -4,11 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    # Only minor + patch updates. Major bumps (e.g. actions/checkout v2 -> v7)
-    # are breaking and reviewed manually, not via Dependabot.
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
