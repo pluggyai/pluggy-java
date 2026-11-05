@@ -7,9 +7,13 @@ import ai.pluggy.client.auth.EncryptedParametersInterceptor;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import javax.crypto.Cipher;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -29,14 +33,16 @@ public class EncryptedParametersInterceptorTest {
   private static final MediaType JSON = MediaType.parse("application/json");
 
   private OkHttpClient httpClient;
+  private KeyPair keys;
   private String sentBody;
 
   @BeforeEach
   void setUp() throws NoSuchAlgorithmException {
     KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
     generator.initialize(2048);
+    keys = generator.generateKeyPair();
     String publicKey = "-----BEGIN PUBLIC KEY-----\n"
-      + Base64.getEncoder().encodeToString(generator.generateKeyPair().getPublic().getEncoded())
+      + Base64.getEncoder().encodeToString(keys.getPublic().getEncoded())
       + "\n-----END PUBLIC KEY-----";
 
     httpClient = new OkHttpClient.Builder()
@@ -58,12 +64,37 @@ public class EncryptedParametersInterceptorTest {
   }
 
   private JsonObject post(String path, String body) throws IOException {
+    send("POST", path, body);
+    return JsonParser.parseString(sentBody).getAsJsonObject();
+  }
+
+  private void send(String method, String path, String body) throws IOException {
     Request request = new Request.Builder()
       .url("https://api.pluggy.ai" + path)
-      .post(RequestBody.create(body, JSON))
+      .method(method, RequestBody.create(body, JSON))
       .build();
     httpClient.newCall(request).execute().close();
-    return JsonParser.parseString(sentBody).getAsJsonObject();
+  }
+
+  private String decrypt(String encrypted) throws GeneralSecurityException {
+    Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+    cipher.init(Cipher.DECRYPT_MODE, keys.getPrivate());
+    return new String(cipher.doFinal(Base64.getDecoder().decode(encrypted)), StandardCharsets.UTF_8);
+  }
+
+  @Test
+  void createItem_nonAsciiParameters_areEncryptedAsUtf8() throws Exception {
+    JsonObject sent = post("/items", "{\"connectorId\":0,\"parameters\":{\"password\":\"çñ€\"}}");
+
+    assertEquals("{\"password\":\"çñ€\"}", decrypt(sent.get("parameters").getAsString()));
+  }
+
+  @Test
+  void updateItemWithoutBody_isSentAsIs() throws IOException {
+    // Retrofit sends an empty body for a PATCH declared without @Body, like updateItem(itemId)
+    send("PATCH", "/items/item-1", "");
+
+    assertEquals("", sentBody);
   }
 
   @Test

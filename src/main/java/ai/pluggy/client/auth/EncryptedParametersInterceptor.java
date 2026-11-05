@@ -3,6 +3,7 @@ package ai.pluggy.client.auth;
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +36,7 @@ public class EncryptedParametersInterceptor implements Interceptor {
     private String[] methods = { "PATCH", "POST" };
 
     public EncryptedParametersInterceptor(String rsaPublicKey) {
-        assertNotNull(rsaPublicKey, rsaPublicKey);
+        assertNotNull(rsaPublicKey, "rsaPublicKey");
         this.rsaPublicKey = rsaPublicKey;
     }
 
@@ -51,9 +52,11 @@ public class EncryptedParametersInterceptor implements Interceptor {
         JsonObject jsonBody = this.transformBodyToJsonObject(originalBody);
 
         // only item credentials are encrypted: other bodies with a "parameters" field (e.g. Smart
-        // Transfer preauthorizations) are sent as-is, and item requests without one (e.g. MFA) too
+        // Transfer preauthorizations) are sent as-is, and item requests without one (e.g. MFA, or
+        // an update with an empty body) too
         if (!Arrays.asList(methods).contains(method)
-                || !originalRequest.url().encodedPath().contains(path) || !jsonBody.has("parameters")) {
+                || !originalRequest.url().encodedPath().contains(path)
+                || jsonBody == null || !jsonBody.has("parameters")) {
             return chain.proceed(originalRequest);
         }
 
@@ -85,7 +88,9 @@ public class EncryptedParametersInterceptor implements Interceptor {
             PublicKey publicKey = keyFactory.generatePublic(keySpec);
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] encryptedPayloadBytes = cipher.doFinal(parameters.getBytes());
+            // explicit charset: the platform default differs between JVMs and would alter
+            // non-ASCII credentials before encryption
+            byte[] encryptedPayloadBytes = cipher.doFinal(parameters.getBytes(StandardCharsets.UTF_8));
             String encryptedPayload = Base64.getEncoder().encodeToString(encryptedPayloadBytes);
             return encryptedPayload;
 
