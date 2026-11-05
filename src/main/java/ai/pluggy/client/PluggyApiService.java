@@ -206,7 +206,7 @@ public interface PluggyApiService {
   @GET("/categories/{id}")
   Call<Category> getCategory(@Path("id") String categoryId);
 
-  @POST("/connecttokens")
+  @POST("/connect_token")
   Call<ConnectTokenResponse> createConnectToken(@Body CreateConnectTokenRequest createConnectTokenRequest);
 
   /**
