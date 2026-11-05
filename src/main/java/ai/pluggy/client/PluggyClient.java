@@ -184,6 +184,8 @@ public final class PluggyClient {
     }
 
     public PluggyClientBuilder rsaPublicKey(String rsaPublicKey) {
+      // a key read from an unset variable must not silently disable encryption
+      assertNotNull(rsaPublicKey, "rsaPublicKey");
       this.rsaPublicKey = rsaPublicKey;
       return this;
     }

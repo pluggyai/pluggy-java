@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import ai.pluggy.client.PluggyClient;
 import ai.pluggy.client.request.CreateItemRequest;
@@ -107,6 +108,9 @@ public class CreateItemTest extends BaseApiIntegrationTest {
     @SneakyThrows
     @Test
     void createItem_withEncryptedParameters_responseOk() {
+        assumeTrue(BaseApiIntegrationTest.RSA_PUBLIC_KEY != null,
+                "PLUGGY_RSA_PUBLIC_KEY is not set");
+
         // create item params
         ParametersMap parametersMap = ParametersMap.map("user", "user-ok")
                 .with("password", "password-ok");
