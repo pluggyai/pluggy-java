@@ -45,10 +45,24 @@ jobs:
         with:
           java-version: '8'
           distribution: temurin
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@4819d808ab99e5cde19a0637a16536a4038fad73 # v4
         
       - name: Integration Tests
-        run: mvn -B verify --file pom.xml
         env:
-          PLUGGY_CLIENT_ID: ${{ secrets.PLUGGY_CLIENT_ID }}
-          PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
-          PLUGGY_BASE_URL: ${{ secrets.PLUGGY_BASE_URL }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
+        run: |
+          client_id="$(doppler secrets get PLUGGY_CLIENT_ID --plain)"
+          client_secret="$(doppler secrets get PLUGGY_CLIENT_SECRET --plain)"
+          base_url="$(doppler secrets get PLUGGY_BASE_URL --plain)"
+
+          printf '::add-mask::%s\n' "$client_id"
+          printf '::add-mask::%s\n' "$client_secret"
+          printf '::add-mask::%s\n' "$base_url"
+          unset DOPPLER_TOKEN
+
+          PLUGGY_CLIENT_ID="$client_id" \
+          PLUGGY_CLIENT_SECRET="$client_secret" \
+          PLUGGY_BASE_URL="$base_url" \
+            mvn -B verify --file pom.xml
