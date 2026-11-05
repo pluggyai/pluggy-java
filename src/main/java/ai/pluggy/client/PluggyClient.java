@@ -316,8 +316,11 @@ public final class PluggyClient {
         // unexpected IO exception
         throw e;
       } catch (Exception e) {
-        // non-successful or malformed JSON response
-        String pluggyResponseErrorMessage = buildResponseErrorMessage(response);
+        // non-successful or malformed JSON response. A successful /auth body carries the api
+        // key, so it is only included when the response is an error.
+        String pluggyResponseErrorMessage = response.isSuccessful()
+            ? buildResponseErrorMessage(response, null)
+            : buildResponseErrorMessage(response);
 
         throw new PluggyException(pluggyResponseErrorMessage, response, e);
       }

@@ -45,9 +45,11 @@ public class AuthenticationHelper {
     try {
       authResponse = Utils.parseJsonResponse(responseBodyString, AuthResponse.class);
     } catch (JsonSyntaxException exception) {
-      // response didn't contain a valid JSON body, nothing to parse
+      // response didn't contain a valid JSON body, nothing to parse. The body is left out of the
+      // message: a successful /auth response carries the api key.
       throw new JsonSyntaxException(
-        String.format("/auth response is not a valid JSON body: '%s'", responseBodyString),
+        String.format("/auth response is not a valid JSON body (%d characters)",
+          responseBodyString.length()),
         exception);
     }
 
