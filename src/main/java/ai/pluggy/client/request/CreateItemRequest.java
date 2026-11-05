@@ -2,6 +2,7 @@ package ai.pluggy.client.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 
 @Value
@@ -9,6 +10,7 @@ import lombok.Value;
 @Builder
 public class CreateItemRequest {
   Integer connectorId;
+  @ToString.Exclude
   ParametersMap parameters;
   String webhookUrl;
   String clientUserId;

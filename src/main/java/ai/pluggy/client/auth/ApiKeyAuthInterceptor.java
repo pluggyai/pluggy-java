@@ -2,16 +2,18 @@ package ai.pluggy.client.auth;
 
 import static ai.pluggy.utils.Asserts.assertNotNull;
 
+import ai.pluggy.client.PluggyClient;
 import ai.pluggy.utils.Version;
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.reflect.TypeToken;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -50,22 +52,24 @@ public class ApiKeyAuthInterceptor implements Interceptor {
   }
 
   /**
-   * Helper to check if JWT token apiKey is expired
+   * Reads the exp claim of a JWT apiKey. The signature isn't verified: the value only decides when
+   * to ask the API for a new key.
    *
-   * @param token
+   * @return the expiry in epoch seconds, or null if the key isn't a JWT with a numeric exp claim
    */
-  private boolean isApiKeyExpired(String token) {
-    Base64.Decoder decoder = Base64.getUrlDecoder();
-    String[] parts = token.split("\\."); // Splitting header, payload and signature
-    String jwtHeader = new String(decoder.decode(parts[1])); // extracting payload part
+  @Nullable
+  private static Long readExpiresAt(String apiKey) {
+    try {
+      String payload = new String(Base64.getUrlDecoder().decode(apiKey.split("\\.")[1]),
+        StandardCharsets.UTF_8);
+      return JsonParser.parseString(payload).getAsJsonObject().get("exp").getAsLong();
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
 
-    Map<String, String> parsedJwt = new Gson().fromJson(jwtHeader,
-      new TypeToken<Map<String, String>>() {
-      }.getType());
-
-    long expiresAtInSeconds = Long.parseLong(parsedJwt.get("exp"));
+  private static boolean hasExpired(long expiresAtInSeconds) {
     long currentTimeInSeconds = (long) Math.floor((double) (new Date().getTime() / 1000));
-
     return currentTimeInSeconds >= expiresAtInSeconds;
   }
 
@@ -92,9 +96,12 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     }
 
     String apiKey;
-    // No 'api key' in header -> get one from token provider.
-    if (tokenProvider.getApiKey() != null && !isApiKeyExpired(tokenProvider.getApiKey())) {
-      apiKey = tokenProvider.getApiKey();
+    // No 'api key' in header -> get one from token provider. A stored key whose expiry can't be
+    // read is reused until the API rejects it.
+    String storedApiKey = tokenProvider.getApiKey();
+    Long storedExpiresAt = storedApiKey == null ? null : readExpiresAt(storedApiKey);
+    if (storedApiKey != null && (storedExpiresAt == null || !hasExpired(storedExpiresAt))) {
+      apiKey = storedApiKey;
       logger.info("Using api key from stored tokenProvider.");
     } else {
       logger.info("Requesting new api key...");
@@ -136,14 +143,20 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     // auth error response, check if it was due to expired token
     String apiKey = originalRequest.header(X_API_KEY_HEADER);
-    boolean isApiKeyExpired = apiKey != null && this.isApiKeyExpired(apiKey);
+    Long expiresAt = apiKey == null ? null : readExpiresAt(apiKey);
+    // a key whose expiry can't be read may have expired too
+    boolean mayHaveExpired = apiKey != null && (expiresAt == null || hasExpired(expiresAt));
 
-    if (!isApiKeyExpired) {
+    if (!mayHaveExpired) {
       // apiKey not expired, auth error is unrelated to it -> return error response
       return response;
     }
 
-    // apiKey expired, try to refresh API key, and retry original request.
+    // apiKey expired, try to refresh API key, and retry original request. The response must be
+    // closed before re-authenticating, so keep a readable copy in case the refresh fails.
+    Response rejection = response.newBuilder()
+      .body(response.peekBody(PluggyClient.ONE_MIB_BYTES))
+      .build();
     response.close();
 
     logger.info("ApiKey expired, attempting to request a new one and retry original request...");
@@ -152,7 +165,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     if (newApiKey == null) {
       logger.info("ApiKey could not be refreshed.");
-      return response;
+      return rejection;
     }
 
     logger.info("ApiKey refreshed OK. Retrying original request...");
