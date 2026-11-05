@@ -214,19 +214,23 @@ public final class PluggyClient {
     }
 
     private OkHttpClient buildOkHttpClient(String baseUrl) {
+      // add the SDK interceptors to a copy, so a builder that is built again doesn't
+      // carry over the interceptors, and so the credentials, of its earlier clients.
+      Builder clientBuilder = okHttpClientBuilder.build().newBuilder();
+
       if (!disableDefaultAuthInterceptor) {
         // use ApiKeyAuthInterceptor, unless decided to opt-out and use your own
         // auth header interceptor implementation.
         String authUrlPath = baseUrl + PluggyClient.AUTH_URL_PATH;
-        this.okHttpClientBuilder
+        clientBuilder
             .addInterceptor(new ApiKeyAuthInterceptor(authUrlPath, clientId, clientSecret));
       }
 
       if (this.rsaPublicKey != null) {
-        this.okHttpClientBuilder.addInterceptor(new EncryptedParametersInterceptor(this.rsaPublicKey));
+        clientBuilder.addInterceptor(new EncryptedParametersInterceptor(this.rsaPublicKey));
       }
 
-      return okHttpClientBuilder.build();
+      return clientBuilder.build();
     }
 
     private Gson buildGson() {
