@@ -54,6 +54,34 @@ if(connectorsResponse.isSuccessful()) {
 }
 ```
 
+### Verifying webhook signatures
+
+When webhook signing is enabled for your application, every notification carries an `X-Pluggy-Signature` header (`t=<timestamp>,v1=<signature>`). Verify it against the **raw** request body (before any JSON parsing) with the signing secret shown in the Dashboard. Pass more than one secret to keep accepting the old one while you rotate it; `null` and empty entries are skipped.
+
+```java
+@PostMapping("/webhooks/pluggy")
+public ResponseEntity<Void> pluggyWebhook(
+  @RequestBody byte[] rawBody, // the raw body, not a parsed object
+  @RequestHeader(value = WebhookSignature.HEADER_NAME, required = false) String signature) {
+  boolean valid = WebhookSignature.verify(
+    rawBody,
+    signature,
+    System.getenv("PLUGGY_WEBHOOK_SECRET"),
+    System.getenv("PLUGGY_WEBHOOK_SECRET_OLD")); // unset outside a rotation: skipped
+  if (!valid) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+  }
+
+  WebhookEventPayload event = Utils.parseWebhookEventPayload(new String(rawBody, StandardCharsets.UTF_8));
+  // handle the event...
+  return ResponseEntity.ok().build();
+}
+```
+
+`WebhookSignature.verify` returns `true` only when the header parses, its timestamp is within the tolerance (5 minutes by default, in either direction) and the signature matches one of the secrets; it never throws. Use `WebhookSignature.validate` instead to get the reason of a failure (`result.getReason()`: `MISSING_HEADER`, `MALFORMED_HEADER`, `TIMESTAMP_OUT_OF_TOLERANCE`, `SIGNATURE_MISMATCH`, `NO_SECRET`, `INVALID_PAYLOAD`) for your logs. Both have overloads that take a `String` body, and a custom tolerance in seconds.
+
+See the [webhook security guide](https://docs.pluggy.ai/docs/developer-tools/webhook-security) for details.
+
 ### Transactions (cursor pagination)
 
 `getTransactions` (`GET /transactions`) is deprecated and returns `410` for newer applications. Use `getTransactionsV2` (`GET /v2/transactions`) and follow the cursor until there is no next page:
