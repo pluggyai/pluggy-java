@@ -54,6 +54,34 @@ if(connectorsResponse.isSuccessful()) {
 }
 ```
 
+### IP allowlist errors
+
+When your application has an IP allowlist ("Allowed IPs" in the Dashboard), requests made with its credentials from an IP that is not on the list are rejected with `403` and `codeDescription` `CLIENT_IP_NOT_ALLOWED`. This applies to `POST /auth` and to every request made with the application's API key, including `createConnectToken`; requests authenticated with a Connect Token are not restricted.
+
+When the SDK requests the API key for you and `/auth` is rejected, the request you made is not sent: you get the `/auth` error response instead, so check it like any other error:
+
+```java
+Response<ConnectTokenResponse> response = pluggyClient.service()
+  .createConnectToken(new CreateConnectTokenRequest(webhookUrl, clientUserId))
+  .execute();
+if (!response.isSuccessful()) {
+  ErrorResponse error = pluggyClient.parseError(response);
+  if (error.isClientIpNotAllowed()) { // ErrorResponse.CLIENT_IP_NOT_ALLOWED.equals(error.getCodeDescription())
+    // this server's IP is not in the application's allowed IPs
+  }
+}
+
+try {
+  pluggyClient.authenticate();
+} catch (PluggyException e) {
+  if (e.isClientIpNotAllowed()) { // e.getStatus() == 403, e.getCodeDescription()
+    // same, when requesting the API key explicitly
+  }
+}
+```
+
+See the [IP allowlist guide](https://docs.pluggy.ai/docs/security/ip-allowlist) and the [error codes reference](https://docs.pluggy.ai/reference/error-codes).
+
 ### Verifying webhook signatures
 
 When webhook signing is enabled for your application, every notification carries an `X-Pluggy-Signature` header (`t=<timestamp>,v1=<signature>`). Verify it against the **raw** request body (before any JSON parsing) with the signing secret shown in the Dashboard. Pass more than one secret to keep accepting the old one while you rotate it; `null` and empty entries are skipped.
