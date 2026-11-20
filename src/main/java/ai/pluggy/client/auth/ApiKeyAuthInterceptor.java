@@ -106,7 +106,13 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     } else {
       logger.info("Requesting new api key...");
       // No api key stored -> fetch a new one and store it.
-      apiKey = authenticateInChain(chain);
+      AuthResult auth = authenticateInChain(chain);
+      if (auth.rejection != null) {
+        // the API refused to issue a key (e.g. 403 CLIENT_IP_NOT_ALLOWED, invalid credentials):
+        // return its answer. Sending the request without a key would only hide the reason.
+        return auth.rejection;
+      }
+      apiKey = auth.apiKey;
     }
 
     if (apiKey == null) {
@@ -161,7 +167,7 @@ public class ApiKeyAuthInterceptor implements Interceptor {
 
     logger.info("ApiKey expired, attempting to request a new one and retry original request...");
 
-    String newApiKey = authenticateInChain(chain);
+    String newApiKey = authenticateInChain(chain).apiKey;
 
     if (newApiKey == null) {
       logger.info("ApiKey could not be refreshed.");
@@ -173,14 +179,44 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     return chain.proceed(authenticatedRequest);
   }
 
-  @Nullable
-  private String authenticateInChain(@NotNull Chain chain) throws IOException {
+  @NotNull
+  private AuthResult authenticateInChain(@NotNull Chain chain) throws IOException {
     Request authRequest = buildAuthRequest(chain.request().newBuilder());
-    String newApiKey;
     try (Response authResponse = chain.proceed(authRequest)) {
-      newApiKey = interceptApiKeyResponse(authResponse);
+      if (!authResponse.isSuccessful()) {
+        logger.error(String.format("Auth request was rejected (%d).", authResponse.code()));
+        // keep a readable copy: the response is closed on return
+        return AuthResult.rejected(authResponse.newBuilder()
+          .body(authResponse.peekBody(PluggyClient.ONE_MIB_BYTES))
+          .build());
+      }
+      return AuthResult.issued(interceptApiKeyResponse(authResponse));
     }
-    return newApiKey;
+  }
+
+  /**
+   * Outcome of a POST /auth made by the interceptor: the new api key, or null if none could be
+   * read; and, when the API answered with an error, that response.
+   */
+  private static final class AuthResult {
+
+    @Nullable
+    final String apiKey;
+    @Nullable
+    final Response rejection;
+
+    private AuthResult(@Nullable String apiKey, @Nullable Response rejection) {
+      this.apiKey = apiKey;
+      this.rejection = rejection;
+    }
+
+    static AuthResult issued(@Nullable String apiKey) {
+      return new AuthResult(apiKey, null);
+    }
+
+    static AuthResult rejected(@NotNull Response rejection) {
+      return new AuthResult(null, rejection);
+    }
   }
 
   private String interceptApiKeyResponse(Response response) {
