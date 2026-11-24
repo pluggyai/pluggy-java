@@ -22,7 +22,11 @@ public class PluggyException extends Exception {
 
   public PluggyException(String message, Response response, Throwable cause,
     String codeDescription) {
-    super(message, cause);
+    super(message);
+    // initCause only when set: an explicit null cause would make a later initCause() throw
+    if (cause != null) {
+      initCause(cause);
+    }
     this.status = response.code();
     this.apiMessage = response.message();
     this.codeDescription = codeDescription;

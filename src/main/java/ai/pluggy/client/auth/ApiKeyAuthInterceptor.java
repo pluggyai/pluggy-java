@@ -185,8 +185,13 @@ public class ApiKeyAuthInterceptor implements Interceptor {
     try (Response authResponse = chain.proceed(authRequest)) {
       if (!authResponse.isSuccessful()) {
         logger.error(String.format("Auth request was rejected (%d).", authResponse.code()));
-        // keep a readable copy: the response is closed on return
+        // readable copy (closed on return) bound to the caller's request; drop every link to the
+        // /auth request, whose body holds the client secret
         return AuthResult.rejected(authResponse.newBuilder()
+          .request(chain.request())
+          .networkResponse(null)
+          .cacheResponse(null)
+          .priorResponse(null)
           .body(authResponse.peekBody(PluggyClient.ONE_MIB_BYTES))
           .build());
       }

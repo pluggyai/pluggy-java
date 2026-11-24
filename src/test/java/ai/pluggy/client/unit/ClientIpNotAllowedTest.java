@@ -2,6 +2,8 @@ package ai.pluggy.client.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -69,6 +71,32 @@ public class ClientIpNotAllowedTest {
     assertEquals(1, api.received("/auth").size());
     assertTrue(api.received("/connect_token").isEmpty(),
       "the request must not be sent without an api key");
+    // the response belongs to the caller's request; the /auth one carries the client secret
+    okhttp3.Response raw = response.raw();
+    assertEquals("/connect_token", raw.request().url().encodedPath());
+    for (okhttp3.Response r = raw; r != null; r = r.priorResponse()) {
+      assertFalse(r.request().url().encodedPath().equals("/auth"), "request: " + r.request());
+      if (r.networkResponse() != null) {
+        assertFalse(r.networkResponse().request().url().encodedPath().equals("/auth"),
+          "networkResponse: " + r.networkResponse().request());
+      }
+    }
+  }
+
+  @Test
+  void pluggyException_withoutCause_acceptsInitCause() {
+    PluggyException error = new PluggyException("failed",
+      new okhttp3.Response.Builder()
+        .request(new okhttp3.Request.Builder().url("http://localhost/auth").build())
+        .protocol(okhttp3.Protocol.HTTP_1_1)
+        .code(403)
+        .message("Forbidden")
+        .build());
+
+    assertNull(error.getCause());
+    IllegalStateException cause = new IllegalStateException("cause");
+    error.initCause(cause);
+    assertSame(cause, error.getCause());
   }
 
   @Test
