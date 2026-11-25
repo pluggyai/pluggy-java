@@ -25,7 +25,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -48,18 +48,29 @@ public final class PluggyClient {
     return new PluggyClientBuilder();
   }
 
-  @NotNull
-  private static String buildResponseErrorMessage(Response response) {
-    String responseBodyString = null;
-    if (response.body() != null) {
-      try {
-        responseBodyString = response.peekBody(ONE_MIB_BYTES).string();
-      } catch (IOException e) {
-        // ignore, just leave responseBodyString as null
-      }
+  @Nullable
+  private static String peekBodyString(Response response) {
+    if (response.body() == null) {
+      return null;
     }
+    try {
+      return response.peekBody(ONE_MIB_BYTES).string();
+    } catch (IOException e) {
+      // ignore, just leave the body out
+      return null;
+    }
+  }
 
-    return buildResponseErrorMessage(response, responseBodyString);
+  /**
+   * @return the codeDescription of a JSON error body, or null if it has none or isn't JSON
+   */
+  @Nullable
+  private static String readCodeDescription(@Nullable String errorBody) {
+    try {
+      return Utils.parseJsonResponse(errorBody, ErrorResponse.class).getCodeDescription();
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   private static String buildResponseErrorMessage(Response response, String responseBodyString) {
@@ -319,12 +330,14 @@ public final class PluggyClient {
         throw e;
       } catch (Exception e) {
         // non-successful or malformed JSON response. A successful /auth body carries the api
-        // key, so it is only included when the response is an error.
-        String pluggyResponseErrorMessage = response.isSuccessful()
-            ? buildResponseErrorMessage(response, null)
-            : buildResponseErrorMessage(response);
+        // key, so it is only read when the response is an error.
+        if (response.isSuccessful()) {
+          throw new PluggyException(buildResponseErrorMessage(response, null), response, e);
+        }
 
-        throw new PluggyException(pluggyResponseErrorMessage, response, e);
+        String errorBody = peekBodyString(response);
+        throw new PluggyException(buildResponseErrorMessage(response, errorBody), response, e,
+            readCodeDescription(errorBody));
       }
     }
 
